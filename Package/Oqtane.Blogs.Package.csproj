@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Client\Oqtane.Blogs.Client.csproj" />
+    <ProjectReference Include="..\Server\Oqtane.Blogs.Server.csproj" />
+    <ProjectReference Include="..\Shared\Oqtane.Blogs.Shared.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF $(ConfigurationName) == Debug (debug.cmd)" />
+    <Exec Command="IF $(ConfigurationName) == Release (release.cmd)" />
+  </Target>
+
+</Project>

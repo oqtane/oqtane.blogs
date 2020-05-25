@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>1.0.0</Version>
+    <Product>Oqtane.Blogs</Product>
+    <Authors>Oqtane</Authors>
+    <Company>Oqtane</Company>
+    <Description>A Blog Module for the Oqtane Framework</Description>
+    <Copyright>Oqtane</Copyright>
+    <AssemblyName>Oqtane.Blogs.Server.Oqtane</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Oqtane.Blogs.1.0.0.sql" />
+    <EmbeddedResource Include="Scripts\Oqtane.Blogs.Uninstall.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Oqtane.Blogs.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Oqtane.Server" Version="1.0.0" />
+    <PackageReference Include="Oqtane.Shared" Version="1.0.0" />
+  </ItemGroup>
+</Project>

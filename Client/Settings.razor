@@ -1,0 +1,58 @@
+@namespace Oqtane.Blogs
+@inherits ModuleBase
+@inject ISettingService SettingService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="maxblogs" HelpText="Enter the maximum number of blogs to display on a page">Maximum Blog Entries: </Label>
+        </td>
+        <td>
+            <input id="maxblogs" type="text" class="form-control" @bind="_maxblogs" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="summarylength" HelpText="Enter the maximum length of the blog to display in the summary view">Summary Length (Characters): </Label>
+        </td>
+        <td>
+            <input id="summarylength" type="text" class="form-control" @bind="_summarylength" />
+        </td>
+    </tr>
+</table>
+
+@code {
+    private string _maxblogs;
+    private string _summarylength;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Dictionary<string, string>
+            settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            _maxblogs = SettingService.GetSetting(settings, "MaxBogs", "20");
+            _summarylength = SettingService.GetSetting(settings, "SummaryLength", "500");
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            Dictionary<string, string>
+            settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            SettingService.SetSetting(settings, "MaxBlogs", _maxblogs);
+            SettingService.SetSetting(settings, "SummaryLength", _summarylength);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

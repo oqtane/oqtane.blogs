@@ -1,0 +1,102 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+
+@namespace Oqtane.Blogs
+@inherits ModuleBase
+@inject IBlogService BlogService
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+
+@if (_blogs != null)
+{
+    if (PageState.QueryString.ContainsKey("id"))
+    {
+        if (_blogs.Count > 0)
+        {
+            <p>
+                <h2>@_blogs[0].Title</h2>
+            <p>
+                @((MarkupString)@_blogs[0].Content)
+                <br /><br /><b>Posted by</b> @_blogs[0].CreatedBy <b>on</b> @_blogs[0].CreatedOn.ToShortDateString()
+            </p>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">View All Blogs</NavLink>
+            </p>
+        }
+    }
+    else
+    {
+        <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" Text="Add Blog" />
+        <Pager Format="Grid" Items="@_blogs">
+            <Row>
+                <div class="col">
+                    <br />
+                    <a href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">
+                        <h2>@context.Title</h2>
+                    </a>
+                    <p>
+                        <b>Posted by</b> @context.CreatedBy <b>on</b> @context.CreatedOn.ToShortDateString()
+                        <br />
+                        @if (context.Content.Length > _summarylength)
+                        {
+                            @((MarkupString)@context.Content.Substring(0, _summarylength))
+                        }
+                        else
+                        {
+                            @((MarkupString)@context.Content)
+                        }
+                    </p>
+                    <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" />
+                    <ActionDialog Header="Delete Blog" Message="@("Are You Sure You Wish To Delete This Blog?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+                </div>
+            </Row>
+        </Pager>
+    }
+    <br />
+}
+
+@code {
+    private List<Blog> _blogs;
+    private int _maxblogs;
+    private int _summarylength;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            _maxblogs = int.Parse(SettingService.GetSetting(settings, "MaxBogs", "20"));
+            _summarylength = int.Parse(SettingService.GetSetting(settings, "SummaryLength", "500"));
+
+            if (PageState.QueryString.ContainsKey("blogid"))
+            {
+                _blogs = new List<Blog>();
+                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["blogid"])));
+            }
+            else
+            {
+                _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId);
+                _blogs = _blogs.OrderByDescending(item => item.CreatedOn).Take(_maxblogs).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Blogs {Error}", ex.Message);
+            ModuleInstance.AddModuleMessage("Error Loading Blogs", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteBlog(int id)
+    {
+        try
+        {
+            await BlogService.DeleteBlogAsync(id);
+            await logger.LogInformation("Blog Deleted {BlogId}", id);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", id, ex.Message);
+            ModuleInstance.AddModuleMessage("Error Deleting Blog", MessageType.Error);
+        }
+    }
+}
