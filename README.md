@@ -6,4 +6,4 @@ Oqtane allows developers to create external modules which are rendered by the fr
 
 A rendering of the Blog module:
 
-![Module](https://github.com/oqtane/module.sample/blob/master/screenshot1.png?raw=true "Module")
+![Module](https://github.com/oqtane/oqtane.blogs/blob/master/screenshot1.png?raw=true "Module")
