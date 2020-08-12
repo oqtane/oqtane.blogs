@@ -53,7 +53,7 @@
             if (PageState.QueryString.ContainsKey("id"))
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);
-                Blog blog = await BlogService.GetBlogAsync(_id);
+                Blog blog = await BlogService.GetBlogAsync(_id, ModuleState.ModuleId);
                 if (blog != null)
                 {
                     _title = blog.Title;
@@ -93,7 +93,7 @@
             }
             else
             {
-                Blog blog = await BlogService.GetBlogAsync(_id);
+                Blog blog = await BlogService.GetBlogAsync(_id, ModuleState.ModuleId);
                 if (blog != null)
                 {
                     blog.Title = _title;

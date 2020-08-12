@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Blogs</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>Oqtane</authors>
     <owners>Oqtane</owners>
     <title>Blogs</title>
@@ -16,7 +16,7 @@
     <releaseNotes></releaseNotes>
     <summary></summary>
     <dependencies>
-      <dependency id="Oqtane.Framework" version="1.0.0" />
+      <dependency id="Oqtane.Framework" version="1.0.2" />
     </dependencies>
   </metadata>
   <files>

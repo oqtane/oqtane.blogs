@@ -13,14 +13,12 @@
     {
         if (_blogs.Count > 0)
         {
-            <p>
-                <h2>@_blogs[0].Title</h2>
+            <h2>@_blogs[0].Title</h2>
             <p>
                 @((MarkupString)@_blogs[0].Content)
                 <br /><br /><b>Posted by</b> @_blogs[0].CreatedBy <b>on</b> @_blogs[0].CreatedOn.ToShortDateString()
             </p>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">View All Blogs</NavLink>
-            </p>
         }
     }
     else
@@ -45,8 +43,11 @@
                             @((MarkupString)@context.Content)
                         }
                     </p>
-                    <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" />
-                    <ActionDialog Header="Delete Blog" Message="@("Are You Sure You Wish To Delete This Blog?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+                    <div>
+                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">Details</NavLink>
+                        <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" />
+                        <ActionDialog Header="Delete Blog" Message="@("Are You Sure You Wish To Delete This Blog?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+                    </div>
                 </div>
             </Row>
         </Pager>
@@ -70,7 +71,7 @@
             if (PageState.QueryString.ContainsKey("blogid"))
             {
                 _blogs = new List<Blog>();
-                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["blogid"])));
+                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["blogid"]), ModuleState.ModuleId));
             }
             else
             {
@@ -89,7 +90,7 @@
     {
         try
         {
-            await BlogService.DeleteBlogAsync(id);
+            await BlogService.DeleteBlogAsync(id, ModuleState.ModuleId);
             await logger.LogInformation("Blog Deleted {BlogId}", id);
             NavigationManager.NavigateTo(NavigateUrl());
         }

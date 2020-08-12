@@ -6,6 +6,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -14,16 +15,22 @@ namespace Oqtane.Blogs.Controllers
     {
         private readonly IBlogRepository _Blogs;
         private readonly ILogManager _logger;
+        protected int _entityId = -1;
 
-        public BlogController(IBlogRepository Blogs, ILogManager logger)
+        public BlogController(IBlogRepository Blogs, ILogManager logger, IHttpContextAccessor accessor)
         {
             _Blogs = Blogs;
             _logger = logger;
+
+            if (accessor.HttpContext.Request.Query.ContainsKey("entityid"))
+            {
+                _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
+            }
         }
 
         // GET: api/<controller>?moduleid=x
         [HttpGet]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Policy = "ViewModule")]
         public IEnumerable<Blog> Get(string moduleid)
         {
             return _Blogs.GetBlogs(int.Parse(moduleid));
@@ -31,7 +38,7 @@ namespace Oqtane.Blogs.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Policy = "ViewModule")]
         public Blog Get(int id)
         {
             return _Blogs.GetBlog(id);
@@ -39,7 +46,7 @@ namespace Oqtane.Blogs.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Policy = "EditModule")]
         public Blog Post([FromBody] Blog Blog)
         {
             if (ModelState.IsValid)
@@ -52,7 +59,7 @@ namespace Oqtane.Blogs.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Policy = "EditModule")]
         public Blog Put(int id, [FromBody] Blog Blog)
         {
             if (ModelState.IsValid)
@@ -65,7 +72,7 @@ namespace Oqtane.Blogs.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Policy = "EditModule")]
         public void Delete(int id)
         {
             _Blogs.DeleteBlog(id);

@@ -9,9 +9,9 @@ namespace Oqtane.Blogs
         {
             Name = "Blog",
             Description = "Blog",
-            Version = "1.0.0",
+            Version = "1.0.1",
             ServerManagerType = "Oqtane.Blogs.Manager.BlogManager, Oqtane.Blogs.Server.Oqtane",
-            ReleaseVersions = "1.0.0",
+            ReleaseVersions = "1.0.0,1.0.1",
             Dependencies = "Oqtane.Blogs.Shared.Oqtane"
         };
     }
