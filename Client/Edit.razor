@@ -1,3 +1,4 @@
+@using Microsoft.Extensions.Localization
 @using Oqtane.Modules.Controls
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
@@ -6,6 +7,7 @@
 @inherits ModuleBase
 @inject IBlogService BlogService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
 
 <table class="table table-borderless">
     <tr>
@@ -25,8 +27,8 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="@SaveBlog">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="@SaveBlog">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 @if (_id != -1)
 {
     <br />
@@ -66,14 +68,14 @@
                 else
                 {
                     await logger.LogError("Error Loading Blog {BlogId} {Error}", _id);
-                    ModuleInstance.AddModuleMessage("Error Loading Blog", MessageType.Error);
+                    ModuleInstance.AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
                 }
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Blog {BlogId} {Error}", _id, ex.Message);
-            ModuleInstance.AddModuleMessage("Error Loading Blog", MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
         }
     }
 
@@ -107,7 +109,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Blog {BlogId} {Error}", _id, ex.Message);
-            ModuleInstance.AddModuleMessage("Error Saving Blog", MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["Error Saving Blog"], MessageType.Error);
         }
     }
 }
