@@ -117,16 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Title:Name" xml:space="preserve">
+  <data name="Title.Text" xml:space="preserve">
     <value>Title:</value>
   </data>
-  <data name="Title:HelpText" xml:space="preserve">
+  <data name="Title.HelpText" xml:space="preserve">
     <value>Enter the title of your blog</value>
   </data>
-  <data name="Blog:Name" xml:space="preserve">
+  <data name="Blog.Text" xml:space="preserve">
     <value>Blog:</value>
   </data>
-  <data name="Blog:HelpText" xml:space="preserve">
+  <data name="Blog.HelpText" xml:space="preserve">
     <value>Enter the content of your blog</value>
   </data>
 </root>
