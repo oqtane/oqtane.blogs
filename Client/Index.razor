@@ -1,3 +1,4 @@
+@using Microsoft.Extensions.Localization
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
 
@@ -6,6 +7,7 @@
 @inject IBlogService BlogService
 @inject NavigationManager NavigationManager
 @inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_blogs != null)
 {
@@ -16,9 +18,9 @@
             <h2>@_blogs[0].Title</h2>
             <p>
                 @((MarkupString)@_blogs[0].Content)
-                <br /><br /><b>Posted by</b> @_blogs[0].CreatedBy <b>on</b> @_blogs[0].CreatedOn.ToShortDateString()
+                <br /><br /><b>@Localizer["Posted by"]</b> @_blogs[0].CreatedBy <b>@Localizer["on"]</b> @_blogs[0].CreatedOn.ToShortDateString()
             </p>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">View All Blogs</NavLink>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink>
         }
     }
     else
@@ -32,7 +34,7 @@
                         <h2>@context.Title</h2>
                     </a>
                     <p>
-                        <b>Posted by</b> @context.CreatedBy <b>on</b> @context.CreatedOn.ToShortDateString()
+                        <b>@Localizer["Posted by"]</b> @context.CreatedBy <b>@Localizer["on"]</b> @context.CreatedOn.ToShortDateString()
                         <br />
                         @if (context.Content.Length > _summarylength)
                         {
@@ -44,9 +46,9 @@
                         }
                     </p>
                     <div>
-                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">Details</NavLink>
+                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">@Localizer["Details"]</NavLink>
                         <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" />
-                        <ActionDialog Header="Delete Blog" Message="@("Are You Sure You Wish To Delete This Blog?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+                        <ActionDialog Header="@(Localizer["Delete Blog"])" Message="@(Localizer["Are You Sure You Wish To Delete This Blog?"])" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
                     </div>
                 </div>
             </Row>
@@ -82,7 +84,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Blogs {Error}", ex.Message);
-            ModuleInstance.AddModuleMessage("Error Loading Blogs", MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["Error Loading Blogs"], MessageType.Error);
         }
     }
 
@@ -97,7 +99,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", id, ex.Message);
-            ModuleInstance.AddModuleMessage("Error Deleting Blog", MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["Error Deleting Blog"], MessageType.Error);
         }
     }
 }
