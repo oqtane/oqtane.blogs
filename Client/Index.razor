@@ -70,10 +70,10 @@
             _maxblogs = int.Parse(SettingService.GetSetting(settings, "MaxBogs", "20"));
             _summarylength = int.Parse(SettingService.GetSetting(settings, "SummaryLength", "500"));
 
-            if (PageState.QueryString.ContainsKey("blogid"))
+            if (PageState.QueryString.ContainsKey("id"))
             {
                 _blogs = new List<Blog>();
-                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["blogid"]), ModuleState.ModuleId));
+                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["id"]), ModuleState.ModuleId));
             }
             else
             {

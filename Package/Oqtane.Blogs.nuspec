@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Blogs</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>Oqtane</authors>
     <owners>Oqtane</owners>
     <title>Blogs</title>
@@ -16,16 +16,16 @@
     <releaseNotes></releaseNotes>
     <summary></summary>
     <dependencies>
-      <dependency id="Oqtane.Framework" version="1.0.2" />
+      <dependency id="Oqtane.Framework" version="2.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\netstandard2.1\Oqtane.Blogs.Client.Oqtane.dll" target="lib\netstandard2.1" /> 
-    <file src="..\Client\bin\Release\netstandard2.1\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\netstandard2.1" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\Oqtane.Blogs.Server.Oqtane.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\netstandard2.1" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\netstandard2.1" /> 
+    <file src="..\Client\bin\Release\net5.0\Oqtane.Blogs.Client.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Client\bin\Release\net5.0\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Server\bin\Release\net5.0\Oqtane.Blogs.Server.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Server\bin\Release\net5.0\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Shared\bin\Release\net5.0\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Shared\bin\Release\net5.0\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\net5.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>
