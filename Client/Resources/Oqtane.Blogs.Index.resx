@@ -117,28 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Title.Text" xml:space="preserve">
-    <value>Title:</value>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
   </data>
-  <data name="Title.HelpText" xml:space="preserve">
-    <value>Enter the title of your blog</value>
+  <data name="View All Blogs" xml:space="preserve">
+    <value>View All Blogs</value>
   </data>
-  <data name="Blog.Text" xml:space="preserve">
-    <value>Blog:</value>
+  <data name="on" xml:space="preserve">
+    <value>on</value>
   </data>
-  <data name="Blog.HelpText" xml:space="preserve">
-    <value>Enter the content of your blog</value>
+  <data name="Posted by" xml:space="preserve">
+    <value>Posted by</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+  <data name="AddBlog.Text" xml:space="preserve">
+    <value>Add Blog</value>
   </data>
-  <data name="Error Loading Blog" xml:space="preserve">
-    <value>Error Loading Blog</value>
+  <data name="DeleteBlog.Header" xml:space="preserve">
+    <value>Delete Blog</value>
   </data>
-  <data name="Error Saving Blog" xml:space="preserve">
-    <value>Error Saving Blog</value>
+  <data name="DeleteBlog.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete This Blog?</value>
   </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
+  <data name="DeleteBlog.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditBlog.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Error Deleting Blog" xml:space="preserve">
+    <value>Error Deleting Blog</value>
+  </data>
+  <data name="Error Loading Blogs" xml:space="preserve">
+    <value>Error Loading Blogs</value>
   </data>
 </root>
