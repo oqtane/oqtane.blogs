@@ -7,25 +7,18 @@ using Oqtane.Infrastructure;
 using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Controllers;
 
 namespace Oqtane.Blogs.Controllers
 {
-    [Route("{site}/api/[controller]")]
-    public class BlogController : Controller
+    [Route(ControllerRoutes.ApiRoute)]
+    public class BlogController : ModuleControllerBase
     {
-        private readonly IBlogRepository _Blogs;
-        private readonly ILogManager _logger;
-        protected int _entityId = -1;
+        private readonly IBlogRepository _BlogRepository;
 
-        public BlogController(IBlogRepository Blogs, ILogManager logger, IHttpContextAccessor accessor)
+        public BlogController(IBlogRepository BlogRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
         {
-            _Blogs = Blogs;
-            _logger = logger;
-
-            if (accessor.HttpContext.Request.Query.ContainsKey("entityid"))
-            {
-                _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
-            }
+            _BlogRepository = BlogRepository;
         }
 
         // GET: api/<controller>?moduleid=x
@@ -33,7 +26,14 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "ViewModule")]
         public IEnumerable<Blog> Get(string moduleid)
         {
-            return _Blogs.GetBlogs(int.Parse(moduleid));
+            if (int.Parse(moduleid) == _authEntityId[EntityNames.Module])
+            {
+                return _BlogRepository.GetBlogs(int.Parse(moduleid));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         // GET api/<controller>/5
@@ -41,7 +41,12 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "ViewModule")]
         public Blog Get(int id)
         {
-            return _Blogs.GetBlog(id);
+            Blog Blog = _BlogRepository.GetBlog(id);
+            if (Blog != null && Blog.ModuleId != _authEntityId[EntityNames.Module])
+            {
+                Blog = null;
+            }
+            return Blog;
         }
 
         // POST api/<controller>
@@ -49,9 +54,9 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public Blog Post([FromBody] Blog Blog)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
-                Blog = _Blogs.AddBlog(Blog);
+                Blog = _BlogRepository.AddBlog(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Added {Blog}", Blog);
             }
             return Blog;
@@ -62,9 +67,9 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public Blog Put(int id, [FromBody] Blog Blog)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
-                Blog = _Blogs.UpdateBlog(Blog);
+                Blog = _BlogRepository.UpdateBlog(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Blog Updated {Blog}", Blog);
             }
             return Blog;
@@ -75,8 +80,12 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public void Delete(int id)
         {
-            _Blogs.DeleteBlog(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Blog Deleted {BlogId}", id);
+            Models.Blog Blog = _BlogRepository.GetBlog(id);
+            if (Blog != null && Blog.ModuleId == _authEntityId[EntityNames.Module])
+            {
+                _BlogRepository.DeleteBlog(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Blog Deleted {BlogId}", id);
+            }
         }
     }
 }

@@ -23,7 +23,7 @@
             <Label For="content" ResourceKey="Blog" HelpText="Enter the content of your blog">Blog: </Label>
         </td>
         <td>
-            <textarea id="content" class="form-control" @bind="@_content" cols="40" rows="5"></textarea>
+            <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
         </td>
     </tr>
 </table>
@@ -38,11 +38,21 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
+
     public override string Actions { get { return "Add,Edit"; } }
+
+    public override string Title => "Author Blog Post";
+
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" }
+    };
 
     private int _id = -1;
     private string _title;
-    private string _content;
+    private RichTextEditor RichTextEditorHtml;
+    private string _content = "";
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -60,6 +70,7 @@
                 {
                     _title = blog.Title;
                     _content = blog.Content;
+                    _content = Utilities.FormatContent(_content, PageState.Alias, "render");
                     _createdby = blog.CreatedBy;
                     _createdon = blog.CreatedOn;
                     _modifiedby = blog.ModifiedBy;
@@ -83,6 +94,9 @@
     {
         try
         {
+            _content = await RichTextEditorHtml.GetHtml();
+            _content = Utilities.FormatContent(_content, PageState.Alias, "save");
+
             if (_id == -1)
             {
                 Blog blog = new Blog();

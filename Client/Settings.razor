@@ -1,6 +1,10 @@
+@using Microsoft.Extensions.Localization
+
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject ISettingService SettingService
+@implements Oqtane.Interfaces.ISettingsControl
+@inject IStringLocalizer<Edit> Localizer
 
 <table class="table table-borderless">
     <tr>
@@ -25,14 +29,12 @@
     private string _maxblogs;
     private string _summarylength;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         try
         {
-            Dictionary<string, string>
-            settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            _maxblogs = SettingService.GetSetting(settings, "MaxBlogs", "20");
-            _summarylength = SettingService.GetSetting(settings, "SummaryLength", "500");
+            _maxblogs = SettingService.GetSetting(ModuleState.Settings, "MaxBlogs", "20");
+            _summarylength = SettingService.GetSetting(ModuleState.Settings, "SummaryLength", "500");
         }
         catch (Exception ex)
         {
@@ -44,10 +46,9 @@
     {
         try
         {
-            Dictionary<string, string>
-            settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            SettingService.SetSetting(settings, "MaxBlogs", _maxblogs);
-            SettingService.SetSetting(settings, "SummaryLength", _summarylength);
+            var settings = ModuleState.Settings;
+            settings = SettingService.SetSetting(settings, "MaxBlogs", _maxblogs);
+            settings = SettingService.SetSetting(settings, "SummaryLength", _summarylength);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)

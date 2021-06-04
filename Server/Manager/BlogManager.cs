@@ -7,28 +7,41 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
+using Oqtane.Shared;
+using Oqtane.Migrations.Framework;
+using Oqtane.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Blogs.Manager
 {
-    public class BlogManager : IInstallable, IPortable
+    public class BlogManager : MigratableModuleBase, IInstallable, IPortable
     {
         private IBlogRepository _Blogs;
         private ISqlRepository _sql;
+        private readonly ITenantManager _tenantManager;
+        private readonly IHttpContextAccessor _accessor;
 
-        public BlogManager(IBlogRepository Blogs, ISqlRepository sql)
+        public BlogManager(IBlogRepository Blogs, ISqlRepository sql, ITenantManager tenantManager, IHttpContextAccessor accessor)
         {
             _Blogs = Blogs;
             _sql = sql;
+            _tenantManager = tenantManager;
+            _accessor = accessor;
         }
 
         public bool Install(Tenant tenant, string version)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "Oqtane.Blogs." + version + ".sql");
+            if (tenant.DBType == Constants.DefaultDBType && version == "1.0.3")
+            {
+                // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
+                _sql.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("Blog.01.00.00.00"));
+            }
+            return Migrate(new BlogContext(_tenantManager, _accessor), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "Oqtane.Blogs.Uninstall.sql");
+            return Migrate(new BlogContext(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
 
         public string ExportModule(Module module)
