@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>    
-    <LangVersion>7.3</LangVersion>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Product>Oqtane.Blogs</Product>
     <Authors>Oqtane</Authors>
     <Company>Oqtane</Company>
@@ -17,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Shared" Version="2.0.2" />
+    <PackageReference Include="Oqtane.Shared" Version="2.1.0" />
   </ItemGroup>
 
 </Project>

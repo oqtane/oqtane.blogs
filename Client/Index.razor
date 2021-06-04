@@ -17,7 +17,7 @@
         {
             <h2>@_blogs[0].Title</h2>
             <p>
-                @((MarkupString)@_blogs[0].Content)
+                @((MarkupString)Utilities.FormatContent(_blogs[0].Content, PageState.Alias, "render"))
                 <br /><br /><b>@Localizer["Posted by"]</b> @_blogs[0].CreatedBy <b>@Localizer["on"]</b> @_blogs[0].CreatedOn.ToShortDateString()
             </p>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink>
@@ -38,11 +38,11 @@
                         <br />
                         @if (context.Content.Length > _summarylength)
                         {
-                            @((MarkupString)@context.Content.Substring(0, _summarylength))
+                            @((MarkupString)Utilities.FormatContent(context.Content.Substring(0, _summarylength), PageState.Alias, "render"))
                         }
                         else
                         {
-                            @((MarkupString)@context.Content)
+                            @((MarkupString)Utilities.FormatContent(context.Content, PageState.Alias, "render"))
                         }
                     </p>
                     <div>
