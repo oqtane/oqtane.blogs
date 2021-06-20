@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
 using Oqtane.Blogs.Models;
+using System.Threading.Tasks;
 
 namespace Oqtane.Blogs.Repository
 {
@@ -20,9 +21,18 @@ namespace Oqtane.Blogs.Repository
             return _db.Blog.Where(item => item.ModuleId == ModuleId);
         }
 
-        public Blog GetBlog(int BlogId)
+        public async Task<IEnumerable<Blog>> GetBlogsAsync(int ModuleId, bool tracking = true)
         {
-            return _db.Blog.Find(BlogId);
+            if (tracking)
+            {
+                return await _db.Blog.Where(item => item.ModuleId == ModuleId).ToListAsync();
+            }
+            return await _db.Blog.AsNoTracking().Where(item => item.ModuleId == ModuleId).ToListAsync();
+        }
+
+        public async Task<Blog> GetBlogAsync(int BlogId)
+        {
+            return await _db.Blog.FindAsync(BlogId).AsTask();
         }
 
         public Blog AddBlog(Blog Blog)
@@ -32,10 +42,17 @@ namespace Oqtane.Blogs.Repository
             return Blog;
         }
 
-        public Blog UpdateBlog(Blog Blog)
+        public async Task<Blog> AddBlogAsync(Blog Blog)
+        {
+            _db.Blog.Add(Blog);
+            await _db.SaveChangesAsync();
+            return Blog;
+        }
+
+        public async Task<Blog> UpdateBlogAsync(Blog Blog)
         {
             _db.Entry(Blog).State = EntityState.Modified;
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return Blog;
         }
 
@@ -44,6 +61,13 @@ namespace Oqtane.Blogs.Repository
             Blog Blog = _db.Blog.Find(BlogId);
             _db.Blog.Remove(Blog);
             _db.SaveChanges();
+        }
+
+        public async Task DeleteBlogAsync(int BlogId)
+        {
+            Blog Blog = await _db.Blog.FindAsync(BlogId);
+            _db.Blog.Remove(Blog);
+            await _db.SaveChangesAsync();
         }
     }
 }
