@@ -8,6 +8,7 @@ using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Controllers;
+using System.Threading.Tasks;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -24,11 +25,11 @@ namespace Oqtane.Blogs.Controllers
         // GET: api/<controller>?moduleid=x
         [HttpGet]
         [Authorize(Policy = "ViewModule")]
-        public IEnumerable<Blog> Get(string moduleid)
+        public async Task<IEnumerable<Blog>> Get(string moduleid)
         {
             if (int.Parse(moduleid) == _authEntityId[EntityNames.Module])
             {
-                return _BlogRepository.GetBlogs(int.Parse(moduleid));
+                return await _BlogRepository.GetBlogsAsync(int.Parse(moduleid), false);
             }
             else
             {
@@ -39,9 +40,9 @@ namespace Oqtane.Blogs.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = "ViewModule")]
-        public Blog Get(int id)
+        public async Task<Blog> Get(int id)
         {
-            Blog Blog = _BlogRepository.GetBlog(id);
+            Blog Blog = await _BlogRepository.GetBlogAsync(id);
             if (Blog != null && Blog.ModuleId != _authEntityId[EntityNames.Module])
             {
                 Blog = null;
@@ -52,11 +53,11 @@ namespace Oqtane.Blogs.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = "EditModule")]
-        public Blog Post([FromBody] Blog Blog)
+        public async Task<Blog> Post([FromBody] Blog Blog)
         {
             if (ModelState.IsValid && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
-                Blog = _BlogRepository.AddBlog(Blog);
+                Blog = await _BlogRepository.AddBlogAsync(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Added {Blog}", Blog);
             }
             return Blog;
@@ -65,11 +66,11 @@ namespace Oqtane.Blogs.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = "EditModule")]
-        public Blog Put(int id, [FromBody] Blog Blog)
+        public async Task<Blog> Put(int id, [FromBody] Blog Blog)
         {
             if (ModelState.IsValid && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
-                Blog = _BlogRepository.UpdateBlog(Blog);
+                Blog = await _BlogRepository.UpdateBlogAsync(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Blog Updated {Blog}", Blog);
             }
             return Blog;
@@ -78,12 +79,12 @@ namespace Oqtane.Blogs.Controllers
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         [Authorize(Policy = "EditModule")]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            Models.Blog Blog = _BlogRepository.GetBlog(id);
+            Models.Blog Blog = await _BlogRepository.GetBlogAsync(id);
             if (Blog != null && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
-                _BlogRepository.DeleteBlog(id);
+                await _BlogRepository.DeleteBlogAsync(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Blog Deleted {BlogId}", id);
             }
         }
