@@ -9,11 +9,12 @@ namespace Oqtane.Blogs
         {
             Name = "Blog",
             Description = "Blog",
-            Version = "1.0.3",
+            Version = "1.0.4",
             ServerManagerType = "Oqtane.Blogs.Manager.BlogManager, Oqtane.Blogs.Server.Oqtane",
-            ReleaseVersions = "1.0.0,1.0.1,1.0.3",
+            ReleaseVersions = "1.0.0,1.0.1,1.0.3,1.0.4",
             Dependencies = "Oqtane.Blogs.Shared.Oqtane",
-            SettingsType = "Oqtane.Blogs.Settings, Oqtane.Blogs.Client.Oqtane"
+            SettingsType = "Oqtane.Blogs.Settings, Oqtane.Blogs.Client.Oqtane",
+            PackageName = "Oqtane.Blogs"
         };
     }
 }

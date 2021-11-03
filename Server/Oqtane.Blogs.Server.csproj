@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Product>Oqtane.Blogs</Product>
     <Authors>Oqtane</Authors>
     <Company>Oqtane</Company>
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Server" Version="2.1.0" />
-    <PackageReference Include="Oqtane.Shared" Version="2.1.0" />
+    <PackageReference Include="Oqtane.Server" Version="2.3.1" />
+    <PackageReference Include="Oqtane.Shared" Version="2.3.1" />
   </ItemGroup>
 </Project>

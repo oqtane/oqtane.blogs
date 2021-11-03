@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28621.142
@@ -9,7 +8,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Blogs.Server", "Serv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Blogs.Shared", "Shared\Oqtane.Blogs.Shared.csproj", "{18D73F73-D7BE-4388-85BA-FBD9AC96FCA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oqtane.Blogs.Package", "Package\Oqtane.Blogs.Package.csproj", "{C5CE512D-CBB7-4545-AF0F-9B6591A0C3A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Blogs.Package", "Package\Oqtane.Blogs.Package.csproj", "{C5CE512D-CBB7-4545-AF0F-9B6591A0C3A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Server", "..\oqtane.framework\Oqtane.Server\Oqtane.Server.csproj", "{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oqtane.Framework", "Oqtane.Framework", "{53C3E444-E44B-4762-938A-448E114C9A40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,9 +45,18 @@ Global
 		{C5CE512D-CBB7-4545-AF0F-9B6591A0C3A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C5CE512D-CBB7-4545-AF0F-9B6591A0C3A7}.Wasm|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5CE512D-CBB7-4545-AF0F-9B6591A0C3A7}.Wasm|Any CPU.Build.0 = Debug|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Wasm|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938}.Wasm|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C4E5FE5D-8F28-40BA-B14C-26FDE8A12938} = {53C3E444-E44B-4762-938A-448E114C9A40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D016F15-46FE-4726-8DFD-2E4FD4DC7668}
