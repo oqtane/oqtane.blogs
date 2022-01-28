@@ -1,4 +1,3 @@
-@using Microsoft.Extensions.Localization
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
 
@@ -11,46 +10,32 @@
 
 @if (_blogs != null)
 {
-    if (PageState.QueryString.ContainsKey("id"))
+    if (!string.IsNullOrEmpty(PageState.UrlParameters))
     {
+        <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
+        <br />
         if (_blogs.Count > 0)
         {
-            <h2>@_blogs[0].Title</h2>
-            <p>
-                @((MarkupString)Utilities.FormatContent(_blogs[0].Content, PageState.Alias, "render"))
-                <br /><br /><b>@Localizer["Posted by"]</b> @_blogs[0].CreatedBy <b>@Localizer["on"]</b> @_blogs[0].CreatedOn.ToShortDateString()
-            </p>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink>
+            @((MarkupString)FormatTemplate(_detail, _blogs[0]))
         }
+        <br />
+        <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
     }
     else
     {
         <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ResourceKey="AddBlog" Text="Add Blog" />
-        <Pager Format="Grid" Items="@_blogs">
+        <br />
+        <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="col-lg-4 col-md-6">
             <Row>
-                <div class="col">
-                    <br />
-                    <a href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">
-                        <h2>@context.Title</h2>
-                    </a>
-                    <p>
-                        <b>@Localizer["Posted by"]</b> @context.CreatedBy <b>@Localizer["on"]</b> @context.CreatedOn.ToShortDateString()
-                        <br />
-                        @if (context.Content.Length > _summarylength)
-                        {
-                            @((MarkupString)Utilities.FormatContent(context.Content.Substring(0, _summarylength), PageState.Alias, "render"))
-                        }
-                        else
-                        {
-                            @((MarkupString)Utilities.FormatContent(context.Content, PageState.Alias, "render"))
-                        }
-                    </p>
+                @((MarkupString)FormatTemplate(_summary, context))
+                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
+                {
                     <div>
-                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, "id=" + context.BlogId.ToString())">@Localizer["Details"]</NavLink>
+                        <NavLink class="btn btn-secondary" href="@FormatUrl(context)">@Localizer["Details"]</NavLink>
                         <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" ResourceKey="EditBlog" Text="Edit" />
                         <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
                     </div>
-                </div>
+                }
             </Row>
         </Pager>
     }
@@ -59,26 +44,27 @@
 
 @code {
     private List<Blog> _blogs;
-    private int _maxblogs;
-    private int _summarylength;
+    private int _items;
+    private string _summary;
+    private string _detail;
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
-            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            _maxblogs = int.Parse(SettingService.GetSetting(settings, "MaxBogs", "20"));
-            _summarylength = int.Parse(SettingService.GetSetting(settings, "SummaryLength", "500"));
+            _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
+            _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
+            _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
 
-            if (PageState.QueryString.ContainsKey("id"))
+            if (!string.IsNullOrEmpty(PageState.UrlParameters))
             {
                 _blogs = new List<Blog>();
-                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.QueryString["id"]), ModuleState.ModuleId));
+                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.UrlParameters.Split('/')[0]), ModuleState.ModuleId));
             }
             else
             {
                 _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId);
-                _blogs = _blogs.OrderByDescending(item => item.CreatedOn).Take(_maxblogs).ToList();
+                _blogs = _blogs.OrderByDescending(item => item.CreatedOn).ToList();
             }
         }
         catch (Exception ex)
@@ -86,6 +72,41 @@
             await logger.LogError(ex, "Error Loading Blogs {Error}", ex.Message);
             ModuleInstance.AddModuleMessage(Localizer["Error Loading Blogs"], MessageType.Error);
         }
+    }
+
+    private string FormatSlug(string title)
+    {
+        string slug = "";
+        foreach(var character in title.ToLower())
+        { 
+            int ascii = (int)character;
+            if ((ascii >= (int)'a' && ascii <= (int)'z') || (ascii >= (int)'0' && ascii <= (int)'9'))
+            {
+                slug += character;
+            }
+            else
+            {
+                slug += "-";
+            }
+        }
+        return slug;
+    }
+
+    private string FormatUrl(Blog blog)
+    {
+        return NavigateUrl(PageState.Page.Path + "/" + Constants.UrlParametersDelimiter + "/" + blog.BlogId.ToString() + "/" + FormatSlug(blog.Title));        
+    }
+
+    private string FormatTemplate(string template, Blog blog)
+    {
+        template = template.Replace("[ID]", blog.BlogId.ToString());
+        template = template.Replace("[TITLE]", blog.Title);
+        template = template.Replace("[SUMMARY]", blog.Summary);
+        template = template.Replace("[CONTENT]", Utilities.FormatContent(blog.Content, PageState.Alias, "render"));
+        template = template.Replace("[CREATEDBY]", blog.CreatedBy);
+        template = template.Replace("[CREATEDON]", blog.CreatedOn.ToShortDateString());
+        template = template.Replace("[URL]", FormatUrl(blog));
+        return template;
     }
 
     private async Task DeleteBlog(int id)

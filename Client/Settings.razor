@@ -1,40 +1,47 @@
-@using Microsoft.Extensions.Localization
-
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
 @inject IStringLocalizer<Edit> Localizer
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="maxblogs" ResourceKey="MaximumBlogEntries" HelpText="Enter the maximum number of blogs to display on a page">Maximum Blog Entries: </Label>
-        </td>
-        <td>
-            <input id="maxblogs" type="text" class="form-control" @bind="_maxblogs" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="summarylength" ResourceKey="SummaryLength" HelpText="Enter the maximum length of the blog to display in the summary view">Summary Length (Characters): </Label>
-        </td>
-        <td>
-            <input id="summarylength" type="text" class="form-control" @bind="_summarylength" />
-        </td>
-    </tr>
-</table>
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label For="items" ResourceKey="Items" HelpText="Enter the maximum items per page">Items Per Page: </Label>
+            <div class="col-sm-9">
+                <input id="items" type="text" class="form-control" @bind="@_items" maxlength="1" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label For="summary" ResourceKey="Summary" HelpText="Enter the summary blog template">Summary Template: </Label>
+            <div class="col-sm-9">
+                <textarea id="summary" class="form-control" @bind="@_summary" rows="5" required></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label For="detail" ResourceKey="Detail" HelpText="Enter the detail blog template">Detail Template: </Label>
+            <div class="col-sm-9">
+                <textarea id="detail" class="form-control" @bind="@_detail" rows="5" required></textarea>
+            </div>
+        </div>
+    </div>
+</form>
 
 @code {
-    private string _maxblogs;
-    private string _summarylength;
+    private ElementReference form;
+    private bool validated = false;
+
+    private string _items;
+    private string _summary;
+    private string _detail;
 
     protected override void OnInitialized()
     {
         try
         {
-            _maxblogs = SettingService.GetSetting(ModuleState.Settings, "MaxBlogs", "20");
-            _summarylength = SettingService.GetSetting(ModuleState.Settings, "SummaryLength", "500");
+            _items = SettingService.GetSetting(ModuleState.Settings, "Items", "10");
+            _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
+            _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
         }
         catch (Exception ex)
         {
@@ -46,9 +53,10 @@
     {
         try
         {
-            var settings = ModuleState.Settings;
-            settings = SettingService.SetSetting(settings, "MaxBlogs", _maxblogs);
-            settings = SettingService.SetSetting(settings, "SummaryLength", _summarylength);
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "Items", _items);
+            settings = SettingService.SetSetting(settings, "Summary", _summary);
+            settings = SettingService.SetSetting(settings, "Detail", _detail);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
