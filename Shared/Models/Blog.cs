@@ -9,6 +9,7 @@ namespace Oqtane.Blogs.Models
         public int BlogId { get; set; }
         public int ModuleId { get; set; }
         public string Title { get; set; }
+        public string Summary { get; set; }
         public string Content { get; set; }
 
         public string CreatedBy { get; set; }
