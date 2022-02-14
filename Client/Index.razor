@@ -16,7 +16,11 @@
         <br />
         if (_blogs.Count > 0)
         {
-            @((MarkupString)FormatTemplate(_detail, _blogs[0]))
+            <div class="text-center">
+                <ActionLink Action="Edit" Parameters="@($"id=" + _blogs[0].BlogId.ToString())" ResourceKey="EditBlog" Text="Edit" />
+                <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(_blogs[0].BlogId))" />
+            </div>
+            @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blogs[0]), PageState.Alias, "render"))
         }
         <br />
         <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
@@ -27,7 +31,7 @@
         <br />
         <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="col-lg-4 col-md-6">
             <Row>
-                @((MarkupString)FormatTemplate(_summary, context))
+                @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
                 @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
                 {
                     <div>
