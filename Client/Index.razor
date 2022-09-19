@@ -7,50 +7,66 @@
 @inject NavigationManager NavigationManager
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_blogs != null)
+@if (_blog != null)
 {
-    if (!string.IsNullOrEmpty(PageState.UrlParameters))
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}")">@Localizer["View All Blogs"]</NavLink></div>
+    <br />
+    <div class="text-center">
+        <ActionLink Action="Edit" Parameters="@($"id=" + _blog.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
+        <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(_blog.BlogId))" />
+    </div>
+    @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blog), PageState.Alias, "render"))
+    <br />
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}")">@Localizer["View All Blogs"]</NavLink></div>
+}
+else
+{
+    @if (_blogs != null)
     {
-        <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
-        <br />
-        if (_blogs.Count > 0)
-        {
-            <div class="text-center">
-                <ActionLink Action="Edit" Parameters="@($"id=" + _blogs[0].BlogId.ToString())" ResourceKey="EditBlog" Text="Edit" />
-                <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(_blogs[0].BlogId))" />
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <div class="col-sm-4">
+                    <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ResourceKey="AddBlog" Text="Add Blog" />
+                </div>
+                <div class="col-sm-4">
+                    <input class="form-control" @bind="@_search" />
+                </div>
+                <div class="col-sm-4">
+                    <button type="button" class="btn btn-secondary" @onclick="Search">@SharedLocalizer["Search"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                </div>
             </div>
-            @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blogs[0]), PageState.Alias, "render"))
-        }
+        </div>
         <br />
-        <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
-    }
-    else
-    {
-        <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ResourceKey="AddBlog" Text="Add Blog" />
-        <br />
-        <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="col-lg-4 col-md-6">
+        <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange" ColumnClass="col-lg-4 col-md-6">
             <Row>
                 @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
                 @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
                 {
                     <div>
                         <NavLink class="btn btn-secondary" href="@FormatUrl(context)">@Localizer["Details"]</NavLink>
-                        <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" ResourceKey="EditBlog" Text="Edit" />
+                        <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
                         <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
                     </div>
                 }
             </Row>
         </Pager>
     }
-    <br />
 }
+<br />
 
 @code {
+    public override string UrlParametersTemplate => "/{id}/{slug}";
+
     private List<Blog> _blogs;
+    private Blog _blog;
     private int _items;
     private string _summary;
     private string _detail;
+    private int _page = 1;
+    private string _search = "";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -60,15 +76,22 @@
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
 
+            if (PageState.QueryString.ContainsKey("page"))
+            {
+                _page = int.Parse(PageState.QueryString["page"]);
+            }
+            if (PageState.QueryString.ContainsKey("search"))
+            {
+                _search = PageState.QueryString["search"];
+            }
+
             if (!string.IsNullOrEmpty(PageState.UrlParameters))
             {
-                _blogs = new List<Blog>();
-                _blogs.Add(await BlogService.GetBlogAsync(int.Parse(PageState.UrlParameters.Split('/')[0]), ModuleState.ModuleId));
+                _blog = await BlogService.GetBlogAsync(int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
             }
             else
             {
-                _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId);
-                _blogs = _blogs.OrderByDescending(item => item.CreatedOn).ToList();
+                await GetBlogs();
             }
         }
         catch (Exception ex)
@@ -78,11 +101,19 @@
         }
     }
 
+    private async Task GetBlogs()
+    {
+        _blog = null;
+        _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId, _search);
+        _blogs = _blogs.OrderByDescending(item => item.CreatedOn).ToList();
+    }
+
     private string FormatSlug(string title)
     {
         string slug = "";
-        foreach(var character in title.ToLower())
-        { 
+        for (int i = 0; i < title.Length; i++)
+        {
+            var character = title.ToLower()[i];
             int ascii = (int)character;
             if ((ascii >= (int)'a' && ascii <= (int)'z') || (ascii >= (int)'0' && ascii <= (int)'9'))
             {
@@ -90,15 +121,19 @@
             }
             else
             {
-                slug += "-";
+                if (character != '\'' && (i < title.Length - 1) && slug.Length > 0 && slug[slug.Length - 1] != '-')
+                {
+                    slug += "-";
+                }
             }
+
         }
         return slug;
     }
 
     private string FormatUrl(Blog blog)
     {
-        return NavigateUrl(PageState.Page.Path + "/" + Constants.UrlParametersDelimiter + "/" + blog.BlogId.ToString() + "/" + FormatSlug(blog.Title));        
+        return NavigateUrl(PageState.Page.Path, AddUrlParameters(blog.BlogId, FormatSlug(blog.Title) + $"?page={_page}&search={_search}"));
     }
 
     private string FormatTemplate(string template, Blog blog)
@@ -126,5 +161,25 @@
             await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", id, ex.Message);
             ModuleInstance.AddModuleMessage(Localizer["Error Deleting Blog"], MessageType.Error);
         }
+    }
+
+    private async Task Search()
+    {
+        _page = 1;
+        await GetBlogs();
+        StateHasChanged();
+    }
+
+    private async Task Reset()
+    {
+        _page = 1;
+        _search = "";
+        await GetBlogs();
+        StateHasChanged();
+    }
+
+    private void OnPageChange(int page)
+    {
+        _page = page;
     }
 }

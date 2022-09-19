@@ -15,9 +15,10 @@ namespace Oqtane.Blogs.Repository
             _db = context;
         }
 
-        public IEnumerable<Blog> GetBlogs(int ModuleId)
+        public IEnumerable<Blog> GetBlogs(int ModuleId, string Search)
         {
-            return _db.Blog.Where(item => item.ModuleId == ModuleId);
+            return _db.Blog.Where(item => item.ModuleId == ModuleId && 
+                (string.IsNullOrEmpty(Search) || item.Title.Contains(Search) || item.Content.Contains(Search)));
         }
 
         public Blog GetBlog(int BlogId)

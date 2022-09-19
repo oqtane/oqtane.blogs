@@ -117,16 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MaximumBlogEntries.Text" xml:space="preserve">
-    <value>Maximum Blog Entries:</value>
+  <data name="Items.Text" xml:space="preserve">
+    <value>Items Per Page:</value>
   </data>
-  <data name="MaximumBlogEntries.HelpText" xml:space="preserve">
-    <value>Enter the maximum number of blogs to display on a page</value>
+  <data name="Items.HelpText" xml:space="preserve">
+    <value>Enter the maximum items per page</value>
   </data>
-  <data name="SummaryLength.Text" xml:space="preserve">
-    <value>Summary Length (Characters):</value>
+  <data name="Summary.Text" xml:space="preserve">
+    <value>Summary Template:</value>
   </data>
-  <data name="SummaryLength.HelpText" xml:space="preserve">
-    <value>Enter the maximum length of the blog to display in the summary view</value>
+  <data name="Summary.HelpText" xml:space="preserve">
+    <value>Enter the summary blog template</value>
+  </data>
+  <data name="Detail.HelpText" xml:space="preserve">
+    <value>Enter the detail blog template</value>
+  </data>
+  <data name="Detail.Text" xml:space="preserve">
+    <value>Detail Template:</value>
   </data>
 </root>

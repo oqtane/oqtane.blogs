@@ -7,19 +7,19 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label For="items" ResourceKey="Items" HelpText="Enter the maximum items per page">Items Per Page: </Label>
+            <Label For="items" ResourceKey="Items" ResourceType="@resourceType" HelpText="Enter the maximum items per page">Items Per Page: </Label>
             <div class="col-sm-9">
                 <input id="items" type="text" class="form-control" @bind="@_items" maxlength="1" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label For="summary" ResourceKey="Summary" HelpText="Enter the summary blog template">Summary Template: </Label>
+            <Label For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
             <div class="col-sm-9">
                 <textarea id="summary" class="form-control" @bind="@_summary" rows="5" required></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label For="detail" ResourceKey="Detail" HelpText="Enter the detail blog template">Detail Template: </Label>
+            <Label For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
             <div class="col-sm-9">
                 <textarea id="detail" class="form-control" @bind="@_detail" rows="5" required></textarea>
             </div>
@@ -28,6 +28,8 @@
 </form>
 
 @code {
+    private string resourceType = "Oqtane.Blogs.Settings, Oqtane.Blogs.Client.Oqtane"; // for localization
+
     private ElementReference form;
     private bool validated = false;
 

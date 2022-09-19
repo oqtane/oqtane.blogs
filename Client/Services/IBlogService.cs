@@ -6,7 +6,7 @@ namespace Oqtane.Blogs.Services
 {
     public interface IBlogService 
     {
-        Task<List<Blog>> GetBlogsAsync(int ModuleId);
+        Task<List<Blog>> GetBlogsAsync(int ModuleId, string Search);
 
         Task<Blog> GetBlogAsync(int BlogId, int ModuleId);
 

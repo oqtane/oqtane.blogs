@@ -47,7 +47,7 @@ namespace Oqtane.Blogs.Manager
         public string ExportModule(Module module)
         {
             string content = "";
-            List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId).ToList();
+            List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId, "").ToList();
             if (Blogs != null)
             {
                 content = JsonSerializer.Serialize(Blogs);

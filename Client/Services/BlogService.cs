@@ -20,10 +20,9 @@ namespace Oqtane.Blogs.Services
 
          private string Apiurl=> CreateApiUrl("Blog", _siteState.Alias);
 
-        public async Task<List<Blog>> GetBlogsAsync(int ModuleId)
+        public async Task<List<Blog>> GetBlogsAsync(int ModuleId, string Search)
         {
-            List<Blog> Blogs = await GetJsonAsync<List<Blog>>(CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}", EntityNames.Module, ModuleId));
-            return Blogs.OrderBy(item => item.Title).ToList();
+            return await GetJsonAsync<List<Blog>>(CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}&search={Search}", EntityNames.Module, ModuleId));
         }
 
         public async Task<Blog> GetBlogAsync(int BlogId, int ModuleId)
