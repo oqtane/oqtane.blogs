@@ -21,14 +21,14 @@ namespace Oqtane.Blogs.Controllers
             _BlogRepository = BlogRepository;
         }
 
-        // GET: api/<controller>?moduleid=x
+        // GET: api/<controller>?moduleid=x&search=y
         [HttpGet]
         [Authorize(Policy = "ViewModule")]
-        public IEnumerable<Blog> Get(string moduleid)
+        public IEnumerable<Blog> Get(string moduleid, string search)
         {
             if (int.Parse(moduleid) == _authEntityId[EntityNames.Module])
             {
-                return _BlogRepository.GetBlogs(int.Parse(moduleid));
+                return _BlogRepository.GetBlogs(int.Parse(moduleid), search);
             }
             else
             {

@@ -31,7 +31,7 @@
     </div>
     <br /><br />
     <button type="button" class="btn btn-success" @onclick="@SaveBlog">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
     @if (_id != -1)
     {
         <br /><br />
@@ -133,7 +133,7 @@
                     }
                 }
 
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
             catch (Exception ex)
             {

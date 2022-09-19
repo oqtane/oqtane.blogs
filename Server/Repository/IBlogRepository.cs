@@ -5,7 +5,7 @@ namespace Oqtane.Blogs.Repository
 {
     public interface IBlogRepository
     {
-        IEnumerable<Blog> GetBlogs(int ModuleId);
+        IEnumerable<Blog> GetBlogs(int ModuleId, string search);
         Blog GetBlog(int BlogId);
         Blog AddBlog(Blog Blog);
         Blog UpdateBlog(Blog Blog);
