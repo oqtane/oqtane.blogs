@@ -11,7 +11,7 @@
 
 @if (_blog != null)
 {
-    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}")">@Localizer["View All Blogs"]</NavLink></div>
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
     <br />
     <div class="text-center">
         <ActionLink Action="Edit" Parameters="@($"id=" + _blog.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
@@ -19,7 +19,7 @@
     </div>
     @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blog), PageState.Alias, "render"))
     <br />
-    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}")">@Localizer["View All Blogs"]</NavLink></div>
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
 }
 else
 {
@@ -133,7 +133,7 @@ else
 
     private string FormatUrl(Blog blog)
     {
-        return NavigateUrl(PageState.Page.Path, AddUrlParameters(blog.BlogId, FormatSlug(blog.Title) + $"?page={_page}&search={_search}"));
+        return NavigateUrl(PageState.Page.Path, AddUrlParameters(blog.BlogId, FormatSlug(blog.Title)));
     }
 
     private string FormatTemplate(string template, Blog blog)
@@ -180,6 +180,9 @@ else
 
     private void OnPageChange(int page)
     {
-        _page = page;
+        if (string.IsNullOrEmpty(PageState.UrlParameters))
+        {
+            _page = page;
+        }
     }
 }
