@@ -1,5 +1,6 @@
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
 
 @namespace Oqtane.Blogs
 @inherits ModuleBase
@@ -43,7 +44,7 @@ else
         <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange" ColumnClass="col-lg-4 col-md-6">
             <Row>
                 @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
-                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions))
+                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
                 {
                     <div>
                         <NavLink class="btn btn-secondary" href="@FormatUrl(context)">@Localizer["Details"]</NavLink>
@@ -108,32 +109,9 @@ else
         _blogs = _blogs.OrderByDescending(item => item.CreatedOn).ToList();
     }
 
-    private string FormatSlug(string title)
-    {
-        string slug = "";
-        for (int i = 0; i < title.Length; i++)
-        {
-            var character = title.ToLower()[i];
-            int ascii = (int)character;
-            if ((ascii >= (int)'a' && ascii <= (int)'z') || (ascii >= (int)'0' && ascii <= (int)'9'))
-            {
-                slug += character;
-            }
-            else
-            {
-                if (character != '\'' && (i < title.Length - 1) && slug.Length > 0 && slug[slug.Length - 1] != '-')
-                {
-                    slug += "-";
-                }
-            }
-
-        }
-        return slug;
-    }
-
     private string FormatUrl(Blog blog)
     {
-        return NavigateUrl(PageState.Page.Path, AddUrlParameters(blog.BlogId, FormatSlug(blog.Title)));
+        return NavigateUrl(PageState.Page.Path, AddUrlParameters(blog.BlogId, Common.FormatSlug(blog.Title)));
     }
 
     private string FormatTemplate(string template, Blog blog)

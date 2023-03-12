@@ -11,22 +11,21 @@ using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Enums;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Blogs.Shared;
 
 namespace Oqtane.Blogs.Manager
 {
-    public class BlogManager : MigratableModuleBase, IInstallable, IPortable
+    public class BlogManager : MigratableModuleBase, IInstallable, IPortable, ISitemap
     {
         private IBlogRepository _Blogs;
         private ISqlRepository _sql;
-        private readonly ITenantManager _tenantManager;
-        private readonly IHttpContextAccessor _accessor;
+		private readonly IDBContextDependencies _DBContextDependencies;
 
-        public BlogManager(IBlogRepository Blogs, ISqlRepository sql, ITenantManager tenantManager, IHttpContextAccessor accessor)
+		public BlogManager(IBlogRepository Blogs, ISqlRepository sql, IDBContextDependencies DBContextDependencies)
         {
             _Blogs = Blogs;
             _sql = sql;
-            _tenantManager = tenantManager;
-            _accessor = accessor;
+            _DBContextDependencies = DBContextDependencies;
         }
 
         public bool Install(Tenant tenant, string version)
@@ -36,12 +35,12 @@ namespace Oqtane.Blogs.Manager
                 // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
                 _sql.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("Blog.01.00.00.00"));
             }
-            return Migrate(new BlogContext(_tenantManager, _accessor), tenant, MigrationType.Up);
+            return Migrate(new BlogContext(_DBContextDependencies), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return Migrate(new BlogContext(_tenantManager, _accessor), tenant, MigrationType.Down);
+            return Migrate(new BlogContext(_DBContextDependencies), tenant, MigrationType.Down);
         }
 
         public string ExportModule(Module module)
@@ -73,6 +72,18 @@ namespace Oqtane.Blogs.Manager
                     _Blogs.AddBlog(_Blog);
                 }
             }
+        }
+
+        public List<Sitemap> GetUrls(string alias, string path, Module module)
+        {
+            var sitemap = new List<Sitemap>();
+            List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId, "").ToList();
+            foreach (var Blog in Blogs)
+            {
+                var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
+                sitemap.Add(new Sitemap { Url = Utilities.NavigateUrl(alias, path, parameters), ModifiedOn = Blog.ModifiedOn });
+            }
+            return sitemap;
         }
     }
 }

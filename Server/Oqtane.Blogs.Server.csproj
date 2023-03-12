@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Product>Oqtane.Blogs</Product>
     <Authors>Oqtane</Authors>
     <Company>Oqtane</Company>

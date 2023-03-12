@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Blogs.Models;
-using Oqtane.Infrastructure;
 using Oqtane.Repository.Databases.Interfaces;
 
 namespace Oqtane.Blogs.Repository
@@ -12,7 +10,7 @@ namespace Oqtane.Blogs.Repository
     {
         public virtual DbSet<Blog> Blog { get; set; }
 
-        public BlogContext(ITenantManager tenantManager, IHttpContextAccessor accessor) : base(tenantManager, accessor)
+        public BlogContext(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies)
         {
             // ContextBase handles multi-tenant database connections
         }
