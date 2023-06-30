@@ -1,28 +1,30 @@
+using System.Text;
+
 namespace Oqtane.Blogs.Shared
 {
     public static class Common
     {
         public static string FormatSlug(string title)
         {
-            string slug = "";
+            StringBuilder stringBuilder = new();
             for (int i = 0; i < title.Length; i++)
             {
                 var character = title.ToLower()[i];
                 int ascii = (int)character;
                 if ((ascii >= (int)'a' && ascii <= (int)'z') || (ascii >= (int)'0' && ascii <= (int)'9'))
                 {
-                    slug += character;
+                    stringBuilder.Append(character);
                 }
                 else
                 {
-                    if (character != '\'' && (i < title.Length - 1) && slug.Length > 0 && slug[slug.Length - 1] != '-')
+                    if (character != '\'' && (i < title.Length - 1) && stringBuilder.Length > 0 && stringBuilder[^1] != '-')
                     {
-                        slug += "-";
+                        stringBuilder.Append('-');
                     }
                 }
 
             }
-            return slug;
+            return stringBuilder.ToString();
         }
     }
 }

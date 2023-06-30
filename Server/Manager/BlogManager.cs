@@ -17,8 +17,8 @@ namespace Oqtane.Blogs.Manager
 {
     public class BlogManager : MigratableModuleBase, IInstallable, IPortable, ISitemap
     {
-        private IBlogRepository _Blogs;
-        private ISqlRepository _sql;
+        private readonly IBlogRepository _Blogs;
+        private readonly ISqlRepository _sql;
 		private readonly IDBContextDependencies _DBContextDependencies;
 
 		public BlogManager(IBlogRepository Blogs, ISqlRepository sql, IDBContextDependencies DBContextDependencies)
@@ -65,10 +65,12 @@ namespace Oqtane.Blogs.Manager
             {
                 foreach(Blog Blog in Blogs)
                 {
-                    Blog _Blog = new Blog();
-                    _Blog.ModuleId = module.ModuleId;
-                    _Blog.Title = Blog.Title;
-                    _Blog.Content = Blog.Content;
+                    Blog _Blog = new Blog
+                    {
+                        ModuleId = module.ModuleId,
+                        Title = Blog.Title,
+                        Content = Blog.Content
+                    };
                     _Blogs.AddBlog(_Blog);
                 }
             }
