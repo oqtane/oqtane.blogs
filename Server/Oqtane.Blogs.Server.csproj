@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <Version>1.0.6</Version>
     <Product>Oqtane.Blogs</Product>
@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,10 +25,10 @@
 
   <ItemGroup>
     <Reference Include="Oqtane.Server">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net6.0\Oqtane.Server.dll</HintPath>
+      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net7.0\Oqtane.Server.dll</HintPath>
     </Reference>
     <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net6.0\Oqtane.Shared.dll</HintPath>
+      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net7.0\Oqtane.Shared.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
