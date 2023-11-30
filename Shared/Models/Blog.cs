@@ -17,8 +17,5 @@ namespace Oqtane.Blogs.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
-
-        [NotMapped]
-        public bool Notify { get; set; }
     }
 }

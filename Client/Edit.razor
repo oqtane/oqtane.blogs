@@ -40,24 +40,16 @@
                 </select>
             </div>
         </div>
-        @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
-        {
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="notify" ResourceKey="Notify" HelpText="Indicate if a notification should be sent to subscribers">Notify? </Label>
-                <div class="col-sm-9">
-                    <select id="notify" class="form-select" @bind="@_notify">
-                        <option value="True">@SharedLocalizer["Yes"]</option>
-                        <option value="False">@SharedLocalizer["No"]</option>
-                    </select>
-                </div>
-            </div>
-        }
     </div>
     <br /><br />
-    <button type="button" class="btn btn-success" @onclick="@SaveBlog">@Localizer["Save"]</button>
+    <button type="button" class="btn btn-success" @onclick="SaveBlog">@Localizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
     @if (_id != -1)
     {
+        @if (_published == "True" && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+        {
+            <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
+        }
         <br /><br />
         <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
     }
@@ -146,8 +138,8 @@
                     blog.Summary = _summary;
                     blog.Content = _content;
                     blog.Published = bool.Parse(_published);
-                    blog.Notify = bool.Parse(_notify);
-                    await BlogService.AddBlogAsync(blog);
+                    blog = await BlogService.AddBlogAsync(blog);
+                    _id = blog.BlogId;
                     await logger.LogInformation("Blog Added {Blog}", blog);
                 }
                 else
@@ -159,13 +151,12 @@
                         blog.Summary = _summary;
                         blog.Content = _content;
                         blog.Published = bool.Parse(_published);
-                        blog.Notify = bool.Parse(_notify);
-                        await BlogService.UpdateBlogAsync(blog);
+                        blog = await BlogService.UpdateBlogAsync(blog);
                         await logger.LogInformation("Blog Updated {Blog}", blog);
                     }
                 }
 
-                NavigationManager.NavigateTo(PageState.ReturnUrl);
+                ModuleInstance.AddModuleMessage(Localizer["Blog Saved"], MessageType.Success);
             }
             catch (Exception ex)
             {
@@ -176,6 +167,20 @@
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task Notify()
+    {
+        try
+        {
+            await BlogService.NotifyAsync(_id, ModuleState.ModuleId);
+            AddModuleMessage(Localizer["Message.Notified"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Sending Notifications {BlogId} {Error}", _id, ex.Message);
+            ModuleInstance.AddModuleMessage(Localizer["Error Sending Notifications"], MessageType.Error);
         }
     }
 }
