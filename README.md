@@ -1,8 +1,8 @@
 # Blog Module
 
-A sample module demonstrating how to create an external module that is integrated with the Oqtane framework at runtime. This module uses the same approach as the external template which is available via the Module Creator within the framework and can be used to scaffold new modules.
+A sample module originally created with the Module Creator within the framework, and enhanced with additional functionality.
 
-The module is a very basic blog. It allows an authorized user to create blog entries including title, summary, and description. It provides custom templating capabilities so that you can customize the display to suit your needs. The module is being used on https://www.oqtane.org/blog.
+The blog allows an authorized user to create blog entries including title, summary, and description. Content can contain HTML formatting, links, and images. The module provides custom templating capabilities so that you can customize the display to suit your needs. It has search functionality so that users can easily locate a specific blog by keyword. It supports site maps so that the blog entries are indexable by search engines. It allows users to subscribe and be notified by email when new blogs are published (unsubscribe is also supported to comply with span regulations). An RSS feed is also available for content syndication. The module is being used on https://www.oqtane.org/blog.
 
 Note that you cannot run this module directly in your IDE. You need to ensure that the DNF.Projects folder is located within the same parent folder as the Oqtane framework:  
 
