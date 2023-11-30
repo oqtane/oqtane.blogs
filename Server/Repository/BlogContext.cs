@@ -9,6 +9,7 @@ namespace Oqtane.Blogs.Repository
     public class BlogContext : DBContextBase, IService, IMultiDatabase
     {
         public virtual DbSet<Blog> Blog { get; set; }
+        public virtual DbSet<Subscriber> Subscriber { get; set; }
 
         public BlogContext(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies)
         {

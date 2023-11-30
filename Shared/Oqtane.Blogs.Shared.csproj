@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>    
-    <Version>1.0.6</Version>
+    <TargetFramework>net8.0</TargetFramework>    
+    <Version>5.0.0</Version>
     <Product>Oqtane.Blogs</Product>
-    <Authors>Oqtane</Authors>
-    <Company>Oqtane</Company>
+    <Authors>Shaun Walker</Authors>
+    <Company>.NET Foundation</Company>
     <Description>A Blog Module for the Oqtane Framework</Description>
-    <Copyright>Oqtane</Copyright>
+    <Copyright>.NET Foundation</Copyright>
     <AssemblyName>Oqtane.Blogs.Shared.Oqtane</AssemblyName>
   </PropertyGroup>
 
@@ -15,9 +15,8 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net6.0\Oqtane.Shared.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Oqtane.Shared" Version="5.0.0" />
+	</ItemGroup>
+	
 </Project>

@@ -10,7 +10,6 @@ using Oqtane.Blogs.Repository;
 using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Enums;
-using Microsoft.AspNetCore.Http;
 using Oqtane.Blogs.Shared;
 
 namespace Oqtane.Blogs.Manager
@@ -78,7 +77,7 @@ namespace Oqtane.Blogs.Manager
         {
             var sitemap = new List<Sitemap>();
             List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId, "").ToList();
-            foreach (var Blog in Blogs)
+            foreach (var Blog in Blogs.Where(item => item.Published))
             {
                 var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
                 sitemap.Add(new Sitemap { Url = Utilities.NavigateUrl(alias, path, parameters), ModifiedOn = Blog.ModifiedOn });

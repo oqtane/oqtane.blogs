@@ -3,25 +3,42 @@
 @inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label For="items" ResourceKey="Items" ResourceType="@resourceType" HelpText="Enter the maximum items per page">Items Per Page: </Label>
+            <Label Class="col-sm-3" For="items" ResourceKey="Items" ResourceType="@resourceType" HelpText="Enter the maximum items per page">Items Per Page: </Label>
             <div class="col-sm-9">
                 <input id="items" type="text" class="form-control" @bind="@_items" maxlength="1" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
+            <Label Class="col-sm-3" For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
             <div class="col-sm-9">
                 <textarea id="summary" class="form-control" @bind="@_summary" rows="5" required></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
+            <Label Class="col-sm-3" For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
             <div class="col-sm-9">
                 <textarea id="detail" class="form-control" @bind="@_detail" rows="5" required></textarea>
+            </div>
+        </div>
+        <hr />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="subscriptions" ResourceKey="Subscriptions" ResourceType="@resourceType" HelpText="Do you wish to allow email subscriptions to the blog?">Subscriptions? </Label>
+            <div class="col-sm-9">
+                <select id="subscriptions" class="form-select" @bind="@_subscriptions">
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="sender" ResourceKey="Sender" ResourceType="@resourceType" HelpText="Email address which subscriptions will be sent from">Sender: </Label>
+            <div class="col-sm-9">
+                <input id="sender" type="text" class="form-control" @bind="@_sender" />
             </div>
         </div>
     </div>
@@ -36,6 +53,8 @@
     private string _items;
     private string _summary;
     private string _detail;
+    private string _subscriptions;
+    private string _sender;
 
     protected override void OnInitialized()
     {
@@ -44,6 +63,8 @@
             _items = SettingService.GetSetting(ModuleState.Settings, "Items", "10");
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
+            _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
+            _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", "");
         }
         catch (Exception ex)
         {
@@ -59,6 +80,9 @@
             settings = SettingService.SetSetting(settings, "Items", _items);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
+            settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
+            settings = SettingService.SetSetting(settings, "Sender", _sender);
+            settings = SettingService.SetSetting(settings, "PagePath", PageState.Page.Path);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
