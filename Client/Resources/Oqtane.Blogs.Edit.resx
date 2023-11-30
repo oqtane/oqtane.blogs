@@ -141,16 +141,22 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="Notify.HelpText" xml:space="preserve">
-    <value>Indicate if a notification should be sent to subscribers</value>
-  </data>
-  <data name="Notify.Text" xml:space="preserve">
-    <value>Notify?</value>
-  </data>
   <data name="Published.HelpText" xml:space="preserve">
     <value>Indicate if this blog is visible to all users or only editors</value>
   </data>
   <data name="Published.Text" xml:space="preserve">
     <value>Published?</value>
+  </data>
+  <data name="Message.Notified" xml:space="preserve">
+    <value>Subscribers Have Been Notified</value>
+  </data>
+  <data name="Notify" xml:space="preserve">
+    <value>Notify</value>
+  </data>
+  <data name="Blog Saved" xml:space="preserve">
+    <value>Blog Saved</value>
+  </data>
+  <data name="Error Sending Notifications" xml:space="preserve">
+    <value>Error Sending Notifications</value>
   </data>
 </root>
