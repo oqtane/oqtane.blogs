@@ -14,6 +14,7 @@ using Oqtane.Blogs.Shared;
 using Oqtane.Extensions;
 using System.Linq;
 using System;
+using System.Net;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -127,18 +128,18 @@ namespace Oqtane.Blogs.Controllers
             var rss = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + Environment.NewLine;
             rss += "<rss version=\"2.0\">" + Environment.NewLine;
             rss += "<channel>" + Environment.NewLine;
-            rss += "<title>" + site.Name + "</title>" + Environment.NewLine;
+            rss += "<title>" + WebUtility.HtmlEncode(site.Name) + "</title>" + Environment.NewLine;
             rss += "<link>" + rooturl + pagepath + "</link>" + Environment.NewLine;
-            rss += "<description>" + site.Name + "</description>" + Environment.NewLine;
+            rss += "<description>" + WebUtility.HtmlEncode(site.Name) + "</description>" + Environment.NewLine;
 
             List<Blog> Blogs = _BlogRepository.GetBlogs(id, "").ToList();
             foreach (var Blog in Blogs.Where(item => item.Published))
             {
                 rss += "<item>" + Environment.NewLine;
-                rss += "<title>" + Blog.Title + "</title>" + Environment.NewLine;
+                rss += "<title>" + WebUtility.HtmlEncode(Blog.Title) + "</title>" + Environment.NewLine;
                 var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
                 rss += "<link>" + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters)  + "</link>" + Environment.NewLine;
-                rss += "<description><![CDATA[" + Blog.Summary + "]]></description>" + Environment.NewLine;
+                rss += "<description>" + WebUtility.HtmlEncode(Blog.Summary) + "</description>" + Environment.NewLine;
                 rss += "</item>" + Environment.NewLine;
             }
 
