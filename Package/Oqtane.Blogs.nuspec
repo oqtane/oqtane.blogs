@@ -2,30 +2,30 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Blogs</id>
-    <version>1.0.6</version>
-    <authors>Oqtane</authors>
-    <owners>Oqtane</owners>
+    <version>5.0.0</version>
+    <authors>Shaun Walker</authors>
+    <owners>.NET Foundation</owners>
     <title>Blogs</title>
-    <description>Blogs</description>
-    <copyright>Oqtane</copyright>
+    <description>A Blog Module for the Oqtane Framework</description>
+    <copyright>.NET Foundation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+    <projectUrl>https://github.com/oqtane/oqtane.blogs</projectUrl>
     <icon>icon.png</icon>
     <tags>oqtane module</tags>
     <releaseNotes></releaseNotes>
     <summary></summary>
     <dependencies>
-      <dependency id="Oqtane.Framework" version="3.2.0" />
+      <dependency id="Oqtane.Framework" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net6.0\Oqtane.Blogs.Client.Oqtane.dll" target="lib\net6.0" /> 
-    <file src="..\Client\bin\Release\net6.0\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\net6.0" /> 
-    <file src="..\Server\bin\Release\net6.0\Oqtane.Blogs.Server.Oqtane.dll" target="lib\net6.0" /> 
-    <file src="..\Server\bin\Release\net6.0\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\net6.0" /> 
-    <file src="..\Shared\bin\Release\net6.0\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\net6.0" /> 
-    <file src="..\Shared\bin\Release\net6.0\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\net6.0" /> 
+    <file src="..\Client\bin\Release\net8.0\Oqtane.Blogs.Client.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Client\bin\Release\net8.0\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\net8.0" /> 
+    <file src="..\Server\bin\Release\net8.0\Oqtane.Blogs.Server.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Server\bin\Release\net8.0\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\net8.0" /> 
+    <file src="..\Shared\bin\Release\net8.0\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\net8.0" /> 
+    <file src="..\Shared\bin\Release\net8.0\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\net8.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>

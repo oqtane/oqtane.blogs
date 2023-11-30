@@ -135,4 +135,16 @@
   <data name="Detail.Text" xml:space="preserve">
     <value>Detail Template:</value>
   </data>
+  <data name="Sender.HelpText" xml:space="preserve">
+    <value>Email address which subscriptions will be sent from</value>
+  </data>
+  <data name="Sender.Text" xml:space="preserve">
+    <value>Sender:</value>
+  </data>
+  <data name="Subscriptions.HelpText" xml:space="preserve">
+    <value>Do you wish to allow email subscriptions to the blog?</value>
+  </data>
+  <data name="Subscriptions.Text" xml:space="preserve">
+    <value>Subscriptions?</value>
+  </data>
 </root>

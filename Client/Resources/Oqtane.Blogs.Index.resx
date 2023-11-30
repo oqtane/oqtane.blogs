@@ -120,7 +120,7 @@
   <data name="Details" xml:space="preserve">
     <value>Details</value>
   </data>
-  <data name="View All Blogs" xml:space="preserve">
+  <data name="ViewAll" xml:space="preserve">
     <value>View All Blogs</value>
   </data>
   <data name="on" xml:space="preserve">
@@ -144,10 +144,34 @@
   <data name="EditBlog.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
-  <data name="Error Deleting Blog" xml:space="preserve">
+  <data name="ErrorDeleting" xml:space="preserve">
     <value>Error Deleting Blog</value>
   </data>
-  <data name="Error Loading Blogs" xml:space="preserve">
+  <data name="ErrorLoading" xml:space="preserve">
     <value>Error Loading Blogs</value>
+  </data>
+  <data name="Activated" xml:space="preserve">
+    <value>Your Email Subscription Has Been Activated</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailInvalid" xml:space="preserve">
+    <value>Email Address Specified Is Not Valid</value>
+  </data>
+  <data name="NoBlogs" xml:space="preserve">
+    <value>No Blogs Have Been Published</value>
+  </data>
+  <data name="Notify" xml:space="preserve">
+    <value>Do You Want To Be Notified When Blogs Are Published?</value>
+  </data>
+  <data name="RSS" xml:space="preserve">
+    <value>RSS</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Subscribe</value>
+  </data>
+  <data name="Unsubscribed" xml:space="preserve">
+    <value>Your Email Address Has Been Unsubscribed</value>
   </data>
 </root>

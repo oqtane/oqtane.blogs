@@ -5,6 +5,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject ISubscriberService SubscriberService
 @inject NavigationManager NavigationManager
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
@@ -12,48 +13,91 @@
 
 @if (_blog != null)
 {
-    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["ViewAll"]</NavLink></div>
     <br />
-    <div class="text-center">
-        <ActionLink Action="Edit" Parameters="@($"id=" + _blog.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
-        <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(_blog.BlogId))" />
-    </div>
+    @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
+    {
+        <div class="text-center">
+            <ActionLink Action="Edit" Parameters="@($"id=" + _blog.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
+            <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(_blog.BlogId))" />
+        </div>
+    }
     @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blog), PageState.Alias, "render"))
+
+    @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+    {
+        <br />
+        <div class="text-center"><strong>@Localizer["Notify"]</strong></div>
+        <div class="container mt-2">
+            <div class="row mb-1 justify-content-center">
+                <div class="col-8">
+                    <div class="input-group">
+                        <span class="input-group-text">@Localizer["Email"]: </span>
+                        <input class="form-control" @bind="@_email" />
+                        <button type="button" class="btn btn-primary" @onclick="Subscribe">@Localizer["Subscribe"]</button>
+                        <a href="_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     <br />
-    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["View All Blogs"]</NavLink></div>
+    <div class="text-center"><NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["ViewAll"]</NavLink></div>
 }
 else
 {
     @if (_blogs != null)
     {
         <div class="container">
-            <div class="row mb-1 align-items-center">
-                <div class="col-sm-4">
-                    <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ResourceKey="AddBlog" Text="Add Blog" />
-                </div>
-                <div class="col-sm-4">
-                    <input class="form-control" @bind="@_search" />
-                </div>
-                <div class="col-sm-4">
-                    <button type="button" class="btn btn-secondary" @onclick="Search">@SharedLocalizer["Search"]</button>
-                    <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+            <div class="row mb-1 justify-content-center">
+                <div class="col-8">
+                    <div class="input-group">
+                        <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="AddBlog" Text="Add Blog" />
+                        <input class="form-control" @bind="@_search" />
+                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                    </div>
                 </div>
             </div>
         </div>
         <br />
-        <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange" ColumnClass="col-lg-4 col-md-6">
-            <Row>
-                @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
-                @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
-                {
-                    <div>
-                        <NavLink class="btn btn-secondary" href="@FormatUrl(context)">@Localizer["Details"]</NavLink>
-                        <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
-                        <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+        @if (_blogs.Any())
+        {
+            <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange" ColumnClass="col-lg-4 col-md-6">
+                <Row>
+                    @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
+                    @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
+                    {
+                        <div class ="text-center">
+                            <ActionLink Action="Edit" Parameters="@($"id=" + context.BlogId.ToString())" ReturnUrl="@(NavigateUrl(PageState.Page.Path, $"?page={_page}&search={_search}"))" ResourceKey="EditBlog" Text="Edit" />
+                            <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog(context.BlogId))" />
+                            <NavLink class="btn btn-secondary" href="@FormatUrl(context)">@Localizer["Details"]</NavLink>
+                        </div>
+                    }
+                </Row>
+            </Pager>
+        }
+        else
+        {
+            <div class="text-center">@Localizer["NoBlogs"]</div>
+        }
+        @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+        {
+            <br />
+            <div class="text-center"><strong>@Localizer["Notify"]</strong></div>
+            <div class="container mt-2">
+                <div class="row mb-1 justify-content-center">
+                    <div class="col-8">
+                        <div class="input-group">
+                            <span class="input-group-text">@Localizer["Email"]: </span>
+                            <input class="form-control" @bind="@_email" />
+                            <button type="button" class="btn btn-primary" @onclick="Subscribe">@Localizer["Subscribe"]</button>
+                            <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                        </div>
                     </div>
-                }
-            </Row>
-        </Pager>
+                </div>
+            </div>
+        }
     }
 }
 <br />
@@ -68,6 +112,17 @@ else
     private string _detail;
     private int _page = 1;
     private string _search = "";
+    private string _email = "";
+    private string _rss = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PageState.QueryString.ContainsKey("guid"))
+        {
+            await SubscriberService.DeleteSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+            AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -86,19 +141,26 @@ else
                 _search = PageState.QueryString["search"];
             }
 
+            _blog = null;
             if (!string.IsNullOrEmpty(PageState.UrlParameters))
             {
                 _blog = await BlogService.GetBlogAsync(int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                if (!_blog.Published)
+                {
+                    _blog = null;
+                }
             }
-            else
+            if (_blog == null)
             {
                 await GetBlogs();
             }
+
+            _rss = $"/api/blog/rss/{ModuleState.ModuleId}";
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Blogs {Error}", ex.Message);
-            ModuleInstance.AddModuleMessage(Localizer["Error Loading Blogs"], MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["ErrorLoading"], MessageType.Error);
         }
     }
 
@@ -106,7 +168,7 @@ else
     {
         _blog = null;
         _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId, _search);
-        _blogs = _blogs.OrderByDescending(item => item.CreatedOn).ToList();
+        _blogs = _blogs.Where(item => item.Published || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList)).ToList();
     }
 
     private string FormatUrl(Blog blog)
@@ -137,7 +199,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", id, ex.Message);
-            ModuleInstance.AddModuleMessage(Localizer["Error Deleting Blog"], MessageType.Error);
+            ModuleInstance.AddModuleMessage(Localizer["ErrorDeleting"], MessageType.Error);
         }
     }
 
@@ -161,6 +223,23 @@ else
         if (string.IsNullOrEmpty(PageState.UrlParameters))
         {
             _page = page;
+        }
+    }
+
+    private async Task Subscribe()
+    {
+        if (!string.IsNullOrEmpty(_email) && Utilities.IsValidEmail(_email))
+        {
+            var subscriber = new Subscriber();
+            subscriber.ModuleId = ModuleState.ModuleId;
+            subscriber.Email = _email;
+            await SubscriberService.AddSubscriberAsync(subscriber);
+            AddModuleMessage(Localizer["Activated"], MessageType.Success);
+            _email = "";
+        }
+        else
+        {
+            AddModuleMessage(Localizer["EmailInvalid"], MessageType.Warning);
         }
     }
 }

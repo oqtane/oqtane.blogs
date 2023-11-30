@@ -123,10 +123,10 @@
   <data name="Title.HelpText" xml:space="preserve">
     <value>Enter the title of your blog</value>
   </data>
-  <data name="Blog.Text" xml:space="preserve">
-    <value>Blog:</value>
+  <data name="Content.Text" xml:space="preserve">
+    <value>Content:</value>
   </data>
-  <data name="Blog.HelpText" xml:space="preserve">
+  <data name="Content.HelpText" xml:space="preserve">
     <value>Enter the content of your blog</value>
   </data>
   <data name="Cancel" xml:space="preserve">
@@ -140,5 +140,17 @@
   </data>
   <data name="Save" xml:space="preserve">
     <value>Save</value>
+  </data>
+  <data name="Notify.HelpText" xml:space="preserve">
+    <value>Indicate if a notification should be sent to subscribers</value>
+  </data>
+  <data name="Notify.Text" xml:space="preserve">
+    <value>Notify?</value>
+  </data>
+  <data name="Published.HelpText" xml:space="preserve">
+    <value>Indicate if this blog is visible to all users or only editors</value>
+  </data>
+  <data name="Published.Text" xml:space="preserve">
+    <value>Published?</value>
   </data>
 </root>

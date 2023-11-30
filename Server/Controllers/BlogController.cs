@@ -8,6 +8,12 @@ using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Controllers;
+using Oqtane.Repository;
+using Oqtane.Models;
+using Oqtane.Blogs.Shared;
+using Oqtane.Extensions;
+using System.Linq;
+using System;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -15,10 +21,18 @@ namespace Oqtane.Blogs.Controllers
     public class BlogController : ModuleControllerBase
     {
         private readonly IBlogRepository _BlogRepository;
+        private readonly ISiteRepository _SiteRepository;
+        private readonly ISettingRepository _SettingRepository;
+        private readonly ISubscriberRepository _SubscriberRepository;
+        private readonly INotificationRepository _NotificationRepository;
 
-        public BlogController(IBlogRepository BlogRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
+        public BlogController(IBlogRepository BlogRepository, ISiteRepository SiteRepository, ISettingRepository SettingRepository, ISubscriberRepository SubscriberRepository, INotificationRepository NotificationRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
         {
             _BlogRepository = BlogRepository;
+            _SiteRepository = SiteRepository;
+            _SettingRepository = SettingRepository;
+            _SubscriberRepository = SubscriberRepository;
+            _NotificationRepository = NotificationRepository;
         }
 
         // GET: api/<controller>?moduleid=x&search=y
@@ -58,6 +72,12 @@ namespace Oqtane.Blogs.Controllers
             {
                 Blog = _BlogRepository.AddBlog(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Added {Blog}", Blog);
+
+                // notify subscribers
+                if (Blog.Notify)
+                {
+                    SendNotifications(Blog);
+                }
             }
             return Blog;
         }
@@ -67,10 +87,16 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public Blog Put(int id, [FromBody] Blog Blog)
         {
-            if (ModelState.IsValid && Blog.ModuleId == _authEntityId[EntityNames.Module])
+            if (ModelState.IsValid && Blog.BlogId == id && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
                 Blog = _BlogRepository.UpdateBlog(Blog);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Blog Updated {Blog}", Blog);
+
+                // notify subscribers
+                if (Blog.Notify)
+                {
+                    SendNotifications(Blog);
+                }
             }
             return Blog;
         }
@@ -80,11 +106,71 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public void Delete(int id)
         {
-            Models.Blog Blog = _BlogRepository.GetBlog(id);
+            Blog Blog = _BlogRepository.GetBlog(id);
             if (Blog != null && Blog.ModuleId == _authEntityId[EntityNames.Module])
             {
                 _BlogRepository.DeleteBlog(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Blog Deleted {BlogId}", id);
+            }
+        }
+
+        [HttpGet("rss/{id}")]
+        public IActionResult RSS(int id)
+        {
+            var alias = HttpContext.GetAlias();
+            var rooturl = alias.Protocol + alias.Name;
+
+            var site = _SiteRepository.GetSite(alias.SiteId);
+            var settings = _SettingRepository.GetSettings(EntityNames.Module, id);
+            var pagepath = "/" + settings.First(item => item.SettingName == "PagePath").SettingValue;
+
+            var rss = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + Environment.NewLine;
+            rss += "<rss version=\"2.0\">" + Environment.NewLine;
+            rss += "<channel>" + Environment.NewLine;
+            rss += "<title>" + site.Name + "</title>" + Environment.NewLine;
+            rss += "<link>" + rooturl + pagepath + "</link>" + Environment.NewLine;
+            rss += "<description>" + site.Name + "</description>" + Environment.NewLine;
+
+            List<Blog> Blogs = _BlogRepository.GetBlogs(id, "").ToList();
+            foreach (var Blog in Blogs.Where(item => item.Published))
+            {
+                rss += "<item>" + Environment.NewLine;
+                rss += "<title>" + Blog.Title + "</title>" + Environment.NewLine;
+                var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
+                rss += "<link>" + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters)  + "</link>" + Environment.NewLine;
+                rss += "<description><![CDATA[" + Blog.Summary + "]]></description>" + Environment.NewLine;
+                rss += "</item>" + Environment.NewLine;
+            }
+
+            rss += "</channel>" + Environment.NewLine;
+            rss += "</rss>" + Environment.NewLine;
+
+            return Content(rss, "application/xml");
+        }
+
+        private void SendNotifications(Blog Blog)
+        {
+            var alias = HttpContext.GetAlias();
+            var rooturl = alias.Protocol + alias.Name;
+
+            var settings = _SettingRepository.GetSettings(EntityNames.Module, Blog.ModuleId);
+
+            if (settings.Any(item => item.SettingName == "Subscriptions") && settings.First(item => item.SettingName == "Subscriptions").SettingValue == "True")
+            {
+                var pagepath = settings.First(item => item.SettingName == "PagePath").SettingValue;
+                var sender = settings.First(item => item.SettingName == "Sender").SettingValue;
+                var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
+                var url = rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters);
+
+                // this will likely need to be asynchronous in the future
+                foreach (var subscriber in _SubscriberRepository.GetSubscribers(Blog.ModuleId))
+                {
+                    Blog.Summary += "<br /><br />Read Full Article: " + url;
+                    Blog.Summary += "<br /><br />Unsubscribe: " + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + subscriber.Guid);
+
+                    var notification = new Notification(alias.SiteId, "", sender, "", subscriber.Email, Blog.Title, Blog.Summary);
+                    _NotificationRepository.AddNotification(notification);
+                }
             }
         }
     }

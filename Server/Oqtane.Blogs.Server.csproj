@@ -1,34 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.6</Version>
+    <TargetFramework>net8.0</TargetFramework>
+    <Version>5.0.0</Version>
     <Product>Oqtane.Blogs</Product>
-    <Authors>Oqtane</Authors>
-    <Company>Oqtane</Company>
+    <Authors>Shaun Walker</Authors>
+    <Company>.NET Foundation</Company>
     <Description>A Blog Module for the Oqtane Framework</Description>
-    <Copyright>Oqtane</Copyright>
+    <Copyright>.NET Foundation</Copyright>
     <AssemblyName>Oqtane.Blogs.Server.Oqtane</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Oqtane.Blogs.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Oqtane.Server">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net6.0\Oqtane.Server.dll</HintPath>
-    </Reference>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\net6.0\Oqtane.Shared.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Oqtane.Server" Version="5.0.0" />
+		<PackageReference Include="Oqtane.Shared" Version="5.0.0" />
+	</ItemGroup>
+	
 </Project>
