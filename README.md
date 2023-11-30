@@ -1,6 +1,6 @@
 # Blog Module
 
-A sample module originally created with the Module Creator within the framework, and enhanced with additional functionality.
+A sample module originally created with the Module Creator within the Oqtane framework... and enhanced with additional functionality.
 
 The blog allows an authorized user to create blog entries including title, summary, and description. Content can contain HTML formatting, links, and images. The module provides custom templating capabilities so that you can customize the display to suit your needs. It has search functionality so that users can easily locate a specific blog by keyword. It supports site maps so that the blog entries are indexable by search engines. It allows users to subscribe and be notified by email when new blogs are published (unsubscribe is also supported to comply with span regulations). An RSS feed is also available for content syndication. 
 
