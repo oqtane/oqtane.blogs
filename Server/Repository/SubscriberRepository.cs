@@ -21,9 +21,13 @@ namespace Oqtane.Blogs.Repository
 
         public Subscriber AddSubscriber(Subscriber Subscriber)
         {
-            _db.Subscriber.Add(Subscriber);
-            _db.SaveChanges();
-            return Subscriber;
+            if (!_db.Subscriber.Any(item => item.Email == Subscriber.Email))
+            {
+                _db.Subscriber.Add(Subscriber);
+                _db.SaveChanges();
+                return Subscriber;
+            }
+            return null;
         }
 
         public void DeleteSubscriber(int SubscriberId)

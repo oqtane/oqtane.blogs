@@ -45,9 +45,9 @@ namespace Oqtane.Blogs.Services
             await DeleteAsync(CreateAuthorizationPolicyUrl($"{Apiurl}/{BlogId}", EntityNames.Module, ModuleId));
         }
 
-        public async Task NotifyAsync(int BlogId, int ModuleId)
+        public async Task<int> NotifyAsync(int BlogId, int ModuleId)
         {
-            await GetAsync(CreateAuthorizationPolicyUrl($"{Apiurl}/notify/{BlogId}", EntityNames.Module, ModuleId));
+            return await GetJsonAsync<int>(CreateAuthorizationPolicyUrl($"{Apiurl}/notify/{BlogId}", EntityNames.Module, ModuleId));
         }
     }
 }

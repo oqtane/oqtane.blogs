@@ -105,8 +105,9 @@ namespace Oqtane.Blogs.Controllers
 
         [HttpGet("notify/{id}")]
         [Authorize(Policy = "EditModule")]
-        public void Notify(int id)
+        public int Notify(int id)
         {
+            var subscribers = 0;
             Blog Blog = _BlogRepository.GetBlog(id);
             if (Blog != null && Blog.ModuleId == _authEntityId[EntityNames.Module] && Blog.Published)
             {
@@ -128,9 +129,11 @@ namespace Oqtane.Blogs.Controllers
 
                         var notification = new Notification(alias.SiteId, "", sender, "", subscriber.Email, Blog.Title, Blog.Summary);
                         _NotificationRepository.AddNotification(notification);
+                        subscribers++;
                     }
                 }
             }
+            return subscribers;
         }
 
         [HttpGet("rss/{id}")]
