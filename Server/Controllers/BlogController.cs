@@ -124,10 +124,10 @@ namespace Oqtane.Blogs.Controllers
                     // this will likely need to be asynchronous in the future as it may timeout
                     foreach (var subscriber in _SubscriberRepository.GetSubscribers(Blog.ModuleId))
                     {
-                        Blog.Summary += "<br /><br />Read Full Article: " + url;
-                        Blog.Summary += "<br /><br />Unsubscribe: " + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + subscriber.Guid);
-
-                        var notification = new Notification(alias.SiteId, "", sender, "", subscriber.Email, Blog.Title, Blog.Summary);
+                        var body = Blog.Summary;
+                        body += "<br /><br />Read Full Article: " + url;
+                        body += "<br /><br />Unsubscribe: " + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + subscriber.Guid);
+                        var notification = new Notification(alias.SiteId, "", sender, "", subscriber.Email, Blog.Title, body);
                         _NotificationRepository.AddNotification(notification);
                         subscribers++;
                     }
