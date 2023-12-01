@@ -148,7 +148,7 @@
     <value>Published?</value>
   </data>
   <data name="Message.Notified" xml:space="preserve">
-    <value>Subscribers Have Been Notified</value>
+    <value>{0} Subscribers Have Been Notified</value>
   </data>
   <data name="Notify" xml:space="preserve">
     <value>Notify</value>

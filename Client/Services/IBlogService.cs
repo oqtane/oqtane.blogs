@@ -16,6 +16,6 @@ namespace Oqtane.Blogs.Services
 
         Task DeleteBlogAsync(int BlogId, int ModuleId);
 
-        Task NotifyAsync(int BlogId, int ModuleId);
+        Task<int> NotifyAsync(int BlogId, int ModuleId);
     }
 }

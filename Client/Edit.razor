@@ -174,8 +174,8 @@
     {
         try
         {
-            await BlogService.NotifyAsync(_id, ModuleState.ModuleId);
-            AddModuleMessage(Localizer["Message.Notified"], MessageType.Success);
+            var subscribers = await BlogService.NotifyAsync(_id, ModuleState.ModuleId);
+            AddModuleMessage(string.Format(Localizer["Message.Notified"], subscribers), MessageType.Success);
         }
         catch (Exception ex)
         {

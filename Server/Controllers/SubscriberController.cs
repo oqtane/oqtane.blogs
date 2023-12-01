@@ -29,7 +29,10 @@ namespace Oqtane.Blogs.Controllers
             {
                 Subscriber.Guid = Guid.NewGuid().ToString();
                 Subscriber = _SubscriberRepository.AddSubscriber(Subscriber);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Subscriber Added {Subscriber}", Subscriber);
+                if (Subscriber != null)
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Subscriber Added {Subscriber}", Subscriber);
+                }
             }
         }
 
