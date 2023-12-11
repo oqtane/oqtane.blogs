@@ -78,7 +78,6 @@
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
     private string _published = "False";
-    private string _notify = "False";
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -99,7 +98,6 @@
                     _content = blog.Content;
                     _content = Utilities.FormatContent(_content, PageState.Alias, "render");
                     _published = blog.Published.ToString();
-                    _notify = "False";
                     _createdby = blog.CreatedBy;
                     _createdon = blog.CreatedOn;
                     _modifiedby = blog.ModifiedBy;
