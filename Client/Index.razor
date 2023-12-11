@@ -155,6 +155,11 @@ else
                 {
                     _blog = null;
                 }
+                else
+                {
+                    SetPageTitle(_blog.Title);
+                    AddHeadContent($"<meta name=\"description\" content=\"{_blog.Summary}\" />");
+                }
             }
             if (_blog == null)
             {

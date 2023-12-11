@@ -125,8 +125,9 @@ namespace Oqtane.Blogs.Controllers
                     foreach (var subscriber in _SubscriberRepository.GetSubscribers(Blog.ModuleId))
                     {
                         var body = Blog.Summary;
-                        body += "<br /><br />Read Full Article: " + url;
-                        body += "<br /><br />Unsubscribe: " + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + subscriber.Guid);
+                        body += $"<br /><br />Read Full Article: <a href=\"{url}\">{url}</a>";
+                        var unsubscribe = rooturl + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + subscriber.Guid);
+                        body += $"<br /><br />Unsubscribe: <a href=\"{unsubscribe}\">{unsubscribe}</a>";
                         var notification = new Notification(alias.SiteId, "", sender, "", subscriber.Email, Blog.Title, body);
                         _NotificationRepository.AddNotification(notification);
                         subscribers++;
