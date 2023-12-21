@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
-@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
@@ -23,6 +23,17 @@
             <Label Class="col-sm-3" For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
             <div class="col-sm-9">
                 <textarea id="detail" class="form-control" @bind="@_detail" rows="5" required></textarea>
+            </div>
+        </div>
+        <hr />
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="editor" ResourceKey="Editor" ResourceType="@resourceType" HelpText="Specify the preferred blog authoring experience">Editor: </Label>
+            <div class="col-sm-9">
+                <select id="editor" class="form-select" @bind="@_editor">
+                    <option value="">@Localizer["Full"]</option>
+                    <option value="rich">@Localizer["Rich"]</option>
+                    <option value="raw">@Localizer["Raw"]</option>
+                </select>
             </div>
         </div>
         <hr />
@@ -53,6 +64,7 @@
     private string _items;
     private string _summary;
     private string _detail;
+    private string _editor;
     private string _subscriptions;
     private string _sender;
 
@@ -63,6 +75,7 @@
             _items = SettingService.GetSetting(ModuleState.Settings, "Items", "10");
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
+            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", "");
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", "");
         }
@@ -80,6 +93,7 @@
             settings = SettingService.SetSetting(settings, "Items", _items);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
+            settings = SettingService.SetSetting(settings, "Editor", _editor);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
             settings = SettingService.SetSetting(settings, "Sender", _sender);
             settings = SettingService.SetSetting(settings, "PagePath", PageState.Page.Path);

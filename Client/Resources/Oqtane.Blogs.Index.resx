@@ -132,20 +132,8 @@
   <data name="AddBlog.Text" xml:space="preserve">
     <value>Add Blog</value>
   </data>
-  <data name="DeleteBlog.Header" xml:space="preserve">
-    <value>Delete Blog</value>
-  </data>
-  <data name="DeleteBlog.Message" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete This Blog?</value>
-  </data>
-  <data name="DeleteBlog.Text" xml:space="preserve">
-    <value>Delete</value>
-  </data>
   <data name="EditBlog.Text" xml:space="preserve">
     <value>Edit</value>
-  </data>
-  <data name="ErrorDeleting" xml:space="preserve">
-    <value>Error Deleting Blog</value>
   </data>
   <data name="ErrorLoading" xml:space="preserve">
     <value>Error Loading Blogs</value>
