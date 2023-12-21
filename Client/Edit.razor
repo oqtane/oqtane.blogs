@@ -27,7 +27,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="content" ResourceKey="Content" HelpText="Enter the content of your blog">Content: </Label>
             <div class="col-sm-9">
-                <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
+                <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml" AllowRawHtml="@(_editor == "" || _editor == "raw")" AllowRichText="@(_editor == "" || _editor == "rich")"></RichTextEditor>
             </div>
         </div>
         <br />
@@ -46,6 +46,7 @@
     <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
     @if (_id != -1)
     {
+        <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
         @if (_published == "True" && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
         {
             <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
@@ -60,13 +61,12 @@
 
     public override string Actions { get { return "Add,Edit"; } }
 
-    public override string Title => "Author Blog Post";
+    public override string Title => "Manage Blog Post";
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        // should be replaced with version agnostic references (available in Oqtane 3.0.3)
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.7.bubble.css" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.7.snow.css" }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
     };
 
     private ElementReference form;
@@ -75,6 +75,7 @@
     private int _id = -1;
     private string _title;
     private string _summary;
+    private string _editor;
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
     private string _published = "False";
@@ -87,6 +88,8 @@
     {
         try
         {
+            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", "");
+
             if (PageState.QueryString.ContainsKey("id"))
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);
@@ -153,8 +156,7 @@
                         await logger.LogInformation("Blog Updated {Blog}", blog);
                     }
                 }
-
-                ModuleInstance.AddModuleMessage(Localizer["Blog Saved"], MessageType.Success);
+                NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
             catch (Exception ex)
             {
@@ -168,12 +170,27 @@
         }
     }
 
+    private async Task DeleteBlog()
+    {
+        try
+        {
+            await BlogService.DeleteBlogAsync(_id, ModuleState.ModuleId);
+            await logger.LogInformation("Blog Deleted {BlogId}", _id);
+            NavigationManager.NavigateTo(PageState.ReturnUrl);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", _id, ex.Message);
+            ModuleInstance.AddModuleMessage(Localizer["ErrorDeleting"], MessageType.Error);
+        }
+    }
+
     private async Task Notify()
     {
         try
         {
             var subscribers = await BlogService.NotifyAsync(_id, ModuleState.ModuleId);
-            AddModuleMessage(string.Format(Localizer["Message.Notified"], subscribers), MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Message.Notified"], subscribers), MessageType.Success, "bottom");
         }
         catch (Exception ex)
         {

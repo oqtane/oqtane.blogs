@@ -159,4 +159,16 @@
   <data name="Error Sending Notifications" xml:space="preserve">
     <value>Error Sending Notifications</value>
   </data>
+  <data name="DeleteBlog.Header" xml:space="preserve">
+    <value>Delete Blog</value>
+  </data>
+  <data name="DeleteBlog.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete This Blog?</value>
+  </data>
+  <data name="DeleteBlog.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ErrorDeleting" xml:space="preserve">
+    <value>Error Deleting Blog</value>
+  </data>
 </root>

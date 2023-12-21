@@ -147,4 +147,19 @@
   <data name="Subscriptions.Text" xml:space="preserve">
     <value>Subscriptions?</value>
   </data>
+  <data name="Editor.HelpText" xml:space="preserve">
+    <value>Specify the preferred blog authoring experience</value>
+  </data>
+  <data name="Editor.Text" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="Full" xml:space="preserve">
+    <value>Full Editor Experience</value>
+  </data>
+  <data name="Raw" xml:space="preserve">
+    <value>Raw HTML Editor Only</value>
+  </data>
+  <data name="Rich" xml:space="preserve">
+    <value>Rich Text Editor Only</value>
+  </data>
 </root>
