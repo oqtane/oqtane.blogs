@@ -149,14 +149,15 @@ else
             if (!string.IsNullOrEmpty(PageState.UrlParameters))
             {
                 _blog = await BlogService.GetBlogAsync(int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                if (!_blog.Published && !UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
-                {
-                    _blog = null;
-                }
-                else
+                if (_blog != null && (_blog.Published || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList)))
                 {
                     SetPageTitle(_blog.Title);
                     AddHeadContent($"<meta name=\"description\" content=\"{_blog.Summary}\" />");
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["NotFound"], MessageType.Error);
+                    _blog = null;
                 }
             }
             if (_blog == null)
