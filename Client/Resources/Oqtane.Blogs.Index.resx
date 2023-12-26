@@ -165,4 +165,7 @@
   <data name="NotPublished" xml:space="preserve">
     <value>Blog Is Not Published</value>
   </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Specified Blog Does Not Exist Or Is Not Published</value>
+  </data>
 </root>
