@@ -109,14 +109,14 @@
                 else
                 {
                     await logger.LogError("Error Loading Blog {BlogId} {Error}", _id);
-                    ModuleInstance.AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
+                    AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
                 }
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Blog {BlogId} {Error}", _id, ex.Message);
-            ModuleInstance.AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
         }
     }
 
@@ -161,7 +161,7 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Saving Blog {BlogId} {Error}", _id, ex.Message);
-                ModuleInstance.AddModuleMessage(Localizer["Error Saving Blog"], MessageType.Error);
+                AddModuleMessage(Localizer["Error Saving Blog"], MessageType.Error);
             }
         }
         else
@@ -181,7 +181,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Blog {BlogId} {Error}", _id, ex.Message);
-            ModuleInstance.AddModuleMessage(Localizer["ErrorDeleting"], MessageType.Error);
+            AddModuleMessage(Localizer["ErrorDeleting"], MessageType.Error);
         }
     }
 
@@ -195,7 +195,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Sending Notifications {BlogId} {Error}", _id, ex.Message);
-            ModuleInstance.AddModuleMessage(Localizer["Error Sending Notifications"], MessageType.Error);
+            AddModuleMessage(Localizer["Error Sending Notifications"], MessageType.Error);
         }
     }
 }
