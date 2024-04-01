@@ -140,33 +140,36 @@ namespace Oqtane.Blogs.Controllers
         [HttpGet("rss/{id}")]
         public IActionResult RSS(int id)
         {
-            var alias = HttpContext.GetAlias();
-            var rooturl = alias.Protocol + alias.Name;
-
-            var site = _SiteRepository.GetSite(alias.SiteId);
-            var settings = _SettingRepository.GetSettings(EntityNames.Module, id);
-            var pagepath = "/" + settings.First(item => item.SettingName == "PagePath").SettingValue;
-
             var rss = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + Environment.NewLine;
-            rss += "<rss version=\"2.0\">" + Environment.NewLine;
-            rss += "<channel>" + Environment.NewLine;
-            rss += "<title>" + WebUtility.HtmlEncode(site.Name) + "</title>" + Environment.NewLine;
-            rss += "<link>" + rooturl + pagepath + "</link>" + Environment.NewLine;
-            rss += "<description>" + WebUtility.HtmlEncode(site.Name) + "</description>" + Environment.NewLine;
 
-            List<Blog> Blogs = _BlogRepository.GetBlogs(id, "").ToList();
-            foreach (var Blog in Blogs.Where(item => item.Published))
+            var settings = _SettingRepository.GetSettings(EntityNames.Module, id);
+            if (settings.Any(item => item.SettingName == "PagePath"))
             {
-                rss += "<item>" + Environment.NewLine;
-                rss += "<title>" + WebUtility.HtmlEncode(Blog.Title) + "</title>" + Environment.NewLine;
-                var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
-                rss += "<link>" + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters)  + "</link>" + Environment.NewLine;
-                rss += "<description>" + WebUtility.HtmlEncode(Blog.Summary) + "</description>" + Environment.NewLine;
-                rss += "</item>" + Environment.NewLine;
-            }
+                var pagepath = "/" + settings.First(item => item.SettingName == "PagePath").SettingValue;
+                var alias = HttpContext.GetAlias();
+                var rooturl = alias.Protocol + alias.Name;
+                var site = _SiteRepository.GetSite(alias.SiteId);
 
-            rss += "</channel>" + Environment.NewLine;
-            rss += "</rss>" + Environment.NewLine;
+                rss += "<rss version=\"2.0\">" + Environment.NewLine;
+                rss += "<channel>" + Environment.NewLine;
+                rss += "<title>" + WebUtility.HtmlEncode(site.Name) + "</title>" + Environment.NewLine;
+                rss += "<link>" + rooturl + pagepath + "</link>" + Environment.NewLine;
+                rss += "<description>" + WebUtility.HtmlEncode(site.Name) + "</description>" + Environment.NewLine;
+
+                List<Blog> Blogs = _BlogRepository.GetBlogs(id, "").ToList();
+                foreach (var Blog in Blogs.Where(item => item.Published))
+                {
+                    rss += "<item>" + Environment.NewLine;
+                    rss += "<title>" + WebUtility.HtmlEncode(Blog.Title) + "</title>" + Environment.NewLine;
+                    var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
+                    rss += "<link>" + rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters) + "</link>" + Environment.NewLine;
+                    rss += "<description>" + WebUtility.HtmlEncode(Blog.Summary) + "</description>" + Environment.NewLine;
+                    rss += "</item>" + Environment.NewLine;
+                }
+
+                rss += "</channel>" + Environment.NewLine;
+                rss += "</rss>" + Environment.NewLine;
+            }
 
             return Content(rss, "application/xml");
         }
