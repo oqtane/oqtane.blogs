@@ -187,6 +187,8 @@
 
     private async Task Notify()
     {
+        ShowProgressIndicator();
+
         try
         {
             var subscribers = await BlogService.NotifyAsync(_id, ModuleState.ModuleId);
@@ -197,5 +199,7 @@
             await logger.LogError(ex, "Error Sending Notifications {BlogId} {Error}", _id, ex.Message);
             AddModuleMessage(Localizer["Error Sending Notifications"], MessageType.Error);
         }
+
+        HideProgressIndicator();
     }
 }
