@@ -36,11 +36,14 @@
         <div class="container mt-2">
             <div class="row mb-1 justify-content-center">
                 <div class="col-sm-12 col-md-9 col-lg-6">
-                    <div class="input-group">
-                        <input class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
-                        <button type="button" class="btn btn-primary" @onclick="Subscribe">@Localizer["Subscribe"]</button>
-                        <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
-                    </div>
+                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <div class="input-group">
+                            <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
+                            <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
+                            <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -52,25 +55,9 @@ else
 {
     @if (_blogs != null)
     {
-        <div class="container">
-            <div class="row mb-1 justify-content-center">
-                <div class="col-sm-12 col-md-9 col-lg-6">
-                    <div class="input-group">
-                        @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
-                        {
-                            <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ReturnUrl="@PageState.Route.PathAndQuery" ResourceKey="AddBlog" Text="Add Blog" />
-                        }
-                        <input class="form-control" @bind="@_search" />
-                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
-                        <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <br />
         @if (_blogs.Any())
         {
-            <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" CurrentPage="@_page.ToString()" OnPageChange="OnPageChange" ColumnClass="col-lg-4 col-md-6">
+            <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="col-lg-4 col-md-6" SearchProperties="Title,Summary">
                 <Row>
                     @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
                     @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
@@ -93,14 +80,18 @@ else
             <div class="container mt-2">
                 <div class="row mb-1 justify-content-center">
                     <div class="col-sm-12 col-md-9 col-lg-6">
-                        <div class="input-group">
-                            <input class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
-                            <button type="button" class="btn btn-primary" @onclick="Subscribe">@Localizer["Subscribe"]</button>
-                            <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
-                        </div>
+                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                            <div class="input-group">
+                                <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
+                                <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
+                                <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
+
         }
     }
 }
@@ -108,17 +99,19 @@ else
 
 @code {
     public override string UrlParametersTemplate => "/{id}/{slug}";
+    public override string RenderMode => RenderModes.Static;
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string email { get => ""; set => _email = value; }
 
     private List<Blog> _blogs;
     private Blog _blog;
     private int _items;
     private string _summary;
     private string _detail;
-    private int _page = 1;
-    private string _search = "";
     private string _email = "";
     private string _rss = "";
-
+    
     protected override async Task OnInitializedAsync()
     {
         if (PageState.QueryString.ContainsKey("guid"))
@@ -135,15 +128,6 @@ else
             _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
-
-            if (PageState.QueryString.ContainsKey("page"))
-            {
-                _page = int.Parse(PageState.QueryString["page"]);
-            }
-            if (PageState.QueryString.ContainsKey("search"))
-            {
-                _search = PageState.QueryString["search"];
-            }
 
             _blog = null;
             if (!string.IsNullOrEmpty(PageState.UrlParameters))
@@ -176,7 +160,7 @@ else
     private async Task GetBlogs()
     {
         _blog = null;
-        _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId, _search);
+        _blogs = await BlogService.GetBlogsAsync(ModuleState.ModuleId, "");
         _blogs = _blogs.Where(item => item.Published || UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList)).ToList();
     }
 
@@ -195,29 +179,6 @@ else
         template = template.Replace("[CREATEDON]", blog.CreatedOn.ToShortDateString());
         template = template.Replace("[URL]", FormatUrl(blog));
         return template;
-    }
-
-    private async Task Search()
-    {
-        _page = 1;
-        await GetBlogs();
-        StateHasChanged();
-    }
-
-    private async Task Reset()
-    {
-        _page = 1;
-        _search = "";
-        await GetBlogs();
-        StateHasChanged();
-    }
-
-    private void OnPageChange(int page)
-    {
-        if (string.IsNullOrEmpty(PageState.UrlParameters))
-        {
-            _page = page;
-        }
     }
 
     private async Task Subscribe()
