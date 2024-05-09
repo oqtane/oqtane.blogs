@@ -168,4 +168,7 @@
   <data name="NotFound" xml:space="preserve">
     <value>Specified Blog Does Not Exist Or Is Not Published</value>
   </data>
+  <data name="DateInvalid" xml:space="preserve">
+    <value>Please Submit Your Email Again. We Apologize For The Inconvenience.</value>
+  </data>
 </root>

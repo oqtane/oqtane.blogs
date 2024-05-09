@@ -1,6 +1,7 @@
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
 @using Oqtane.Blogs.Shared
+@using System.Globalization
 
 @namespace Oqtane.Blogs
 @inherits ModuleBase
@@ -36,13 +37,15 @@
         <div class="container mt-2">
             <div class="row mb-1 justify-content-center">
                 <div class="col-sm-12 col-md-9 col-lg-6">
-                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm">
                         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                         <div class="input-group">
                             <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
                             <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
                             <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
                         </div>
+                        <input type="hidden" name="validation" @bind="@_validation" />
+                        <input type="hidden" name="date" @bind="@_date" />
                     </form>
                 </div>
             </div>
@@ -87,13 +90,15 @@ else
             <div class="container mt-2">
                 <div class="row mb-1 justify-content-center">
                     <div class="col-sm-12 col-md-9 col-lg-6">
-                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm">
                             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                             <div class="input-group">
                                 <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
                                 <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
                                 <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
                             </div>
+                            <input type="hidden" name="validation" @bind="@_validation" />
+                            <input type="hidden" name="date" @bind="@_date" />
                         </form>
                     </div>
                 </div>
@@ -111,14 +116,24 @@ else
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
     public string email { get => ""; set => _email = value; }
 
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string validation { get => ""; set => _validation = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string date { get => ""; set => _date = value; }
+
     private List<Blog> _blogs;
     private Blog _blog;
     private int _items;
     private string _summary;
     private string _detail;
     private string _email = "";
+    private string _validation = "";
+    private string _date = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+    private int _mintime = 5; // 5 second minimum
+    private int _maxtime = 300; // 5 minute maximum
     private string _rss = "";
-    
+
     protected override async Task OnInitializedAsync()
     {
         if (PageState.QueryString.ContainsKey("guid"))
@@ -192,12 +207,19 @@ else
     {
         if (!string.IsNullOrEmpty(_email) && Utilities.IsValidEmail(_email))
         {
-            var subscriber = new Subscriber();
-            subscriber.ModuleId = ModuleState.ModuleId;
-            subscriber.Email = _email;
-            await SubscriberService.AddSubscriberAsync(subscriber);
-            AddModuleMessage(Localizer["Activated"], MessageType.Success, "bottom");
-            _email = "";
+            if (string.IsNullOrEmpty(_validation) && DateTime.TryParseExact(_date, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
+            {
+                var subscriber = new Subscriber();
+                subscriber.ModuleId = ModuleState.ModuleId;
+                subscriber.Email = _email;
+                await SubscriberService.AddSubscriberAsync(subscriber);
+                AddModuleMessage(Localizer["Activated"], MessageType.Success, "bottom");
+                _email = "";
+            }
+            else // try again
+            {
+                AddModuleMessage(Localizer["DateInvalid"], MessageType.Warning, "bottom");
+            }
         }
         else
         {
