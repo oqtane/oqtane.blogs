@@ -37,7 +37,7 @@
         <div class="container mt-2">
             <div class="row mb-1 justify-content-center">
                 <div class="col-sm-12 col-md-9 col-lg-6">
-                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm">
+                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
                         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                         <div class="input-group">
                             <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
@@ -90,7 +90,7 @@ else
             <div class="container mt-2">
                 <div class="row mb-1 justify-content-center">
                     <div class="col-sm-12 col-md-9 col-lg-6">
-                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm">
+                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
                             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                             <div class="input-group">
                                 <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
