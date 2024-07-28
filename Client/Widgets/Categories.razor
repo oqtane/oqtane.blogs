@@ -1,0 +1,56 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@using System.Text
+
+@namespace Oqtane.Blogs.Widgets
+@inherits WidgetBase
+@inject ICategoryService CategoryService
+
+@if (_templateBuilder != null)
+{
+    @((MarkupString)_templateBuilder.ToString())
+}
+
+@code{
+    public override string RenderMode => RenderModes.Static;
+
+    private StringBuilder _templateBuilder;
+    private IList<CategorySource> _categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        _categories = await CategoryService.GetCategorySourcesAsync(BlogModuleId);
+
+        _templateBuilder = new StringBuilder(await RenderTemplate());
+    }
+
+    protected override async Task<IList<IDictionary<string, string>>> GenerateItemTokens()
+    {
+        var tokensList = new List<IDictionary<string, string>>();
+
+        var blogUrl = await GetBlogUrl();
+
+        foreach(var c in _categories)
+        {
+            var tokens = new Dictionary<string, string>
+            {
+                { "URL", $"{blogUrl}?category={c.CategorySourceId}" },
+                { "NAME", c.Name },
+                { "COUNT", c.BlogCount.ToString() }
+            };
+
+            tokensList.Add(tokens);
+        }
+
+        return tokensList;
+    }
+}

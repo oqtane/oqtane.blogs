@@ -11,18 +11,25 @@ using Oqtane.Shared;
 using Oqtane.Migrations.Framework;
 using Oqtane.Enums;
 using Oqtane.Blogs.Shared;
+using Oqtane.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace Oqtane.Blogs.Manager
 {
-    public class BlogManager : MigratableModuleBase, IInstallable, IPortable, ISitemap
+    public class BlogManager : MigratableModuleBase, IInstallable, IPortable, ISitemap, ISearchable
     {
-        private IBlogRepository _Blogs;
+        private IBlogRepository _blogRepository;
+        private IAliasRepository _aliasRepository;
+        private IPageRepository _pageRepository;
         private ISqlRepository _sql;
 		private readonly IDBContextDependencies _DBContextDependencies;
 
-		public BlogManager(IBlogRepository Blogs, ISqlRepository sql, IDBContextDependencies DBContextDependencies)
+		public BlogManager(IBlogRepository blogRepository, IAliasRepository aliasRepository, IPageRepository pageRepository, ISqlRepository sql, IDBContextDependencies DBContextDependencies)
         {
-            _Blogs = Blogs;
+            _blogRepository = blogRepository;
+            _aliasRepository = aliasRepository;
+            _pageRepository = pageRepository;
             _sql = sql;
             _DBContextDependencies = DBContextDependencies;
         }
@@ -34,7 +41,25 @@ namespace Oqtane.Blogs.Manager
                 // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
                 _sql.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("Blog.01.00.00.00"));
             }
-            return Migrate(new BlogContext(_DBContextDependencies), tenant, MigrationType.Up);
+
+            var migrated = Migrate(new BlogContext(_DBContextDependencies), tenant, MigrationType.Up);
+
+            if (migrated && version == "5.1.0")
+            {
+                UpdateBlogSlug(tenant);
+            }
+
+            return migrated;
+        }
+
+        private void UpdateBlogSlug(Tenant tenant)
+        {
+            var blogs = _blogRepository.GetBlogs(-1, new BlogSearch { IncludeDraft = true });
+            foreach (var blog in blogs)
+            {
+                blog.Slug = Common.FormatSlug(blog.Title);
+                _blogRepository.UpdateBlog(blog);
+            }
         }
 
         public bool Uninstall(Tenant tenant)
@@ -45,30 +70,30 @@ namespace Oqtane.Blogs.Manager
         public string ExportModule(Module module)
         {
             string content = "";
-            List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId, "").ToList();
-            if (Blogs != null)
+            List<Blog> blogs = _blogRepository.GetBlogs(module.ModuleId, new BlogSearch { IncludeDraft = true }).ToList();
+            if (blogs != null)
             {
-                content = JsonSerializer.Serialize(Blogs);
+                content = JsonSerializer.Serialize(blogs);
             }
             return content;
         }
 
         public void ImportModule(Module module, string content, string version)
         {
-            List<Blog> Blogs = null;
+            List<Blog> blogs = null;
             if (!string.IsNullOrEmpty(content))
             {
-                Blogs = JsonSerializer.Deserialize<List<Blog>>(content);
+                blogs = JsonSerializer.Deserialize<List<Blog>>(content);
             }
-            if (Blogs != null)
+            if (blogs != null)
             {
-                foreach(Blog Blog in Blogs)
+                foreach(Blog Blog in blogs)
                 {
-                    Blog _Blog = new Blog();
-                    _Blog.ModuleId = module.ModuleId;
-                    _Blog.Title = Blog.Title;
-                    _Blog.Content = Blog.Content;
-                    _Blogs.AddBlog(_Blog);
+                    var blog = new Blog();
+                    blog.ModuleId = module.ModuleId;
+                    blog.Title = Blog.Title;
+                    blog = _blogRepository.AddBlog(blog);
+                    
                 }
             }
         }
@@ -76,13 +101,45 @@ namespace Oqtane.Blogs.Manager
         public List<Sitemap> GetUrls(string alias, string path, Module module)
         {
             var sitemap = new List<Sitemap>();
-            List<Blog> Blogs = _Blogs.GetBlogs(module.ModuleId, "").ToList();
-            foreach (var Blog in Blogs.Where(item => item.Published))
+            var blogs = _blogRepository.GetBlogs(module.ModuleId, null).ToList();
+            foreach (var blog in blogs.Where(item => item.PublishedBlogContent != null))
             {
-                var parameters = Utilities.AddUrlParameters(Blog.BlogId, Common.FormatSlug(Blog.Title));
-                sitemap.Add(new Sitemap { Url = Utilities.NavigateUrl(alias, path, parameters), ModifiedOn = Blog.ModifiedOn });
+                var parameters = Utilities.AddUrlParameters(blog.BlogId, Common.FormatSlug(blog.Title));
+                sitemap.Add(new Sitemap { Url = Utilities.NavigateUrl(alias, path, parameters), ModifiedOn = blog.ModifiedOn });
             }
             return sitemap;
+        }
+
+        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexOn)
+        {
+            var searchContents = new List<SearchContent>();
+            var alias = _aliasRepository.GetAliases().Where(i => i.SiteId == pageModule.Module.SiteId).OrderByDescending(i => i.IsDefault).FirstOrDefault();
+            var page = _pageRepository.GetPage(pageModule.PageId);
+            var blogs = _blogRepository.GetBlogs(pageModule.ModuleId, null).Where(i => i.ModifiedOn >= lastIndexOn);
+            foreach (var blog in blogs)
+            {
+                var blogContent = blog.PublishedBlogContent;
+                var searchContent = new SearchContent
+                {
+                    SiteId = pageModule.Module.SiteId,
+                    Url = BlogUtilities.FormatUrl(alias.Path, page.Path, blog),
+                    EntityName = "Blog",
+                    EntityId = blog.BlogId.ToString(),
+                    Title = blog.Title,
+                    Description = blogContent.Summary,
+                    Body = blogContent.Content,
+                    ContentModifiedBy = blogContent.ModifiedBy,
+                    ContentModifiedOn = blogContent.ModifiedOn,
+                    CreatedOn = blogContent.PublishStatus == PublishStatus.Scheduled ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue) : blogContent.ModifiedOn,
+                    AdditionalContent = string.Empty,
+                    TenantId = alias.TenantId,
+                    Permissions = $"{EntityNames.Page}:{page.PageId}",
+                };
+
+                searchContents.Add(searchContent);
+            }
+
+            return searchContents;
         }
     }
 }

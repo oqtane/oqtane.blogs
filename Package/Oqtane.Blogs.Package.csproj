@@ -5,15 +5,15 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF $(ConfigurationName) == Debug (debug.cmd)" />
+    <Exec Command="IF $(ConfigurationName) == Release (release.cmd)" />
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\Client\Oqtane.Blogs.Client.csproj" />
     <ProjectReference Include="..\Server\Oqtane.Blogs.Server.csproj" />
     <ProjectReference Include="..\Shared\Oqtane.Blogs.Shared.csproj" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="IF $(ConfigurationName) == Debug (debug.cmd)" />
-    <Exec Command="IF $(ConfigurationName) == Release (release.cmd)" />
-  </Target>
 
 </Project>

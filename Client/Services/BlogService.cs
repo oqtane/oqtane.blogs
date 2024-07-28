@@ -6,6 +6,7 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.Blogs.Models;
+using System.Web;
 
 namespace Oqtane.Blogs.Services
 {
@@ -20,34 +21,49 @@ namespace Oqtane.Blogs.Services
 
          private string Apiurl=> CreateApiUrl("Blog", _siteState.Alias);
 
-        public async Task<List<Blog>> GetBlogsAsync(int ModuleId, string Search)
+        public async Task<List<Blog>> GetBlogsAsync(int moduleId, BlogSearch searchQuery)
         {
-            return await GetJsonAsync<List<Blog>>(CreateAuthorizationPolicyUrl($"{Apiurl}?moduleid={ModuleId}&search={Search}", EntityNames.Module, ModuleId));
+            var query = $"?moduleid={moduleId}";
+            if (searchQuery != null)
+            {
+                var properties = from p in searchQuery.GetType().GetProperties()
+                                 where p.GetValue(searchQuery, null) != null
+                                 select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(searchQuery, null).ToString());
+
+                query += "&" + string.Join("&", properties.ToArray());
+            }
+
+            return await GetJsonAsync<List<Blog>>(CreateAuthorizationPolicyUrl($"{Apiurl}{query}", EntityNames.Module, moduleId));
         }
 
-        public async Task<Blog> GetBlogAsync(int BlogId, int ModuleId)
+        public async Task<Blog> GetBlogAsync(int blogId, int moduleId)
         {
-            return await GetJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/{BlogId}", EntityNames.Module, ModuleId));
+            return await GetJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/{blogId}", EntityNames.Module, moduleId));
         }
 
-        public async Task<Blog> AddBlogAsync(Blog Blog)
+        public async Task<Blog> GetBlogBySlugAsync(string slug, int moduleId)
         {
-            return await PostJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}", EntityNames.Module, Blog.ModuleId), Blog);
+            return await GetJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/slug/{slug}", EntityNames.Module, moduleId));
         }
 
-        public async Task<Blog> UpdateBlogAsync(Blog Blog)
+        public async Task<Blog> AddBlogAsync(Blog blog)
         {
-            return await PutJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/{Blog.BlogId}", EntityNames.Module, Blog.ModuleId), Blog);
+            return await PostJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}", EntityNames.Module, blog.ModuleId), blog);
         }
 
-        public async Task DeleteBlogAsync(int BlogId, int ModuleId)
+        public async Task<Blog> UpdateBlogAsync(Blog blog)
         {
-            await DeleteAsync(CreateAuthorizationPolicyUrl($"{Apiurl}/{BlogId}", EntityNames.Module, ModuleId));
+            return await PutJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/{blog.BlogId}", EntityNames.Module, blog.ModuleId), blog);
         }
 
-        public async Task<int> NotifyAsync(int BlogId, int ModuleId)
+        public async Task DeleteBlogAsync(int blogId, int moduleId)
         {
-            return await GetJsonAsync<int>(CreateAuthorizationPolicyUrl($"{Apiurl}/notify/{BlogId}", EntityNames.Module, ModuleId));
+            await DeleteAsync(CreateAuthorizationPolicyUrl($"{Apiurl}/{blogId}", EntityNames.Module, moduleId));
+        }
+
+        public async Task<int> NotifyAsync(int blogId, int moduleId)
+        {
+            return await GetJsonAsync<int>(CreateAuthorizationPolicyUrl($"{Apiurl}/notify/{blogId}", EntityNames.Module, moduleId));
         }
     }
 }

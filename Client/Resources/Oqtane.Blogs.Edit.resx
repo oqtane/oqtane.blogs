@@ -171,4 +171,55 @@
   <data name="ErrorDeleting" xml:space="preserve">
     <value>Error Deleting Blog</value>
   </data>
+  <data name="Categories.HelpText" xml:space="preserve">
+    <value>Select the categories of your blog</value>
+  </data>
+  <data name="Categories.Text" xml:space="preserve">
+    <value>Categories:</value>
+  </data>
+  <data name="Slug.HelpText" xml:space="preserve">
+    <value>Enter the slug of your blog</value>
+  </data>
+  <data name="Slug.Text" xml:space="preserve">
+    <value>Slug:</value>
+  </data>
+  <data name="Tags.HelpText" xml:space="preserve">
+    <value>Optionally enter a comma-delimited list of tags related to the blog</value>
+  </data>
+  <data name="Tags.Text" xml:space="preserve">
+    <value>Tag:</value>
+  </data>
+  <data name="PublishDate.HelpText" xml:space="preserve">
+    <value>Select the publish date of your blog</value>
+  </data>
+  <data name="PublishDate.Text" xml:space="preserve">
+    <value>Publish Date:</value>
+  </data>
+  <data name="ContentVersions.Text" xml:space="preserve">
+    <value>Versions History</value>
+  </data>
+  <data name="AlternateText.HelpText" xml:space="preserve">
+    <value>Enter the alternate text for the thumbnail</value>
+  </data>
+  <data name="AlternateText.Text" xml:space="preserve">
+    <value>Alternate Text:</value>
+  </data>
+  <data name="PublishDate.Required" xml:space="preserve">
+    <value>Please enter the publish date.</value>
+  </data>
+  <data name="SlugExist" xml:space="preserve">
+    <value>The slug has already been used by another blog item.</value>
+  </data>
+  <data name="Thumbnail.HelpText" xml:space="preserve">
+    <value>Enter the thumbnail URL</value>
+  </data>
+  <data name="Thumbnail.Text" xml:space="preserve">
+    <value>Thumbnail:</value>
+  </data>
+  <data name="InsertImage" xml:space="preserve">
+    <value>Insert Image</value>
+  </data>
+  <data name="Categories.Required" xml:space="preserve">
+    <value>Please select at least one category</value>
+  </data>
 </root>

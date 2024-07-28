@@ -171,4 +171,7 @@
   <data name="DateInvalid" xml:space="preserve">
     <value>Please Submit Your Email Again. We Apologize For The Inconvenience.</value>
   </data>
+  <data name="ManageCategories" xml:space="preserve">
+    <value>Manage Categories</value>
+  </data>
 </root>

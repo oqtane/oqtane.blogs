@@ -1,0 +1,256 @@
+@namespace Oqtane.Blogs.Widgets
+@using Oqtane.Blogs.Shared
+@inherits ModuleBase
+@implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
+@inject IPageService PageService
+@inject IModuleService ModuleService
+@inject IPageModuleService PageModuleService
+@inject IStringLocalizer<Settings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_initialized)
+{
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="blogModule" ResourceKey="BlogModule" ResourceType="@resourceType" HelpText="Select the blog module">Blog module: </Label>
+                <div class="col-sm-9">
+                    <select id="blogModule" class="form-select" @bind="_blogModule">
+                        <option value="">@Localizer["SelectModule"]</option>
+                        @foreach(var kvp in _blogModules)
+                        {
+                            <option value="@kvp.Key">@kvp.Value</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="cssClass" ResourceKey="CssClass" ResourceType="@resourceType" HelpText="Enter the css class">Css Class: </Label>
+                <div class="col-sm-9">
+                    <input id="cssClass" type="text" class="form-control" @bind="@_cssClass" maxlength="50" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="widget" ResourceKey="Widget" ResourceType="@resourceType" HelpText="Select a widget to add">Widget: </Label>
+                <div class="col-sm-9">
+                    <select id="widget" @bind-value="_widget" @bind-value:event="oninput" class="form-select" @onchange="WidgetChanged">
+                        <option value="">@Localizer["AddWidget"]</option>
+                        @foreach(var widget in AvailableWidgets.Where(i => !_widgets.Contains(i)))
+                        {
+                            <option value="@widget">@Localizer[widget]</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3 align-items-start">
+                <div class="col-sm-9 offset-sm-3">
+                    <ul class="list-group">
+                        @{var index = 0;}
+                        @foreach(var widget in _widgets)
+                        {
+                            <li class="list-group-item">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <span>@Localizer[widget]</span>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button type="button" class="btn btn-primary @(index == 0 ? "disabled" : "")" @onclick="@(() => MoveUp(widget))"><span class="oi oi-arrow-circle-top"></span></button>
+                                            <button type="button" class="btn btn-primary @(index == _widgets.Count - 1 ? "disabled" : "")" @onclick="@(() => MoveDown(widget))"><span class="oi oi-arrow-circle-bottom"></span></button>
+                                            <button type="button" class="btn btn-primary" @onclick="@(async () => await EditWidgetSetting(widget))"><span class="oi oi-cog"></span></button>
+                                            <button type="button" class="btn btn-danger" @onclick="@(() => RemoveWidget(widget))"><span class="oi oi-trash"></span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            index++;
+                        }
+                    </ul>
+                </div>
+            </div>
+            @if(!string.IsNullOrEmpty(_editWidget))
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="template" ResourceKey="WidgetTemplate" ResourceType="@resourceType" HelpText="Edit the widget template">Template: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="template" class="form-control" @bind="_widgetTemplate" rows="5" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="itemsCount" ResourceKey="WidgetItemsCount" ResourceType="@resourceType" HelpText="Enter the widget items count">Items Count: </Label>
+                    <div class="col-sm-9">
+                        <input id="itemsCount" type="number" class="form-control" @bind="_widgetItemsCount" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-4 offset-sm-8 text-end">
+                        <button type="button" class="btn btn-primary" @onclick="@(async () => await SaveWidgetSettings())">@Localizer["Save"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEditSettings">@Localizer["Cancel"]</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+}
+else
+{
+    <div class="app-progress-indicator"></div>
+}
+
+@code {
+    private string resourceType = "Oqtane.Blogs.Widgets.Settings, Oqtane.Blogs.Client.Oqtane"; // for localization
+
+    private readonly IList<string> AvailableWidgets = new List<string> { "PopularPosts", "RelatedPosts", "Categories", "Archives", "LatestBlog" };
+
+    private ElementReference form;
+    private bool validated = false;
+
+    private string _blogModule;
+    private string _cssClass;
+    private IDictionary<int, string> _blogModules;
+    private string _widget;
+    private IList<string> _widgets;
+    private string _editWidget;
+    private string _widgetTemplate;
+    private string _widgetItemsCount;
+    private bool _initialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _blogModules = await LoadBlogModules();
+
+            _blogModule = SettingService.GetSetting(ModuleState.Settings, "BlogModule", "");
+            _cssClass = SettingService.GetSetting(ModuleState.Settings, "CssClass", "");
+            _widgets = SettingService.GetSetting(ModuleState.Settings, "Widgets", "").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            _initialized = true;
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "BlogModule", _blogModule);
+            settings = SettingService.SetSetting(settings, "CssClass", _cssClass);
+            settings = SettingService.SetSetting(settings, "Widgets", string.Join(",", _widgets));
+
+            //also save the blog page id so that it can be referenced later
+            if(!string.IsNullOrEmpty(_blogModule) && int.TryParse(_blogModule, out int blogModuleId))
+            {
+                var pageId = (await ModuleService.GetModulesAsync(PageState.Site.SiteId)).FirstOrDefault(i => i.ModuleId == blogModuleId)?.PageId ?? 0;
+                settings = SettingService.SetSetting(settings, "BlogPage", pageId.ToString());
+            }
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async Task<IDictionary<int, string>> LoadBlogModules()
+    {
+        var blogModules = new Dictionary<int, string>();
+        var modules = (await ModuleService.GetModulesAsync(PageState.Site.SiteId))
+        .Where(i => i.ModuleDefinitionName == "Oqtane.Blogs, Oqtane.Blogs.Client.Oqtane" && !i.IsDeleted)
+        .ToList();
+
+        foreach(var module in modules)
+        {
+            var page = await PageService.GetPageAsync(module.PageId);
+            var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
+            if (page != null && pageModule != null && !pageModule.IsDeleted)
+            {
+                var key = module.ModuleId;
+                var value = $"{page.Name} - {pageModule.Title} ({module.ModuleId})";
+                blogModules.Add(key, value);
+            }
+        }
+
+        return blogModules;
+    }
+
+    private void WidgetChanged(ChangeEventArgs e)
+    {
+        var widget = Convert.ToString(e.Value);
+        if (!string.IsNullOrEmpty(widget))
+        {
+            if (!_widgets.Contains(widget))
+            {
+                _widgets.Add(widget);
+            }
+
+            _widget = string.Empty;
+
+            StateHasChanged();
+        }
+    }
+
+    private void MoveUp(string widget)
+    {
+        var index = _widgets.IndexOf(widget);
+        if(index > 0)
+        {
+            var temp = _widgets[index - 1];
+            _widgets[index - 1] = widget;
+            _widgets[index] = temp;
+
+            StateHasChanged();
+        }
+    }
+
+    private void MoveDown(string widget)
+    {
+        var index = _widgets.IndexOf(widget);
+        if (index < _widgets.Count - 1)
+        {
+            var temp = _widgets[index + 1];
+            _widgets[index + 1] = widget;
+            _widgets[index] = temp;
+
+            StateHasChanged();
+        }
+    }
+
+    private void RemoveWidget(string widget)
+    {
+        _widgets.Remove(widget);
+        StateHasChanged();
+    }
+
+    private async Task EditWidgetSetting(string widget)
+    {
+        _editWidget = widget;
+        var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+        _widgetTemplate = SettingService.GetSetting(settings, $"WidgetTemplate.{_editWidget}", "");
+        _widgetItemsCount = SettingService.GetSetting(settings, $"WidgetItemsCount.{_editWidget}", "10");
+
+        StateHasChanged();
+    }
+
+    private async Task SaveWidgetSettings()
+    {
+        var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+        settings = SettingService.SetSetting(settings, $"WidgetTemplate.{_editWidget}", _widgetTemplate);
+        settings = SettingService.SetSetting(settings, $"WidgetItemsCount.{_editWidget}", _widgetItemsCount);
+        await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+
+        _editWidget = string.Empty;
+        StateHasChanged();
+    }
+
+    private void CancelEditSettings()
+    {
+        _editWidget = string.Empty;
+        StateHasChanged();
+    }
+}

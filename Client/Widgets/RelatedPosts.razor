@@ -1,0 +1,85 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@using System.Text
+@using System.Text.RegularExpressions
+
+@namespace Oqtane.Blogs.Widgets
+@inherits WidgetBase
+@inject IBlogService BlogService
+@inject ISubscriberService SubscriberService
+@inject NavigationManager NavigationManager
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_templateBuilder != null)
+{
+    @((MarkupString)_templateBuilder.ToString())
+}
+
+@code{
+    public override string UrlParametersTemplate => "/{slug}";
+    public override string RenderMode => RenderModes.Static;
+
+    private StringBuilder _templateBuilder;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if(!UrlParameters.ContainsKey("slug"))
+        {
+            return;
+        }
+
+        var slug = UrlParameters["slug"];
+        var blog = await BlogService.GetBlogBySlugAsync(slug, BlogModuleId);
+        if(blog != null && !string.IsNullOrEmpty(blog.Tags))
+        {
+            var title = Regex.Replace(blog.Title, "\\\\|\\||\\(|\\)|\\[|\\]|\\*|\\?|\\{|\\}|\\^|\\+|\\d+|\\-", string.Empty);
+            var stopWords = new List<string>() { "all", "just", "being", "over", "both", "through", "yourselves", "its", "before", "herself", "had", "should", "to", "only", "under", "ours", "has", "do", "them", "his", "very", "they", "not", "during", "now", "him", "nor", "did", "this", "she", "each", "further", "where", "few", "because", "doing", "some", "are", "our", "ourselves", "out", "what", "for", "while", "does", "above", "between", "t", "be", "we", "who", "were", "here", "hers", "by", "on", "about", "of", "against", "s", "or", "own", "into", "yourself", "down", "your", "from", "her", "their", "there", "been", "whom", "too", "themselves", "was", "until", "more", "himself", "that", "but", "don", "with", "than", "those", "he", "me", "myself", "these", "up", "will", "below", "can", "theirs", "my", "and", "then", "is", "am", "it", "an", "as", "itself", "at", "have", "in", "any", "if", "again", "no", "when", "same", "how", "other", "which", "you", "after", "most", "such", "why", "a", "off", "i", "yours", "so", "the", "having", "once" };
+
+
+            var pattern = string.Join("|", blog.Title.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(i => !stopWords.Contains(i, StringComparer.OrdinalIgnoreCase)));
+            var allBlogs = (await BlogService.GetBlogsAsync(BlogModuleId, null)).Select(i =>
+            {
+                var score = 0;
+                if (!string.IsNullOrEmpty(i.Title))
+                {
+                    score += Regex.Matches(i.Title, pattern).Count * 20;
+                }
+
+                if (!string.IsNullOrEmpty(i.PublishedBlogContent.Content))
+                {
+                    score += Regex.Matches(i.PublishedBlogContent.Content, pattern).Count;
+                }
+
+                if (!string.IsNullOrEmpty(i.PublishedBlogContent.Summary))
+                {
+                    score += Regex.Matches(i.PublishedBlogContent.Summary, pattern).Count * 2;
+                }
+
+                return new
+                {
+                    Score = score,
+                    Blog = i
+                };
+            });
+
+            Blogs = allBlogs.Where(i => i.Score > 0 && i.Blog.BlogId != blog.BlogId)
+                        .OrderByDescending(i => i.Score)
+                        .Select(i => i.Blog)
+                        .Take(ItemsCount)
+                        .ToList();
+
+            _templateBuilder = new StringBuilder(await RenderTemplate());
+        }
+    }
+}
