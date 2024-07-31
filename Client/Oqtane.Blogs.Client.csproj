@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>5.0.3</Version>
+    <Version>5.1.0</Version>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
     <Description>A Blog Module for the Oqtane Framework</Description>
@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4" />
-	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.4" />
-	  <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.4" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.6" />
+	  <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.6" />
 	  <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
@@ -25,8 +25,14 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Oqtane.Client" Version="5.1.0" />
-		<PackageReference Include="Oqtane.Shared" Version="5.1.0" />
+		<PackageReference Include="Oqtane.Client" Version="5.2.0" />
+		<PackageReference Include="Oqtane.Shared" Version="5.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="ContentVersions.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
 	</ItemGroup>
 
   <PropertyGroup>

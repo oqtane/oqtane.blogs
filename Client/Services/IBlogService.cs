@@ -6,16 +6,18 @@ namespace Oqtane.Blogs.Services
 {
     public interface IBlogService 
     {
-        Task<List<Blog>> GetBlogsAsync(int ModuleId, string Search);
+        Task<List<Blog>> GetBlogsAsync(int moduleId, BlogSearch searchQuery);
 
-        Task<Blog> GetBlogAsync(int BlogId, int ModuleId);
+        Task<Blog> GetBlogAsync(int blogId, int moduleId);
 
-        Task<Blog> AddBlogAsync(Blog Blog);
+        Task<Blog> GetBlogBySlugAsync(string slug, int moduleId);
 
-        Task<Blog> UpdateBlogAsync(Blog Blog);
+        Task<Blog> AddBlogAsync(Blog blog);
 
-        Task DeleteBlogAsync(int BlogId, int ModuleId);
+        Task<Blog> UpdateBlogAsync(Blog blog);
 
-        Task<int> NotifyAsync(int BlogId, int ModuleId);
+        Task DeleteBlogAsync(int blogId, int moduleId);
+
+        Task<int> NotifyAsync(int blogId, int moduleId);
     }
 }

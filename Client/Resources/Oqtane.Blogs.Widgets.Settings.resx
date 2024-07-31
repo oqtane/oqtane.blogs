@@ -117,85 +117,55 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Items.Text" xml:space="preserve">
-    <value>Items Per Page:</value>
+  <data name="AddWidget" xml:space="preserve">
+    <value>Select a widget to add</value>
   </data>
-  <data name="Items.HelpText" xml:space="preserve">
-    <value>Enter the maximum items per page</value>
+  <data name="Archives" xml:space="preserve">
+    <value>Archives</value>
   </data>
-  <data name="Summary.Text" xml:space="preserve">
-    <value>Summary Template:</value>
+  <data name="BlogModule.HelpText" xml:space="preserve">
+    <value>Select the blog module</value>
   </data>
-  <data name="Summary.HelpText" xml:space="preserve">
-    <value>Enter the summary blog template</value>
+  <data name="BlogModule.Text" xml:space="preserve">
+    <value>Blog Module:</value>
   </data>
-  <data name="Detail.HelpText" xml:space="preserve">
-    <value>Enter the detail blog template</value>
+  <data name="Categories" xml:space="preserve">
+    <value>Categories</value>
   </data>
-  <data name="Detail.Text" xml:space="preserve">
-    <value>Detail Template:</value>
+  <data name="CssClass.HelpText" xml:space="preserve">
+    <value>Enter the css class</value>
   </data>
-  <data name="Sender.HelpText" xml:space="preserve">
-    <value>Email address which subscriptions will be sent from</value>
+  <data name="CssClass.Text" xml:space="preserve">
+    <value>Css Class:</value>
   </data>
-  <data name="Sender.Text" xml:space="preserve">
-    <value>Sender:</value>
+  <data name="LatestBlog" xml:space="preserve">
+    <value>Latest Blog</value>
   </data>
-  <data name="Subscriptions.HelpText" xml:space="preserve">
-    <value>Do you wish to allow email subscriptions to the blog?</value>
+  <data name="PopularPosts" xml:space="preserve">
+    <value>Popular Posts</value>
   </data>
-  <data name="Subscriptions.Text" xml:space="preserve">
-    <value>Subscriptions?</value>
+  <data name="RelatedPosts" xml:space="preserve">
+    <value>Related Posts</value>
   </data>
-  <data name="Editor.HelpText" xml:space="preserve">
-    <value>Specify the preferred blog authoring experience</value>
+  <data name="SelectModule" xml:space="preserve">
+    <value>Select the Blog Module</value>
   </data>
-  <data name="Editor.Text" xml:space="preserve">
-    <value>Editor:</value>
+  <data name="Widget.HelpText" xml:space="preserve">
+    <value>Select a widget to add</value>
   </data>
-  <data name="Full" xml:space="preserve">
-    <value>Full Editor Experience</value>
+  <data name="Widget.Text" xml:space="preserve">
+    <value>Widget:</value>
   </data>
-  <data name="Raw" xml:space="preserve">
-    <value>Raw HTML Editor Only</value>
+  <data name="WidgetItemsCount.HelpText" xml:space="preserve">
+    <value>Enter the widget items count.</value>
   </data>
-  <data name="Rich" xml:space="preserve">
-    <value>Rich Text Editor Only</value>
+  <data name="WidgetItemsCount.Text" xml:space="preserve">
+    <value>Items Count:</value>
   </data>
-  <data name="SearchProperties.HelpText" xml:space="preserve">
-    <value>Enter the search properties</value>
+  <data name="WidgetTemplate.HelpText" xml:space="preserve">
+    <value>Edit the widget template</value>
   </data>
-  <data name="SearchProperties.Text" xml:space="preserve">
-    <value>Search Properties:</value>
-  </data>
-  <data name="ColumnCssClass.HelpText" xml:space="preserve">
-    <value>Enter the column css class</value>
-  </data>
-  <data name="ColumnCssClass.Text" xml:space="preserve">
-    <value>Column Css Class:</value>
-  </data>
-  <data name="Bottom" xml:space="preserve">
-    <value>Bottom</value>
-  </data>
-  <data name="SearchPosition.HelpText" xml:space="preserve">
-    <value>Select the search position</value>
-  </data>
-  <data name="SearchPosition.Text" xml:space="preserve">
-    <value>Search Position:</value>
-  </data>
-  <data name="Top" xml:space="preserve">
-    <value>Top</value>
-  </data>
-  <data name="MetaDescription.HelpText" xml:space="preserve">
-    <value>Enter the meta description content</value>
-  </data>
-  <data name="MetaDescription.Text" xml:space="preserve">
-    <value>Meta Description:</value>
-  </data>
-  <data name="MetaRobots.HelpText" xml:space="preserve">
-    <value>Enter the meta robots content</value>
-  </data>
-  <data name="MetaRobots.Text" xml:space="preserve">
-    <value>Meta Robots:</value>
+  <data name="WidgetTemplate.Text" xml:space="preserve">
+    <value>Template:</value>
   </data>
 </root>

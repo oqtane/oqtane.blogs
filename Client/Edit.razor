@@ -1,10 +1,12 @@
 @using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Models
-
+@using Oqtane.Blogs.Shared
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject IBlogContentService BlogContentService
 @inject ISettingService SettingService
+@inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -14,7 +16,63 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="title" ResourceKey="Title" HelpText="Enter the title of your blog">Title: </Label>
             <div class="col-sm-9">
-                <input id="title" type="text" class="form-control" @bind="@_title" maxlength="256" required />
+                <input id="title" type="text" class="form-control" value="@_title" maxlength="256" required @onchange="TitleChanged" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="slug" ResourceKey="Slug" HelpText="Enter the slug of your blog">Slug: </Label>
+            <div class="col-sm-9">
+                <input id="slug" type="text" class="form-control" @bind="@_slug" maxlength="256" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Enter the thumbnail URL">Thumbnail: </Label>
+            <div class="col-sm-9">
+                <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnail" maxlength="500" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <div class="col-sm-9 offset-sm-3">
+                @if (_richfilemanager)
+                {
+                    <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
+                    <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
+                    <br />
+                }
+                <div class="d-flex mb-2">
+                    <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
+                    @if (_richfilemanager)
+                    {
+                        @((MarkupString)"&nbsp;&nbsp;")
+                        <button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="alternateText" ResourceKey="AlternateText" HelpText="Enter the alternate text for the thumbnail">Alternate Text: </Label>
+            <div class="col-sm-9">
+                <input id="alternateText" type="text" class="form-control" @bind="@_alternateText" maxlength="200" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="title" ResourceKey="Categories" HelpText="Select the categories of your blog">Categories: </Label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    <input class="form-control dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" readonly @bind-value="_categoriesName" required />
+                    <ul class="dropdown-menu w-100">
+                        @if (_categorySources != null)
+                        {
+                            foreach (var cat in _categorySources)
+                            {
+                                <li class="px-3 py-1">
+                                    <input type="checkbox" class="form-check-input" id="cat-@cat.CategorySourceId" @onchange="@((e) => CategoryChanged(cat, e))" checked="@_categories.Contains(cat.CategorySourceId)" />
+                                    <label for="cat-@cat.CategorySourceId" class="ms-1">@cat.Name</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -34,20 +92,37 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this blog is visible to all users or only editors">Published? </Label>
             <div class="col-sm-9">
-                <select id="published" class="form-select" @bind="@_published">
-                    <option value="True">@SharedLocalizer["Yes"]</option>
-                    <option value="False">@SharedLocalizer["No"]</option>
+                <select id="published" class="form-select" @bind="@_publishStatus">
+                    <option value="0">@SharedLocalizer["Draft"]</option>
+                    <option value="1">@SharedLocalizer["Published"]</option>
+                    <option value="2">@SharedLocalizer["Scheduled"]</option>
                 </select>
+            </div>
+        </div>
+        @if(_publishStatus == ((int)PublishStatus.Scheduled).ToString())
+        {
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of your blog">Publish Date: </Label>
+                <div class="col-sm-9">
+                    <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" required />
+                </div>
+            </div>
+        }
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="tags" ResourceKey="Tags" HelpText="Enter the tags of your blog">Tags: </Label>
+            <div class="col-sm-9">
+                <input id="tags" type="text" class="form-control" @bind="@_tagsValue" maxlength="50" />
             </div>
         </div>
     </div>
     <br /><br />
     <button type="button" class="btn btn-success" @onclick="SaveBlog">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>   
     @if (_id != -1)
     {
         <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
-        @if (_published == "True" && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+        <ActionLink Action="ContentVersions" Parameters="@($"id=" + _id.ToString())" ReturnUrl="@EditUrl("Edit", $"id=" + _id.ToString())" ResourceKey="ContentVersions" Text="ContentVersions" />
+        @if (_publishStatus == ((int)PublishStatus.Published).ToString() && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
         {
             <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
         }
@@ -69,25 +144,41 @@
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
     };
 
+    private const int CheckedValue = 1;
+
     private ElementReference form;
     private bool validated = false;
 
     private int _id = -1;
+    private IList<int> _categories = new List<int>();
+    private string _categoriesName;
     private string _title;
+    private string _slug;
+    private string _thumbnail;
+    private string _alternateText;
     private string _summary;
-    private string _editor;
+    private string _editor = "";
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
-    private string _published = "False";
+    private string _publishStatus = ((int)PublishStatus.Draft).ToString();
+    private DateTime? _publishDate;
+    private string _tagsValue;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
 
+    private FileManager _fileManager;
+    private bool _richfilemanager = false;
+    private string _message = string.Empty;
+
+    private IList<CategorySource> _categorySources;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
             _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", "");
 
             if (PageState.QueryString.ContainsKey("id"))
@@ -97,14 +188,27 @@
                 if (blog != null)
                 {
                     _title = blog.Title;
-                    _summary = blog.Summary;
-                    _content = blog.Content;
-                    _content = Utilities.FormatContent(_content, PageState.Alias, "render");
-                    _published = blog.Published.ToString();
+                    _slug = blog.Slug;
+                    _thumbnail = blog.Thumbnail;
+                    _alternateText = blog.AlternateText;
+                    _categories = blog.BlogCategories.Select(i => i.CategorySourceId).ToList();
+                    _categoriesName = string.Join(",", blog.BlogCategories.Select(i => i.CategorySource.Name));
+                    _tagsValue = string.Join(",", blog.BlogTags.Select(i => i.TagSource.Tag));
                     _createdby = blog.CreatedBy;
                     _createdon = blog.CreatedOn;
                     _modifiedby = blog.ModifiedBy;
                     _modifiedon = blog.ModifiedOn;
+
+                    //get the latest version
+                    var blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blog.BlogId);
+                    var blogContent = blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
+                    if(blogContent != null)
+                    {
+                        _summary = blogContent.Summary;
+                        _content = Utilities.FormatContent(blogContent.Content, PageState.Alias, "render");
+                        _publishStatus = ((int)blogContent.PublishStatus).ToString();
+                        _publishDate = blogContent.PublishDate;
+                    }
                 }
                 else
                 {
@@ -128,17 +232,41 @@
         {
             try
             {
+                if(_publishStatus == ((int)PublishStatus.Scheduled).ToString() && _publishDate == null)
+                {
+                    AddModuleMessage(Localizer["PublishDate.Required"], MessageType.Warning);
+                    return;
+                }
+
+                var checkBlog = await BlogService.GetBlogBySlugAsync(_slug, ModuleState.ModuleId);
+                if (checkBlog != null && checkBlog.BlogId != _id)
+                {
+                    AddModuleMessage(Localizer["SlugExist"], MessageType.Warning);
+                    return;
+                }
+
+                if (!_categories.Any())
+                {
+                    AddModuleMessage(Localizer["Categories.Required"], MessageType.Warning);
+                    return;
+                }
+
+                ClearModuleMessage();
                 _content = await RichTextEditorHtml.GetHtml();
                 _content = Utilities.FormatContent(_content, PageState.Alias, "save");
 
                 if (_id == -1)
                 {
-                    Blog blog = new Blog();
-                    blog.ModuleId = ModuleState.ModuleId;
-                    blog.Title = _title;
-                    blog.Summary = _summary;
-                    blog.Content = _content;
-                    blog.Published = bool.Parse(_published);
+                    Blog blog = new Blog
+                    {
+                        ModuleId = ModuleState.ModuleId,
+                        Title = _title,
+                        Slug = _slug,
+                        Thumbnail = _thumbnail,
+                        AlternateText = _alternateText,
+                        Categories = string.Join(",", _categories),
+                        Tags = _tagsValue
+                    };
                     blog = await BlogService.AddBlogAsync(blog);
                     _id = blog.BlogId;
                     await logger.LogInformation("Blog Added {Blog}", blog);
@@ -149,13 +277,56 @@
                     if (blog != null)
                     {
                         blog.Title = _title;
-                        blog.Summary = _summary;
-                        blog.Content = _content;
-                        blog.Published = bool.Parse(_published);
+                        blog.Slug = _slug;
+                        blog.Thumbnail = _thumbnail;
+                        blog.AlternateText = _alternateText;
+                        blog.Categories = string.Join(",", _categories);
+                        blog.Tags = _tagsValue;
                         blog = await BlogService.UpdateBlogAsync(blog);
                         await logger.LogInformation("Blog Updated {Blog}", blog);
                     }
                 }
+
+                //update blog content
+                var blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, _id);
+                var blogContent = blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
+                var publishStatus = (PublishStatus)Convert.ToInt32(_publishStatus);
+                if (_summary != blogContent?.Summary || _content != blogContent?.Content || publishStatus != blogContent?.PublishStatus || _publishDate != blogContent?.PublishDate)
+                {
+                    if (blogContent == null
+                        || blogContent.PublishStatus == PublishStatus.Published
+                        || (blogContent.PublishStatus == PublishStatus.Scheduled && blogContent.PublishDate <= DateTime.UtcNow))
+                    {
+                        //set publish status to draft for new edited version.
+                        if (blogContent != null)
+                        {
+                            publishStatus = PublishStatus.Draft;
+                            _publishDate = null;
+                        }
+
+                        blogContent = new BlogContent
+                            {
+                                BlogId = _id,
+                                Version = blogContent != null ? blogContent.Version + 1 : BlogConstants.DefaultVersion,
+                                Summary = _summary,
+                                Content = _content,
+                                PublishStatus = publishStatus,
+                                PublishDate = _publishDate
+                            };
+
+                        await BlogContentService.AddBlogContentAsync(ModuleState.ModuleId, blogContent);
+                    }
+                    else
+                    {
+                        blogContent.Summary = _summary;
+                        blogContent.Content = _content;
+                        blogContent.PublishStatus = publishStatus;
+                        blogContent.PublishDate = _publishDate;
+
+                        await BlogContentService.UpdateBlogContentAsync(ModuleState.ModuleId, blogContent);
+                    }
+                }
+
                 NavigationManager.NavigateTo(PageState.ReturnUrl);
             }
             catch (Exception ex)
@@ -201,5 +372,60 @@
         }
 
         HideProgressIndicator();
+    }
+
+    private void TitleChanged(ChangeEventArgs e)
+    {
+        _title = Convert.ToString(e.Value);
+        _slug = Common.FormatSlug(_title);
+        StateHasChanged();
+    }
+
+    private void CategoryChanged(CategorySource cat, ChangeEventArgs e)
+    {
+        if (Convert.ToInt32(e.Value) == CheckedValue && !_categories.Contains(cat.CategorySourceId))
+        {
+            _categories.Add(cat.CategorySourceId);
+        }
+        else
+        {
+            _categories.Remove(cat.CategorySourceId);
+        }
+
+        _categoriesName = string.Join(", ", _categorySources.Where(i => _categories.Contains(i.CategorySourceId)).Select(i => i.Name));
+
+        StateHasChanged();
+    }
+
+    public void InsertRichImage()
+    {
+        _message = string.Empty;
+        if (_richfilemanager)
+        {
+            var file = _fileManager.GetFile();
+            if (file != null)
+            {
+                _thumbnail = file.Url;
+                _richfilemanager = false;
+            }
+            else
+            {
+                _message = Localizer["Message.Require.Image"];
+            }
+        }
+        else
+        {
+            _richfilemanager = true;
+        }
+
+        StateHasChanged();
+    }
+
+    public void CloseRichFileManager()
+    {
+        _richfilemanager = false;
+        _message = string.Empty;
+
+        StateHasChanged();
     }
 }

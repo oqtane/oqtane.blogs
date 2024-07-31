@@ -1,0 +1,167 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@namespace Oqtane.Blogs
+@inherits ModuleBase
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<Categories> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if(!_editing)
+{
+    @if (_categorySources != null)
+    {
+        <div class="text-center mb-2">
+            <button type="button" class="btn btn-primary" @onclick="AddCategory">@Localizer["AddCategory"]</button>
+        </div>
+        <div class="category-list container">
+            @foreach (var categorySource in _categorySources)
+            {
+                <div class="row mt-1 pb-1 border-bottom">
+                    <div class="col-8 pt-1">
+                        @categorySource.Name (@categorySource.BlogCount)
+                    </div>
+                    <div class="col-4 text-end">
+                        <button type="button" class="btn btn-primary" @onclick="@(() => EditCategory(categorySource))">@Localizer["Edit"]</button>
+                        <ActionDialog Header="@Localizer["DeleteCategory"]" Action="Delete" Message="@Localizer["Confirm.Category.Delete"]" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteCategory(categorySource))" ResourceKey="Delete" />
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="app-progress-indicator"></div>
+    }
+}
+else
+{
+    <div class="category-editor">
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" ResourceKey="CategoryName">Category Name</Label>
+                <div class="col-sm-9">
+                    <input id="name" type="text" class="form-control" @bind="@_name" maxlength="50" required />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <div class="col-sm-9 col-offset-sm-3">
+                    <button type="button" class="btn btn-primary" @onclick="@(async () => await SaveCategory())">@Localizer["Save"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CancelEdit">@Localizer["Cancel"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public override string Title => "Manage Categories";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    private IList<CategorySource> _categorySources;
+    private bool _editing;
+    private string _name;
+    private int _editId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategorySources();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.CompletedTask;
+    }
+
+    private async Task LoadCategorySources()
+    {
+        try
+        {
+            _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Categories {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Loading Categories"], MessageType.Error);
+        }
+    }
+
+    private void AddCategory()
+    {
+        _editId = 0;
+        _editing = true;
+    }
+
+    private void EditCategory(CategorySource categorySource)
+    {
+        _editId = categorySource.CategorySourceId;
+        _name = categorySource.Name;
+
+        _editing = true;
+        StateHasChanged();
+    }
+
+    private async Task DeleteCategory(CategorySource categorySource)
+    {
+        await CategoryService.DeleteCategorySourceAsync(categorySource.CategorySourceId, ModuleState.ModuleId);
+
+        await LoadCategorySources();
+        StateHasChanged();
+    }
+
+    private async Task SaveCategory()
+    {
+        if (string.IsNullOrEmpty(_name))
+        {
+            AddModuleMessage(Localizer["Name.Required"], MessageType.Warning);
+            return;
+        }
+
+        var existCat = _categorySources.FirstOrDefault(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase)
+                                                && (_editId == 0 || i.CategorySourceId != Convert.ToInt32(_editId)));
+        if(existCat != null)
+        {
+            AddModuleMessage(Localizer["Name.RequireUnique"], MessageType.Warning);
+            return;
+        }
+
+        ClearModuleMessage();
+
+        if (_editId > 0)
+        {
+            var id = Convert.ToInt32(_editId);
+            var categorySource = _categorySources.FirstOrDefault(i => i.CategorySourceId == id);
+            if(categorySource != null)
+            {
+                categorySource.Name = _name;
+                await CategoryService.UpdateCategorySourceAsync(categorySource);
+            }
+        }
+        else
+        {
+            var categorySource = new CategorySource
+                {
+                    Name = _name,
+                    ModuleId = ModuleState.ModuleId
+                };
+
+            await CategoryService.AddCategorySourceAsync(categorySource);
+        }
+
+        _editing = false;
+        _name = string.Empty;
+        _editId = 0;
+        await LoadCategorySources();
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        _editing = false;
+        _name = string.Empty;
+        _editId = 0;
+        StateHasChanged();
+    }
+}

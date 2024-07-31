@@ -1,0 +1,110 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@namespace Oqtane.Blogs
+@inherits ModuleBase
+@inject IBlogContentService BlogContentService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<ContentVersions> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_blogContentList != null)
+{
+    <div class="content-versions-list container">
+        <div class="row mt-1 pb-1 border-bottom">
+            <div class="col-2 pt-1">
+                @Localizer["Version"]
+            </div>
+            <div class="col-2 pt-1">
+                @Localizer["Status"]
+            </div>
+            <div class="col-4 pt-1">
+                @Localizer["PublishDate"]
+            </div>
+            <div class="col-4 text-end">
+                @Localizer["Actions"]
+            </div>
+        </div>
+        @{
+            var index = 0;
+        }
+        @foreach (var blogContent in _blogContentList)
+        {
+            <div class="row mt-1 pb-1 border-bottom">
+                <div class="col-2 pt-1">
+                    @blogContent.Version
+                </div>
+                <div class="col-2 pt-1">
+                    @blogContent.PublishStatus
+                </div>
+                <div class="col-4 pt-1">
+                    @(blogContent.PublishStatus == PublishStatus.Scheduled ? blogContent.PublishDate.ToString() : string.Empty)
+                </div>
+                <div class="col-4 text-end">
+                    @if(index > 0)
+                    {
+                        <button type="button" class="btn btn-primary" @onclick="@(async () => await RestoreVersion(blogContent))">@Localizer["Restore"]</button>
+                        <span class="text-start">
+                            <ActionDialog Header="@Localizer["Delete"]" Action="Delete" Message="@Localizer["Confirm.Version.Delete"]" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteVersion(blogContent))" ResourceKey="Delete" />
+                        </span>
+                    }
+                </div>
+            </div>
+
+            index++;
+        }
+        <div class="row mt-1 pb-1">
+            <div class="col">
+                <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="app-progress-indicator"></div>
+}
+
+@code {
+    public override string Title => "Versions History";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    private IList<BlogContent> _blogContentList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogContentList();
+    }
+
+    private async Task LoadBlogContentList()
+    {
+        try
+        {
+            if (PageState.QueryString.ContainsKey("id") && int.TryParse(PageState.QueryString["id"], out int blogId))
+            {
+                _blogContentList = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blogId);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Content Versions {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Loading Content Versions"], MessageType.Error);
+        }
+    }
+
+    private async Task RestoreVersion(BlogContent blogContent)
+    {
+        await BlogContentService.RestoreBlogContentAsync(ModuleState.ModuleId, blogContent);
+
+        NavigationManager.NavigateTo(PageState.ReturnUrl);
+    }
+
+    private async Task DeleteVersion(BlogContent blogContent)
+    {
+        await BlogContentService.DeleteBlogContentAsync(ModuleState.ModuleId, blogContent.BlogId, blogContent.BlogContentId);
+
+        await LoadBlogContentList();
+        StateHasChanged();
+    }
+}

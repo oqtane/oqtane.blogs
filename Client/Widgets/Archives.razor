@@ -1,0 +1,72 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@using System.Text
+
+@namespace Oqtane.Blogs.Widgets
+@inherits WidgetBase
+@inject IBlogService BlogService
+
+@if (_templateBuilder != null)
+{
+    @((MarkupString)_templateBuilder.ToString())
+}
+
+@code{
+    public override string RenderMode => RenderModes.Static;
+
+    private StringBuilder _templateBuilder;
+    private IList<Blog> _blogs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        _blogs = await BlogService.GetBlogsAsync(BlogModuleId, null);
+
+        _templateBuilder = new StringBuilder(await RenderTemplate());
+    }
+
+    protected override async Task<string> RenderItems()
+    {
+        var itemsBuilder = new StringBuilder();
+
+        var dates = _blogs.Select(i => i.CreatedOn);
+        var blogUrl = await GetBlogUrl();
+        var years = dates
+            .Select(i => i.Year)
+            .Distinct()
+            .OrderByDescending(i => i);
+
+        foreach(var year in years)
+        {
+            itemsBuilder.Append($"<ul><li><span></span>{year}<ul>");
+            //list months
+            var months = dates.Where(i => i.Year == year)
+                .DistinctBy(i => i.Month)
+                .OrderBy(i => i.Month)
+                .Select(i => new
+                {
+                    Name = i.ToString("MMMM"),
+                    Value = i.Month
+                });
+
+            foreach(var month in months)
+            {
+                var count = dates.Count(i => i.Year == year && i.Month == month.Value);
+                var url = $"{blogUrl}?year={year}&month={month.Value}";
+                itemsBuilder.Append($"<li><a href=\"{url}\">{month.Name} ({count})</a></li>");
+            }
+
+            itemsBuilder.Append("</ul></li></ul>");
+        }
+
+        return itemsBuilder.ToString();
+    }
+}

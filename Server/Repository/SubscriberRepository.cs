@@ -2,29 +2,32 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
 using Oqtane.Blogs.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Oqtane.Blogs.Repository
 {
     public class SubscriberRepository : ISubscriberRepository, IService
     {
-        private readonly BlogContext _db;
+        private readonly IDbContextFactory<BlogContext> _dbContextFactory;
 
-        public SubscriberRepository(BlogContext context)
+        public SubscriberRepository(IDbContextFactory<BlogContext> dbContextFactory)
         {
-            _db = context;
+            _dbContextFactory = dbContextFactory;
         }
 
         public IEnumerable<Subscriber> GetSubscribers(int ModuleId)
         {
-            return _db.Subscriber.Where(item => item.ModuleId == ModuleId);
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.Subscriber.Where(item => item.ModuleId == ModuleId).ToList();
         }
 
         public Subscriber AddSubscriber(Subscriber Subscriber)
         {
-            if (!_db.Subscriber.Any(item => item.Email == Subscriber.Email))
+            using var db = _dbContextFactory.CreateDbContext();
+            if (!db.Subscriber.Any(item => item.Email == Subscriber.Email))
             {
-                _db.Subscriber.Add(Subscriber);
-                _db.SaveChanges();
+                db.Subscriber.Add(Subscriber);
+                db.SaveChanges();
                 return Subscriber;
             }
             return null;
@@ -32,9 +35,10 @@ namespace Oqtane.Blogs.Repository
 
         public void DeleteSubscriber(int SubscriberId)
         {
-            Subscriber Subscriber = _db.Subscriber.Find(SubscriberId);
-            _db.Subscriber.Remove(Subscriber);
-            _db.SaveChanges();
+            using var db = _dbContextFactory.CreateDbContext();
+            Subscriber Subscriber = db.Subscriber.Find(SubscriberId);
+            db.Subscriber.Remove(Subscriber);
+            db.SaveChanges();
         }
     }
 }

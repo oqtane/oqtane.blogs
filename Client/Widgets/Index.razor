@@ -1,0 +1,96 @@
+@using Microsoft.AspNetCore.Components.Rendering
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+
+@namespace Oqtane.Blogs.Widgets
+@inherits ModuleBase
+@inject IBlogService BlogService
+@inject IModuleService ModuleService
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+
+@if(_missingSettings)
+{
+    if(PageState.EditMode)
+    {
+        <div class="alert alert-warning" role="alert">
+            @Localizer["MissingSettings"]
+        </div>
+    }
+}
+else
+{
+    <div class="@_cssClass">
+        @_widgetComponent
+    </div>
+}
+
+@code{
+    public override string RenderMode => RenderModes.Static;
+
+    private string _blogModule;
+    private string _blogPage;
+    private IList<string> _widgets;
+    private bool _missingSettings;
+    private string _cssClass;
+    private RenderFragment _widgetComponent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.CompletedTask;
+        _blogModule = SettingService.GetSetting(ModuleState.Settings, "BlogModule", "");
+        _blogPage = SettingService.GetSetting(ModuleState.Settings, "BlogPage", "");
+        _cssClass = SettingService.GetSetting(ModuleState.Settings, "CssClass", "");
+        _widgets = SettingService.GetSetting(ModuleState.Settings, "Widgets", "").Split(',').ToList();
+        if(string.IsNullOrEmpty(_blogModule) || _widgets.Count == 0 || !int.TryParse(_blogModule, out int blogModuleId))
+        {
+            _missingSettings = true;
+        }
+        else
+        {
+            _missingSettings = false;
+
+            if(string.IsNullOrEmpty(_blogPage) || !int.TryParse(_blogPage, out int blogPageId))
+            {
+                blogPageId = (await ModuleService.GetModulesAsync(PageState.Site.SiteId)).FirstOrDefault(i => i.ModuleId == blogModuleId)?.PageId ?? 0;
+                if(blogPageId > 0)
+                {
+                    var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+                    settings = SettingService.SetSetting(settings, "BlogPage", blogPageId.ToString());
+                    await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+                }
+            }
+            _widgetComponent = (builder) =>
+            {
+                CreateWidgets(builder, blogPageId, blogModuleId);
+            };
+        }
+    }
+
+    private void CreateWidgets(RenderTreeBuilder builder, int blogPageId, int blogModuleId)
+    {
+        var index = 0;
+        foreach(var widget in _widgets)
+        {
+            var widgetType = Type.GetType($"Oqtane.Blogs.Widgets.{widget}, Oqtane.Blogs.Client.Oqtane");
+            if(widgetType != null)
+            {
+                var template = SettingService.GetSetting(ModuleState.Settings, $"WidgetTemplate.{widget}", "");
+                var itemsCount = SettingService.GetSetting(ModuleState.Settings, $"WidgetItemsCount.{widget}", "10");
+                builder.OpenComponent(index++, widgetType);
+                builder.AddAttribute(index++, "BlogPageId", blogPageId);
+                builder.AddAttribute(index++, "BlogModuleId", blogModuleId);
+                builder.AddAttribute(index++, "Template", template);
+                builder.AddAttribute(index++, "ItemsCount", int.TryParse(itemsCount, out int itemsCountValue) ? itemsCountValue : 10);
+                builder.CloseComponent();
+            }
+        }
+    }
+}

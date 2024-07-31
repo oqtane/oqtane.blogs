@@ -1,0 +1,38 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@using System.Text
+
+@namespace Oqtane.Blogs.Widgets
+@inherits WidgetBase
+@inject IBlogService BlogService
+
+@if (_templateBuilder != null)
+{
+    @((MarkupString)_templateBuilder.ToString())
+}
+
+@code {
+    public override string RenderMode => RenderModes.Static;
+    private StringBuilder _templateBuilder;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        var searchQuery = new BlogSearch
+        {
+            PageIndex = 0,
+            PageSize = ItemsCount
+        };
+
+        Blogs = await BlogService.GetBlogsAsync(BlogModuleId, searchQuery);
+        _templateBuilder = new StringBuilder(await RenderTemplate());
+    }
+}

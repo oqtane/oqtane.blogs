@@ -1,4 +1,5 @@
 @namespace Oqtane.Blogs
+@using Oqtane.Blogs.Shared
 @inherits ModuleBase
 @inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
@@ -10,19 +11,40 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="items" ResourceKey="Items" ResourceType="@resourceType" HelpText="Enter the maximum items per page">Items Per Page: </Label>
             <div class="col-sm-9">
-                <input id="items" type="text" class="form-control" @bind="@_items" maxlength="1" required />
+                <input id="items" type="text" class="form-control" @bind="@_items" maxlength="1" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
             <div class="col-sm-9">
-                <textarea id="summary" class="form-control" @bind="@_summary" rows="5" required></textarea>
+                <textarea id="summary" class="form-control" @bind="@_summary" rows="5"></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
             <div class="col-sm-9">
-                <textarea id="detail" class="form-control" @bind="@_detail" rows="5" required></textarea>
+                <textarea id="detail" class="form-control" @bind="@_detail" rows="5"></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="searchProperties" ResourceKey="SearchProperties" ResourceType="@resourceType" HelpText="Enter the search properties">Search Properties: </Label>
+            <div class="col-sm-9">
+                <input id="searchProperties" type="text" class="form-control" @bind="@_searchProperties" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="searhPosition" ResourceKey="SearchPosition" ResourceType="@resourceType" HelpText="Select the search position">Search Position: </Label>
+            <div class="col-sm-9">
+                <select id="searhPosition" class="form-select" @bind="@_searchPosition">
+                    <option value="Top">@Localizer["Top"]</option>
+                    <option value="Bottom">@Localizer["Bottom"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="columnCssClass" ResourceKey="ColumnCssClass" ResourceType="@resourceType" HelpText="Enter the column css class">Column Css Class: </Label>
+            <div class="col-sm-9">
+                <input id="columnCssClass" type="text" class="form-control" @bind="@_columnCssClass" />
             </div>
         </div>
         <hr />
@@ -52,6 +74,18 @@
                 <input id="sender" type="text" class="form-control" @bind="@_sender" />
             </div>
         </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="metaDescription" ResourceKey="MetaDescription" ResourceType="@resourceType" HelpText="Enter the meta description content">Meta Description: </Label>
+            <div class="col-sm-9">
+                <input id="metaDescription" type="text" class="form-control" @bind="@_metaDescription" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="metaRobots" ResourceKey="MetaRobots" ResourceType="@resourceType" HelpText="Enter the meta robots content">Meta Robots: </Label>
+            <div class="col-sm-9">
+                <input id="metaRobots" type="text" class="form-control" @bind="@_metaRobots" />
+            </div>
+        </div>
     </div>
 </form>
 
@@ -64,6 +98,11 @@
     private string _items;
     private string _summary;
     private string _detail;
+    private string _searchProperties;
+    private string _searchPosition;
+    private string _columnCssClass;
+    private string _metaDescription;
+    private string _metaRobots;
     private string _editor;
     private string _subscriptions;
     private string _sender;
@@ -73,11 +112,16 @@
         try
         {
             _items = SettingService.GetSetting(ModuleState.Settings, "Items", "10");
-            _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", "<a href=\"[URL]\"><h2>[TITLE]</h2></a><p>[SUMMARY]</p>");
-            _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", "<h2>[TITLE]</h2><p>[CONTENT]</p>");
-            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", "");
+            _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
+            _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
+            _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
+            _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", BlogConstants.DefaultSearchPosition);
+            _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
+            _metaDescription = SettingService.GetSetting(ModuleState.Settings, "MetaDescription", string.Empty);
+            _metaRobots = SettingService.GetSetting(ModuleState.Settings, "MetaRobots", "INDEX, FOLLOW");
+            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", string.Empty);
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
-            _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", "");
+            _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
         }
         catch (Exception ex)
         {
@@ -93,6 +137,11 @@
             settings = SettingService.SetSetting(settings, "Items", _items);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
+            settings = SettingService.SetSetting(settings, "SearchProperties", _searchProperties);
+            settings = SettingService.SetSetting(settings, "SearchPosition", _searchPosition);
+            settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
+            settings = SettingService.SetSetting(settings, "MetaDescription", _metaDescription);
+            settings = SettingService.SetSetting(settings, "MetaRobots", _metaRobots);
             settings = SettingService.SetSetting(settings, "Editor", _editor);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
             settings = SettingService.SetSetting(settings, "Sender", _sender);
