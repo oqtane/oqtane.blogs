@@ -110,36 +110,30 @@ namespace Oqtane.Blogs.Manager
             return sitemap;
         }
 
-        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexOn)
+        public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexOn)
         {
             var searchContents = new List<SearchContent>();
-            var alias = _aliasRepository.GetAliases().Where(i => i.SiteId == pageModule.Module.SiteId).OrderByDescending(i => i.IsDefault).FirstOrDefault();
-            var page = _pageRepository.GetPage(pageModule.PageId);
+
             var blogs = _blogRepository.GetBlogs(pageModule.ModuleId, null).Where(i => i.ModifiedOn >= lastIndexOn);
             foreach (var blog in blogs)
             {
                 var blogContent = blog.PublishedBlogContent;
                 var searchContent = new SearchContent
                 {
-                    SiteId = pageModule.Module.SiteId,
-                    Url = BlogUtilities.FormatUrl(alias.Path, page.Path, blog),
                     EntityName = "Blog",
                     EntityId = blog.BlogId.ToString(),
                     Title = blog.Title,
                     Description = blogContent.Summary,
                     Body = blogContent.Content,
+                    Url = BlogUtilities.FormatUrl("", pageModule.Page.Path, blog),
                     ContentModifiedBy = blogContent.ModifiedBy,
-                    ContentModifiedOn = blogContent.ModifiedOn,
-                    CreatedOn = blogContent.PublishStatus == PublishStatus.Scheduled ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue) : blogContent.ModifiedOn,
-                    AdditionalContent = string.Empty,
-                    TenantId = alias.TenantId,
-                    Permissions = $"{EntityNames.Page}:{page.PageId}",
+                    ContentModifiedOn = blogContent.ModifiedOn
                 };
 
                 searchContents.Add(searchContent);
             }
 
-            return searchContents;
+            return Task.FromResult(searchContents);
         }
     }
 }
