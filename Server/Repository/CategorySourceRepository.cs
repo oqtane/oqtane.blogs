@@ -32,8 +32,8 @@ namespace Oqtane.Blogs.Repository
                               where b.PublishStatus == Shared.PublishStatus.Published || (b.PublishStatus == Shared.PublishStatus.Scheduled && b.PublishDate <= DateTime.UtcNow)
                               select b.BlogId;
                 var data = (from c in db.CategorySource
-                            join bc in db.Category on c.CategorySourceId equals bc.CategorySourceId
-                            where blogIds.Contains(bc.BlogId) && c.ModuleId == moduleId
+                            from bc in db.Category.Where(i => i.CategorySourceId == c.CategorySourceId).DefaultIfEmpty()
+                            where (bc == null || blogIds.Contains(bc.BlogId)) && c.ModuleId == moduleId
                             group new { c, bc } by c.CategorySourceId into g
                             select new { CategorySourceId = g.Key, Items = g.ToList() }
                            ).ToList();
@@ -41,7 +41,7 @@ namespace Oqtane.Blogs.Repository
                 return data.Select(i =>
                 {
                     var categorySource = i.Items[0].c;
-                    categorySource.BlogCount = i.Items.DistinctBy(i => i.bc.BlogId).Count();
+                    categorySource.BlogCount = i.Items.Any(item => item.bc == null) ? 0 : i.Items.DistinctBy(i => i.bc.BlogId).Count();
 
                     return categorySource;
                 }).OrderBy(i => i.Name);
