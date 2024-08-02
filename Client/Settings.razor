@@ -49,17 +49,6 @@
         </div>
         <hr />
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="editor" ResourceKey="Editor" ResourceType="@resourceType" HelpText="Specify the preferred blog authoring experience">Editor: </Label>
-            <div class="col-sm-9">
-                <select id="editor" class="form-select" @bind="@_editor">
-                    <option value="">@Localizer["Full"]</option>
-                    <option value="rich">@Localizer["Rich"]</option>
-                    <option value="raw">@Localizer["Raw"]</option>
-                </select>
-            </div>
-        </div>
-        <hr />
-        <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="subscriptions" ResourceKey="Subscriptions" ResourceType="@resourceType" HelpText="Do you wish to allow email subscriptions to the blog?">Subscriptions? </Label>
             <div class="col-sm-9">
                 <select id="subscriptions" class="form-select" @bind="@_subscriptions">
@@ -103,7 +92,6 @@
     private string _columnCssClass;
     private string _metaDescription;
     private string _metaRobots;
-    private string _editor;
     private string _subscriptions;
     private string _sender;
 
@@ -119,7 +107,6 @@
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
             _metaDescription = SettingService.GetSetting(ModuleState.Settings, "MetaDescription", string.Empty);
             _metaRobots = SettingService.GetSetting(ModuleState.Settings, "MetaRobots", "INDEX, FOLLOW");
-            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", string.Empty);
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
         }
@@ -142,7 +129,6 @@
             settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
             settings = SettingService.SetSetting(settings, "MetaDescription", _metaDescription);
             settings = SettingService.SetSetting(settings, "MetaRobots", _metaRobots);
-            settings = SettingService.SetSetting(settings, "Editor", _editor);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
             settings = SettingService.SetSetting(settings, "Sender", _sender);
             settings = SettingService.SetSetting(settings, "PagePath", PageState.Page.Path);

@@ -29,12 +29,6 @@
 		<PackageReference Include="Oqtane.Shared" Version="5.2.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Content Update="ContentVersions.razor">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </Content>
-	</ItemGroup>
-
   <PropertyGroup>
     <!-- there may be other elements here -->
     <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
