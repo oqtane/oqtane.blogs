@@ -11,125 +11,198 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="title" ResourceKey="Title" HelpText="Enter the title of your blog">Title: </Label>
-            <div class="col-sm-9">
-                <input id="title" type="text" class="form-control" value="@_title" maxlength="256" required @onchange="TitleChanged" />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="slug" ResourceKey="Slug" HelpText="Enter the slug of your blog">Slug: </Label>
-            <div class="col-sm-9">
-                <input id="slug" type="text" class="form-control" @bind="@_slug" maxlength="256" required />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Enter the thumbnail URL">Thumbnail: </Label>
-            <div class="col-sm-9">
-                <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnail" maxlength="500" />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <div class="col-sm-9 offset-sm-3">
-                @if (_richfilemanager)
-                {
-                    <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
-                    <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-                    <br />
-                }
-                <div class="d-flex mb-2">
-                    <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
-                    @if (_richfilemanager)
-                    {
-                        @((MarkupString)"&nbsp;&nbsp;")
-                        <button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
-                    }
-                </div>
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="alternateText" ResourceKey="AlternateText" HelpText="Enter the alternate text for the thumbnail">Alternate Text: </Label>
-            <div class="col-sm-9">
-                <input id="alternateText" type="text" class="form-control" @bind="@_alternateText" maxlength="200" />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="title" ResourceKey="Categories" HelpText="Select the categories of your blog">Categories: </Label>
-            <div class="col-sm-9">
-                <div class="input-group">
-                    <input class="form-control dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" readonly @bind-value="_categoriesName" required />
-                    <ul class="dropdown-menu w-100">
-                        @if (_categorySources != null)
-                        {
-                            foreach (var cat in _categorySources)
+@if (initialized)
+{
+    <TabStrip>
+        <TabPanel Name="Edit" Heading="Edit" ResourceKey="Edit">
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="title" ResourceKey="Title" HelpText="Enter the title of your blog">Title: </Label>
+                        <div class="col-sm-9">
+                            <input id="title" type="text" class="form-control" value="@_title" maxlength="256" required @onchange="TitleChanged" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="slug" ResourceKey="Slug" HelpText="Enter the slug of your blog">Slug: </Label>
+                        <div class="col-sm-9">
+                            <input id="slug" type="text" class="form-control" @bind="@_slug" maxlength="256" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Enter the thumbnail URL">Thumbnail: </Label>
+                        <div class="col-sm-9">
+                            <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnail" maxlength="500" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <div class="col-sm-9 offset-sm-3">
+                            @if (_richfilemanager)
                             {
-                                <li class="px-3 py-1">
-                                    <input type="checkbox" class="form-check-input" id="cat-@cat.CategorySourceId" @onchange="@((e) => CategoryChanged(cat, e))" checked="@_categories.Contains(cat.CategorySourceId)" />
-                                    <label for="cat-@cat.CategorySourceId" class="ms-1">@cat.Name</label>
-                                </li>
+                                <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
+                                <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
+                                <br />
                             }
-                        }
-                    </ul>
+                            <div class="d-flex mb-2">
+                                <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
+                                @if (_richfilemanager)
+                                {
+                                    @((MarkupString)"&nbsp;&nbsp;")
+                                    <button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="alternateText" ResourceKey="AlternateText" HelpText="Enter the alternate text for the thumbnail">Alternate Text: </Label>
+                        <div class="col-sm-9">
+                            <input id="alternateText" type="text" class="form-control" @bind="@_alternateText" maxlength="200" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="title" ResourceKey="Categories" HelpText="Select the categories of your blog">Categories: </Label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input class="form-control dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" readonly @bind-value="_categoriesName" required />
+                                <ul class="dropdown-menu w-100">
+                                    @if (_categorySources != null)
+                                    {
+                                        foreach (var cat in _categorySources)
+                                        {
+                                            <li class="px-3 py-1">
+                                                <input type="checkbox" class="form-check-input" id="cat-@cat.CategorySourceId" @onchange="@((e) => CategoryChanged(cat, e))" checked="@_categories.Contains(cat.CategorySourceId)" />
+                                                <label for="cat-@cat.CategorySourceId" class="ms-1">@cat.Name</label>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="summary" ResourceKey="Summary" HelpText="Enter the summary of your blog">Summary: </Label>
+                        <div class="col-sm-9">
+                            <textarea id="summary" class="form-control" @bind="@_summary" rows="3" maxlength="512" required></textarea>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="content" ResourceKey="Content" HelpText="Enter the content of your blog">Content: </Label>
+                        <div class="col-sm-9">
+                            <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this blog is visible to all users or only editors">Published? </Label>
+                        <div class="col-sm-9">
+                            <select id="published" class="form-select" @bind="@_publishStatus">
+                                <option value="0">@SharedLocalizer["Draft"]</option>
+                                <option value="1">@SharedLocalizer["Published"]</option>
+                                <option value="2">@SharedLocalizer["Scheduled"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    @if (_publishStatus == ((int)PublishStatus.Scheduled).ToString())
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of your blog">Publish Date: </Label>
+                            <div class="col-sm-9">
+                                <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" required />
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="tags" ResourceKey="Tags" HelpText="Enter the tags of your blog">Tags: </Label>
+                        <div class="col-sm-9">
+                            <input id="tags" type="text" class="form-control" @bind="@_tagsValue" maxlength="50" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="summary" ResourceKey="Summary" HelpText="Enter the summary of your blog">Summary: </Label>
-            <div class="col-sm-9">
-                <textarea id="summary" class="form-control" @bind="@_summary" rows="3" maxlength="512" required></textarea>
-            </div>
-        </div>
-        <br />
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="content" ResourceKey="Content" HelpText="Enter the content of your blog">Content: </Label>
-            <div class="col-sm-9">
-                <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml" AllowRawHtml="@(_editor == "" || _editor == "raw")" AllowRichText="@(_editor == "" || _editor == "rich")"></RichTextEditor>
-            </div>
-        </div>
-        <br />
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this blog is visible to all users or only editors">Published? </Label>
-            <div class="col-sm-9">
-                <select id="published" class="form-select" @bind="@_publishStatus">
-                    <option value="0">@SharedLocalizer["Draft"]</option>
-                    <option value="1">@SharedLocalizer["Published"]</option>
-                    <option value="2">@SharedLocalizer["Scheduled"]</option>
-                </select>
-            </div>
-        </div>
-        @if(_publishStatus == ((int)PublishStatus.Scheduled).ToString())
+                <br /><br />
+                <button type="button" class="btn btn-success" @onclick="SaveBlog">@Localizer["Save"]</button>
+                <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>
+                @if (_id != -1)
+                {
+                    <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
+                    @if (_publishStatus == ((int)PublishStatus.Published).ToString() && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+                    {
+                        <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
+                    }
+                    <br />
+
+                    <br />
+                    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+                }
+            </form>
+        </TabPanel>
+        @if (_id != -1)
         {
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of your blog">Publish Date: </Label>
-                <div class="col-sm-9">
-                    <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" required />
-                </div>
-            </div>
+            <TabPanel Name="Versions" Heading="Versions" ResourceKey="Versions">
+                <Pager Items="@_blogContents">
+                    <Header>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th>@SharedLocalizer["CreatedOn"]</th>
+                    <th>@SharedLocalizer["CreatedBy"]</th>
+                    </Header>
+                    <Row>
+                        <td><ActionDialog Header="Restore Content" Message="@string.Format(Localizer["Confirm.Restore"], context.CreatedOn)" Action="Restore" Security="SecurityAccessLevel.Edit" Class="btn btn-success" OnClick="@(async () => await RestoreContent(context))" ResourceKey="Restore" /></td>
+                        <td><ActionDialog Header="Delete Content" Message="@string.Format(Localizer["Confirm.Delete"], context.CreatedOn)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteContent(context))" ResourceKey="Delete" /></td>
+                        <td>@context.CreatedOn</td>
+                        <td>@context.CreatedBy</td>
+                    </Row>
+                </Pager>
+            </TabPanel>
         }
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="tags" ResourceKey="Tags" HelpText="Enter the tags of your blog">Tags: </Label>
-            <div class="col-sm-9">
-                <input id="tags" type="text" class="form-control" @bind="@_tagsValue" maxlength="50" />
-            </div>
-        </div>
-    </div>
-    <br /><br />
-    <button type="button" class="btn btn-success" @onclick="SaveBlog">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@PageState.ReturnUrl">@Localizer["Cancel"]</NavLink>   
-    @if (_id != -1)
-    {
-        <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
-        <ActionLink Action="ContentVersions" Parameters="@($"id=" + _id.ToString())" ReturnUrl="@EditUrl("Edit", $"id=" + _id.ToString())" ResourceKey="ContentVersions" Text="ContentVersions" />
-        @if (_publishStatus == ((int)PublishStatus.Published).ToString() && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+        @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.PermissionList))
         {
-            <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
+            <TabPanel Name="Categories" Heading="Categories" ResourceKey="Categories">
+                @if (!_editing)
+                {
+                    @if (_categorySources != null)
+                    {
+                        <div class="text-center mb-2">
+                            <button type="button" class="btn btn-primary" @onclick="AddCategory">@Localizer["AddCategory"]</button>
+                        </div>
+                        <Pager Items="@_categorySources">
+                            <Header>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@SharedLocalizer["Name"]</th>
+                            </Header>
+                            <Row>
+                                <td><ActionLink Action="Edit" Security="SecurityAccessLevel.Edit" OnClick="@(() => EditCategory(context))" ResourceKey="Edit" /></td>
+                                <td><ActionDialog Header="Delete Category" Message="@string.Format(Localizer["Confirm.Delete"], context.CreatedOn)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteCategory(context))" ResourceKey="Delete" /></td>
+                                <td>@context.Name (@context.BlogCount)</td>
+                            </Row>
+                        </Pager>
+                    }
+                }
+                else
+                {
+                    <div class="category-editor">
+                        <div class="container">
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="name" ResourceKey="CategoryName">Category Name</Label>
+                                <div class="col-sm-9">
+                                    <input id="name" type="text" class="form-control" @bind="@_name" maxlength="50" required />
+                                </div>
+                            </div>
+                            <div class="row mb-1 align-items-center">
+                                <div class="col-sm-9 col-offset-sm-3">
+                                    <button type="button" class="btn btn-primary" @onclick="@(async () => await SaveCategory())">@Localizer["Save"]</button>
+                                    <button type="button" class="btn btn-secondary" @onclick="CancelEdit">@Localizer["Cancel"]</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </TabPanel>
         }
-        <br /><br />
-        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
-    }
-</form>
+    </TabStrip>
+}
+
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
@@ -138,26 +211,20 @@
 
     public override string Title => "Manage Blog Post";
 
-    public override List<Resource> Resources => new List<Resource>()
-    {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.bubble.css" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill.snow.css" }
-    };
-
     private const int CheckedValue = 1;
 
+    private bool initialized = false;
     private ElementReference form;
     private bool validated = false;
 
     private int _id = -1;
-    private IList<int> _categories = new List<int>();
+    private List<int> _categories = new List<int>();
     private string _categoriesName;
     private string _title;
     private string _slug;
     private string _thumbnail;
     private string _alternateText;
     private string _summary;
-    private string _editor = "";
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
     private string _publishStatus = ((int)PublishStatus.Draft).ToString();
@@ -172,14 +239,18 @@
     private bool _richfilemanager = false;
     private string _message = string.Empty;
 
-    private IList<CategorySource> _categorySources;
+    private List<BlogContent> _blogContents;
+
+    private List<CategorySource> _categorySources;
+    private bool _editing;
+    private string _name;
+    private int _editId;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
-            _editor = SettingService.GetSetting(ModuleState.Settings, "Editor", "");
 
             if (PageState.QueryString.ContainsKey("id"))
             {
@@ -209,6 +280,8 @@
                         _publishStatus = ((int)blogContent.PublishStatus).ToString();
                         _publishDate = blogContent.PublishDate;
                     }
+
+                    _blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blog.BlogId);
                 }
                 else
                 {
@@ -216,6 +289,8 @@
                     AddModuleMessage(Localizer["Error Loading Blog"], MessageType.Error);
                 }
             }
+
+            initialized = true;
         }
         catch (Exception ex)
         {
@@ -426,6 +501,113 @@
         _richfilemanager = false;
         _message = string.Empty;
 
+        StateHasChanged();
+    }
+
+    private async Task RestoreContent(BlogContent blogContent)
+    {
+        try
+        {
+            await BlogContentService.RestoreBlogContentAsync(ModuleState.ModuleId, blogContent);
+            _blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blogContent.BlogId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Restoring Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Restore"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteContent(BlogContent blogContent)
+    {
+        try
+        {
+            await BlogContentService.DeleteBlogContentAsync(ModuleState.ModuleId, blogContent.BlogId, blogContent.BlogContentId);
+            _blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blogContent.BlogId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Delete"], MessageType.Error);
+        }
+    }
+
+    private void AddCategory()
+    {
+        _editId = 0;
+        _editing = true;
+    }
+
+    private void EditCategory(CategorySource categorySource)
+    {
+        _editId = categorySource.CategorySourceId;
+        _name = categorySource.Name;
+
+        _editing = true;
+        StateHasChanged();
+    }
+
+    private async Task DeleteCategory(CategorySource categorySource)
+    {
+        await CategoryService.DeleteCategorySourceAsync(categorySource.CategorySourceId, ModuleState.ModuleId);
+
+        _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+        StateHasChanged();
+    }
+
+    private async Task SaveCategory()
+    {
+        if (string.IsNullOrEmpty(_name))
+        {
+            AddModuleMessage(Localizer["Name.Required"], MessageType.Warning);
+            return;
+        }
+
+        var existCat = _categorySources.FirstOrDefault(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase)
+                                                && (_editId == 0 || i.CategorySourceId != Convert.ToInt32(_editId)));
+        if (existCat != null)
+        {
+            AddModuleMessage(Localizer["Name.RequireUnique"], MessageType.Warning);
+            return;
+        }
+
+        ClearModuleMessage();
+
+        if (_editId > 0)
+        {
+            var id = Convert.ToInt32(_editId);
+            var categorySource = _categorySources.FirstOrDefault(i => i.CategorySourceId == id);
+            if (categorySource != null)
+            {
+                categorySource.Name = _name;
+                await CategoryService.UpdateCategorySourceAsync(categorySource);
+            }
+        }
+        else
+        {
+            var categorySource = new CategorySource
+                {
+                    Name = _name,
+                    ModuleId = ModuleState.ModuleId
+                };
+
+            await CategoryService.AddCategorySourceAsync(categorySource);
+        }
+
+        _editing = false;
+        _name = string.Empty;
+        _editId = 0;
+        _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        _editing = false;
+        _name = string.Empty;
+        _editId = 0;
         StateHasChanged();
     }
 }
