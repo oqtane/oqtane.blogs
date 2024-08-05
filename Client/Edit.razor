@@ -4,7 +4,6 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
-@inject IFileService FileService
 @inject IBlogContentService BlogContentService
 @inject ISettingService SettingService
 @inject ICategoryService CategoryService
@@ -31,27 +30,9 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Enter the thumbnail URL">Thumbnail: </Label>
+                        <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Optionally select an image for the blog post">Thumbnail: </Label>
                         <div class="col-sm-9">
-                            <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnailPath" maxlength="500" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <div class="col-sm-9 offset-sm-3">
-                            @if (_richfilemanager)
-                            {
-                                <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" />
-                                <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-                                <br />
-                            }
-                            <div class="d-flex mb-2">
-                                <button type="button" class="btn btn-primary" @onclick="InsertRichImage">@Localizer["InsertImage"]</button>
-                                @if (_richfilemanager)
-                                {
-                                    @((MarkupString)"&nbsp;&nbsp;")
-                                    <button type="button" class="btn btn-secondary" @onclick="CloseRichFileManager">@Localizer["Close"]</button>
-                                }
-                            </div>
+                            <FileManager @ref="_fileManager" Filter="@PageState.Site.ImageFiles" FileId="@_thumbnail" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -223,8 +204,8 @@
     private string _categoriesName;
     private string _title;
     private string _slug;
-    private int _thumbnail;
-    private string _thumbnailPath;
+    private FileManager _fileManager;
+    private int _thumbnail = -1;
     private string _alternateText;
     private string _summary;
     private RichTextEditor RichTextEditorHtml;
@@ -236,10 +217,6 @@
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
-
-    private FileManager _fileManager;
-    private bool _richfilemanager = false;
-    private string _message = string.Empty;
 
     private List<BlogContent> _blogContents;
 
@@ -281,13 +258,6 @@
                         _content = Utilities.FormatContent(blogContent.Content, PageState.Alias, "render");
                         _publishStatus = ((int)blogContent.PublishStatus).ToString();
                         _publishDate = blogContent.PublishDate;
-                    }
-
-                    //display the thumbnail file info
-                    if(_thumbnail > 0)
-                    {
-                        var file = await FileService.GetFileAsync(_thumbnail);
-                        _thumbnailPath = file?.Url ?? string.Empty;
                     }
                 }
                 else
@@ -333,7 +303,6 @@
                     return;
                 }
 
-                ClearModuleMessage();
                 _content = await RichTextEditorHtml.GetHtml();
                 _content = Utilities.FormatContent(_content, PageState.Alias, "save");
 
@@ -344,7 +313,7 @@
                         ModuleId = ModuleState.ModuleId,
                         Title = _title,
                         Slug = _slug,
-                        Thumbnail = _thumbnail,
+                        Thumbnail = _fileManager.GetFileId(),
                         AlternateText = _alternateText,
                         Categories = string.Join(",", _categories),
                         Tags = _tagsValue
@@ -360,7 +329,7 @@
                     {
                         blog.Title = _title;
                         blog.Slug = _slug;
-                        blog.Thumbnail = _thumbnail;
+                        blog.Thumbnail = _fileManager.GetFileId();
                         blog.AlternateText = _alternateText;
                         blog.Categories = string.Join(",", _categories);
                         blog.Tags = _tagsValue;
@@ -475,39 +444,6 @@
         }
 
         _categoriesName = string.Join(", ", _categorySources.Where(i => _categories.Contains(i.CategorySourceId)).Select(i => i.Name));
-
-        StateHasChanged();
-    }
-
-    public void InsertRichImage()
-    {
-        _message = string.Empty;
-        if (_richfilemanager)
-        {
-            var file = _fileManager.GetFile();
-            if (file != null)
-            {
-                _thumbnail = file.FileId;
-                _thumbnailPath = file.Url;
-                _richfilemanager = false;
-            }
-            else
-            {
-                _message = Localizer["Message.Require.Image"];
-            }
-        }
-        else
-        {
-            _richfilemanager = true;
-        }
-
-        StateHasChanged();
-    }
-
-    public void CloseRichFileManager()
-    {
-        _richfilemanager = false;
-        _message = string.Empty;
 
         StateHasChanged();
     }
