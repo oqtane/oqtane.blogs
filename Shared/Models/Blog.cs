@@ -17,7 +17,7 @@ namespace Oqtane.Blogs.Models
         public int ModuleId { get; set; }
         public string Title { get; set; }
         public string Slug { get; set; }
-        public string Thumbnail { get; set; }
+        public int Thumbnail { get; set; }
         public string AlternateText { get; set; }
         public int Views { get; set; }
         public List<BlogContent> BlogContentList { get; set; }

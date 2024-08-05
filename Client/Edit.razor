@@ -4,6 +4,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject IFileService FileService
 @inject IBlogContentService BlogContentService
 @inject ISettingService SettingService
 @inject ICategoryService CategoryService
@@ -32,7 +33,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="thumbnail" ResourceKey="Thumbnail" HelpText="Enter the thumbnail URL">Thumbnail: </Label>
                         <div class="col-sm-9">
-                            <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnail" maxlength="500" />
+                            <input id="thumbnail" type="text" class="form-control" @bind="@_thumbnailPath" maxlength="500" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -222,7 +223,8 @@
     private string _categoriesName;
     private string _title;
     private string _slug;
-    private string _thumbnail;
+    private int _thumbnail;
+    private string _thumbnailPath;
     private string _alternateText;
     private string _summary;
     private RichTextEditor RichTextEditorHtml;
@@ -281,7 +283,12 @@
                         _publishDate = blogContent.PublishDate;
                     }
 
-                    _blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blog.BlogId);
+                    //display the thumbnail file info
+                    if(_thumbnail > 0)
+                    {
+                        var file = await FileService.GetFileAsync(_thumbnail);
+                        _thumbnailPath = file?.Url ?? string.Empty;
+                    }
                 }
                 else
                 {
@@ -480,7 +487,8 @@
             var file = _fileManager.GetFile();
             if (file != null)
             {
-                _thumbnail = file.Url;
+                _thumbnail = file.FileId;
+                _thumbnailPath = file.Url;
                 _richfilemanager = false;
             }
             else

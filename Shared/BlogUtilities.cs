@@ -29,14 +29,14 @@ namespace Oqtane.Blogs.Shared
             return date.ToString(format);
         }
 
-        public static string FormatThumbnail(Blog blog)
+        public static string FormatThumbnail(Blog blog, string thumbnailPath)
         {
-            if (string.IsNullOrEmpty(blog.Thumbnail))
+            if (string.IsNullOrEmpty(thumbnailPath))
             {
                 return string.Empty;
             }
 
-            return $"<img src=\"{blog.Thumbnail}\" alt=\"{blog.AlternateText}\">";
+            return $"<img src=\"{thumbnailPath}\" alt=\"{blog.AlternateText}\">";
         }
 
         public static string FormatCategories(Blog blog, string baseUrl)
