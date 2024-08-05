@@ -211,13 +211,10 @@
     <value>The slug has already been used by another blog item.</value>
   </data>
   <data name="Thumbnail.HelpText" xml:space="preserve">
-    <value>Enter the thumbnail URL</value>
+    <value>Optionally select an image for the blog post</value>
   </data>
   <data name="Thumbnail.Text" xml:space="preserve">
     <value>Thumbnail:</value>
-  </data>
-  <data name="InsertImage" xml:space="preserve">
-    <value>Insert Image</value>
   </data>
   <data name="Categories.Required" xml:space="preserve">
     <value>Please select at least one category</value>
