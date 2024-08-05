@@ -28,7 +28,7 @@ namespace Oqtane.Blogs.Migrations
             blogEntityBuilder.DropColumn("Summary");
             blogEntityBuilder.DropColumn("Content");
             blogEntityBuilder.AddStringColumn("Slug", 255, true);
-            blogEntityBuilder.AddStringColumn("Thumbnail", 500, true);
+            blogEntityBuilder.AddIntegerColumn("Thumbnail", false, 0);
             blogEntityBuilder.AddStringColumn("AlternateText", 200, true);
             blogEntityBuilder.AddIntegerColumn("Views", false, 0);
 

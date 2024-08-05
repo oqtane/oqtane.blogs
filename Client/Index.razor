@@ -7,6 +7,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject IFileService FileService
 @inject ISubscriberService SubscriberService
 @inject NavigationManager NavigationManager
 @inject ISettingService SettingService
@@ -272,14 +273,15 @@ else
         var publishDate = blogContent.PublishStatus == PublishStatus.Scheduled
                                         ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
                                         : blogContent.CreatedOn;
+        var thumbnailPath = blog.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
 
         template = template.Replace("[ID]", blog.BlogId.ToString());
         template = template.Replace("[TITLE]", blog.Title);
         template = template.Replace("[SLUG]", blog.Slug);
         template = template.Replace("[VIEWS]", blog.Views.ToString());
-        template = template.Replace("[THUMBNAILPATH]", blog.Thumbnail);
+        template = template.Replace("[THUMBNAILPATH]", thumbnailPath);
         template = template.Replace("[ALTERNATETEXT]", blog.AlternateText);
-        template = template.Replace("[THUMBNAIL]", BlogUtilities.FormatThumbnail(blog));
+        template = template.Replace("[THUMBNAIL]", BlogUtilities.FormatThumbnail(blog, thumbnailPath));
         template = template.Replace("[CATEGORIES]", BlogUtilities.FormatCategories(blog, blogPageUrl));
         template = template.Replace("[TAGS]", BlogUtilities.FormatTags(blog, blogPageUrl));
         template = template.Replace("[SUMMARY]", blogContent.Summary);

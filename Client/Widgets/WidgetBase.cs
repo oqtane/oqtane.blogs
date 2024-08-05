@@ -100,6 +100,7 @@ namespace Oqtane.Blogs.Widgets
                         var publishDate = blogContent.PublishStatus == PublishStatus.Scheduled
                                         ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
                                         : blogContent.CreatedOn;
+                        var thumbnailPath = blog.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
 
                         var tokens = new Dictionary<string, string>
                         {
@@ -107,9 +108,9 @@ namespace Oqtane.Blogs.Widgets
                             { "TITLE", blog.Title },
                             { "SLUG", blog.Slug },
                             { "VIEWS", blog.Views.ToString() },
-                            { "THUMBNAILPATH", blog.Thumbnail },
+                            { "THUMBNAILPATH", thumbnailPath },
                             { "ALTERNATETEXT", blog.AlternateText },
-                            { "THUMBNAIL", BlogUtilities.FormatThumbnail(blog) },
+                            { "THUMBNAIL", BlogUtilities.FormatThumbnail(blog, thumbnailPath) },
                             { "CATEGORIES", BlogUtilities.FormatCategories(blog, blogPageUrl) },
                             { "TAGS", BlogUtilities.FormatTags(blog, blogPageUrl) },
                             { "SUMMARY", blogContent.Summary },
