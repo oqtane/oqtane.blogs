@@ -87,27 +87,27 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="categoryTitle" ResourceKey="CategoryTitle" ResourceType="@resourceType" HelpText="Title of the list view by category">Category Title: </Label>
-                    <div class="col-sm-9">
-                        <input id="categoryTitle" type="text" class="form-control" @bind="@_categoryTitle" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="tagTitle" ResourceKey="TagTitle" ResourceType="@resourceType" HelpText="Title of the list view by tag">Tag Title: </Label>
-                    <div class="col-sm-9">
-                        <input id="tagTitle" type="text" class="form-control" @bind="@_tagTitle" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="archiveDescription" ResourceKey="ArchiveDescription" ResourceType="@resourceType" HelpText="Description of the archive list">Archive Description: </Label>
                     <div class="col-sm-9">
                         <input id="archiveDescription" type="text" class="form-control" @bind="@_archiveDescription" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="categoryTitle" ResourceKey="CategoryTitle" ResourceType="@resourceType" HelpText="Title of the list view by category">Category Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="categoryTitle" type="text" class="form-control" @bind="@_categoryTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="categoryDescription" ResourceKey="CategoryDescription" ResourceType="@resourceType" HelpText="Description of the list view by category">Category Description: </Label>
                     <div class="col-sm-9">
                         <input id="categoryDescription" type="text" class="form-control" @bind="@_categoryDescription" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="tagTitle" ResourceKey="TagTitle" ResourceType="@resourceType" HelpText="Title of the list view by tag">Tag Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="tagTitle" type="text" class="form-control" @bind="@_tagTitle" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -123,9 +123,9 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="useOpenGraphTags" ResourceKey="UseOpenGraphTags" ResourceType="@resourceType" HelpText="Whether render open graph tags">Use Open Graph Tags: </Label>
+                    <Label Class="col-sm-3" For="metaTags" ResourceKey="MetaTags" ResourceType="@resourceType" HelpText="Meta tags for the detail page">Meta Tags: </Label>
                     <div class="col-sm-9">
-                        <input id="useOpenGraphTags" type="checkbox" class="form-check-input" @bind="@_useOpenGraphTags" />
+                        <textarea id="metaTags" class="form-control" rows="10" @bind="@_metaTags" />
                     </div>
                 </div>
             </div>
@@ -157,7 +157,7 @@
     private string _categoryDescription;
     private string _tagDescription;
     private string _paginationTitle;
-    private bool _useOpenGraphTags;
+    private string _metaTags;
 
     protected override void OnInitialized()
     {
@@ -180,7 +180,7 @@
             _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
             _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
             _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
-            _useOpenGraphTags = SettingService.GetSetting(ModuleState.Settings, "UseOpenGraphTags", "true") == "true";
+            _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
         }
         catch (Exception ex)
         {
@@ -211,7 +211,7 @@
             settings = SettingService.SetSetting(settings, "CategoryDescription", _categoryDescription);
             settings = SettingService.SetSetting(settings, "TagDescription", _tagDescription);
             settings = SettingService.SetSetting(settings, "PaginationTitle", _paginationTitle);
-            settings = SettingService.SetSetting(settings, "UseOpenGraphTags", _useOpenGraphTags.ToString().ToLower());
+            settings = SettingService.SetSetting(settings, "MetaTags", _metaTags);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)

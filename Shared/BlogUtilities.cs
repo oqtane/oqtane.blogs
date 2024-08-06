@@ -16,17 +16,21 @@ namespace Oqtane.Blogs.Shared
 
         public static string FormatUrl(string alias, string path, Blog blog)
         {
+            if(blog == null)
+            {
+                return string.Empty;
+            }
             return Utilities.NavigateUrl(alias, path, Utilities.AddUrlParameters(blog.Slug));
         }
 
-        public static string FormatDate(DateTime date, string format)
+        public static string FormatDate(DateTime? date, string format)
         {
-            if (date == DateTime.MinValue)
+            if (date == null || date == DateTime.MinValue)
             {
                 return string.Empty;
             }
 
-            return date.ToString(format);
+            return date.Value.ToString(format);
         }
 
         public static string FormatThumbnail(Blog blog, string thumbnailPath)
@@ -36,12 +40,12 @@ namespace Oqtane.Blogs.Shared
                 return string.Empty;
             }
 
-            return $"<img src=\"{thumbnailPath}\" alt=\"{blog.AlternateText}\">";
+            return $"<img src=\"{thumbnailPath}\" alt=\"{blog?.AlternateText}\">";
         }
 
         public static string FormatCategories(Blog blog, string baseUrl)
         {
-            if (!blog.BlogCategories.Any())
+            if (blog == null || !blog.BlogCategories.Any())
             {
                 return string.Empty;
             }
@@ -58,7 +62,7 @@ namespace Oqtane.Blogs.Shared
 
         public static string FormatTags(Blog blog, string baseUrl)
         {
-            if (!blog.BlogTags.Any())
+            if (blog == null || !blog.BlogTags.Any())
             {
                 return string.Empty;
             }

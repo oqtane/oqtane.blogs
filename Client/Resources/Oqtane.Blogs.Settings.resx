@@ -207,11 +207,11 @@
   <data name="TagTitle.Text" xml:space="preserve">
     <value>Tag Title:</value>
   </data>
-  <data name="UseOpenGraphTags.HelpText" xml:space="preserve">
-    <value>Whether render open graph tags</value>
+  <data name="MetaTags.HelpText" xml:space="preserve">
+    <value>Meta tags for the detail page</value>
   </data>
-  <data name="UseOpenGraphTags.Text" xml:space="preserve">
-    <value>Use Open Graph Tags:</value>
+  <data name="MetaTags.Text" xml:space="preserve">
+    <value>Meta Tags:</value>
   </data>
   <data name="ArchiveDescription.HelpText" xml:space="preserve">
     <value>Description of the archive list</value>
