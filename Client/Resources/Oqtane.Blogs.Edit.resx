@@ -187,7 +187,7 @@
     <value>Optionally enter a comma-delimited list of tags related to the blog</value>
   </data>
   <data name="Tags.Text" xml:space="preserve">
-    <value>Tag:</value>
+    <value>Tags:</value>
   </data>
   <data name="PublishDate.HelpText" xml:space="preserve">
     <value>Select the publish date of your blog</value>
