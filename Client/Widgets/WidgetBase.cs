@@ -118,7 +118,7 @@ namespace Oqtane.Blogs.Widgets
                             { "CREATEDBY", blog.CreatedBy },
                             { "CREATEDON", blog.CreatedOn.ToShortDateString() },
                             { "URL", blogPage != null ? BlogUtilities.FormatUrl(PageState.Alias.Path, blogPage.Path, blog) : string.Empty },
-                            { "PUBLISHDATE", BlogUtilities.FormatDate(publishDate, "MMMM dd, yyyy") },
+                            { "PUBLISHEDON", BlogUtilities.FormatDate(publishDate, "MMMM dd, yyyy") },
                             { "PUBLISHDAY", BlogUtilities.FormatDate(publishDate, "dd") },
                             { "PUBLISHMONTH", BlogUtilities.FormatDate(publishDate, "MMMM") }
                         };
@@ -174,7 +174,7 @@ namespace Oqtane.Blogs.Widgets
             var renderContent = template;
             foreach (var key in tokens.Keys)
             {
-                renderContent = renderContent.Replace($"[{key.ToUpper()}]", tokens[key]);
+                renderContent = renderContent.Replace($"[{key.ToUpper()}]", tokens[key], StringComparison.OrdinalIgnoreCase);
             }
 
             return renderContent;

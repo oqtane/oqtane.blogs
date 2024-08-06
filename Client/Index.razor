@@ -7,6 +7,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject ICategoryService CategoryService
 @inject IFileService FileService
 @inject ISubscriberService SubscriberService
 @inject NavigationManager NavigationManager
@@ -136,14 +137,24 @@ else
     private string _searchProperties;
     private string _searchPosition;
     private string _columnCssClass;
-    private string _metaDescription;
-    private string _metaRobots;
     private string _email = "";
     private string _validation = "";
     private string _date = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
     private int _mintime = 5; // 5 second minimum
     private int _maxtime = 300; // 5 minute maximum
     private string _rss = "";
+    private string _blogName;
+    private string _pageTitle;
+    private string _archiveTitle;
+    private string _categoryTitle;
+    private string _tagTitle;
+    private string _archiveDescription;
+    private string _categoryDescription;
+    private string _tagDescription;
+    private string _paginationTitle;
+    private string _metaTags;
+    private string _baseUrl;
+    private string _categoryName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,14 +169,29 @@ else
     {
         try
         {
+            _baseUrl = PageState.Alias.Protocol + PageState.Alias.Name.Replace("/" + PageState.Alias.Path, "");
+
+            if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
+            {
+                _categoryName = (await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.CategorySourceId == categoryId)?.Name ?? string.Empty;
+            }
+
             _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", string.Empty);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
-            _metaDescription = SettingService.GetSetting(ModuleState.Settings, "MetaDescription", string.Empty);
-            _metaRobots = SettingService.GetSetting(ModuleState.Settings, "MetaRobots", "INDEX, FOLLOW");
+            _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
+            _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
+            _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
+            _archiveTitle = SettingService.GetSetting(ModuleState.Settings, "ArchiveTitle", "[BlogName] | [Month] [Year]");
+            _categoryTitle = SettingService.GetSetting(ModuleState.Settings, "CategoryTitle", "[BlogName] | [Category]");
+            _tagTitle = SettingService.GetSetting(ModuleState.Settings, "TagTitle", "[BlogName] | [Tag]");
+            _archiveDescription = SettingService.GetSetting(ModuleState.Settings, "ArchiveDescription", "Find all [BlogName] posts published on [Month] [Year]");
+            _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
+            _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
+            _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
 
             var summaryItemTemplate = string.Empty;
             if (BlogUtilities.ParseListTemplate(_summary, out summaryItemTemplate, out _summaryHeader, out _summaryFooter))
@@ -190,7 +216,7 @@ else
                     var blogContent = PageState.EditMode ? _blog.LatestBlogContent : _blog.PublishedBlogContent;
                     if(blogContent != null)
                     {
-                        SetPageTitle(_blog.Title);
+                        SetPageTitle(FormatTemplate(_pageTitle, _blog));
 
                         if (!string.IsNullOrEmpty(blogContent.Summary))
                         {
@@ -200,6 +226,13 @@ else
                         {
                             AddHeadContent($"<meta name=\"keywords\" content=\"{_blog.Tags}\" />");
                         }
+
+                        if(!string.IsNullOrEmpty(_metaTags))
+                        {
+                            AddHeadContent(FormatTemplate(_metaTags, _blog));
+                        }
+
+                        AddHeadContent($"<link rel=\"canonical\" href=\"{_baseUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                     }
 
                     //update views
@@ -215,17 +248,10 @@ else
             if (_blog == null)
             {
                 await GetBlogs();
-
-                if (!string.IsNullOrEmpty(_metaDescription))
-                {
-                    AddHeadContent($"<meta name=\"description\" content=\"{_metaDescription}\" />");
-                }
+                SetListMetaTags();
             }
 
-            if (!string.IsNullOrEmpty(_metaRobots))
-            {
-                AddHeadContent($"<meta name=\"robots\" content=\"{_metaRobots}\" />");
-            }
+            AddHeadContent($"<meta name=\"robots\" content=\"INDEX, FOLLOW\" />");
 
             _rss = $"/api/blog/rss/{ModuleState.ModuleId}";
         }
@@ -268,31 +294,101 @@ else
 
     private string FormatTemplate(string template, Blog blog)
     {
-        var blogContent = PageState.EditMode ? blog.LatestBlogContent : blog.PublishedBlogContent;
+        var blogContent = blog != null ? (PageState.EditMode ? blog.LatestBlogContent : blog.PublishedBlogContent) : null;
         var blogPageUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, string.Empty);
-        var publishDate = blogContent.PublishStatus == PublishStatus.Scheduled
+        DateTime? publishDate = blogContent != null ? (blogContent.PublishStatus == PublishStatus.Scheduled
                                         ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
-                                        : blogContent.CreatedOn;
-        var thumbnailPath = blog.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
+                                        : blogContent.CreatedOn) : null;
+        var thumbnailPath = blog?.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
 
-        template = template.Replace("[ID]", blog.BlogId.ToString());
-        template = template.Replace("[TITLE]", blog.Title);
-        template = template.Replace("[SLUG]", blog.Slug);
-        template = template.Replace("[VIEWS]", blog.Views.ToString());
-        template = template.Replace("[THUMBNAILPATH]", thumbnailPath);
-        template = template.Replace("[ALTERNATETEXT]", blog.AlternateText);
-        template = template.Replace("[THUMBNAIL]", BlogUtilities.FormatThumbnail(blog, thumbnailPath));
-        template = template.Replace("[CATEGORIES]", BlogUtilities.FormatCategories(blog, blogPageUrl));
-        template = template.Replace("[TAGS]", BlogUtilities.FormatTags(blog, blogPageUrl));
-        template = template.Replace("[SUMMARY]", blogContent.Summary);
-        template = template.Replace("[CONTENT]", Utilities.FormatContent(blogContent.Content, PageState.Alias, "render"));
-        template = template.Replace("[CREATEDBY]", blog.CreatedBy);
-        template = template.Replace("[CREATEDON]", blog.CreatedOn.ToShortDateString());
-        template = template.Replace("[URL]", BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, blog));
-        template = template.Replace("[PUBLISHDATE]", BlogUtilities.FormatDate(publishDate, "MMMM dd, yyyy"));
-        template = template.Replace("[PUBLISHDAY]", BlogUtilities.FormatDate(publishDate, "dd"));
-        template = template.Replace("[PUBLISHMONTH]", BlogUtilities.FormatDate(publishDate, "MMMM"));
+        template = template.Replace("[ID]", blog?.BlogId.ToString(), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[TITLE]", blog?.Title, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[SLUG]", blog?.Slug, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[VIEWS]", blog?.Views.ToString(), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[THUMBNAILPATH]", thumbnailPath, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[ALTERNATETEXT]", blog?.AlternateText, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[THUMBNAIL]", BlogUtilities.FormatThumbnail(blog, thumbnailPath), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[CATEGORIES]", BlogUtilities.FormatCategories(blog, blogPageUrl), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[TAGS]", BlogUtilities.FormatTags(blog, blogPageUrl), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[SUMMARY]", blogContent?.Summary, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[CONTENT]", Utilities.FormatContent(blogContent?.Content, PageState.Alias, "render"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[CREATEDBY]", blog?.CreatedBy, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[CREATEDON]", blog?.CreatedOn.ToShortDateString(), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[URL]", BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, blog), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[PUBLISHEDON]", BlogUtilities.FormatDate(publishDate, "MMMM dd, yyyy"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[PUBLISHEDBY]", blogContent?.CreatedBy, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[MODIFIEDON]", BlogUtilities.FormatDate(blogContent?.ModifiedOn, "MMMM dd, yyyy"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[PUBLISHDAY]", BlogUtilities.FormatDate(publishDate, "dd"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[PUBLISHMONTH]", BlogUtilities.FormatDate(publishDate, "MMMM"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[BLOGNAME]", _blogName, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[CATEGORY]", _categoryName, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[MONTH]", GetQueryString("month"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[YEAR]", GetQueryString("year"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[POST:TITLE]", blog?.Title, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[POST:SUMMARY]", blogContent?.Summary, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[PAGENUMBER]", GetQueryString("page"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[TAG]", GetQueryString("tag"), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[TAGSMETA]", GenerateTagsMeta(blog), StringComparison.OrdinalIgnoreCase);
+
         return template;
+    }
+
+    private void SetListMetaTags()
+    {
+        var title = string.Empty;
+        var description = string.Empty;
+        if (PageState.QueryString.ContainsKey("category"))
+        {
+            title = FormatTemplate(_categoryTitle, null);
+            description = FormatTemplate(_categoryDescription, null);
+        }
+        else if (PageState.QueryString.ContainsKey("tag"))
+        {
+            title = FormatTemplate(_tagTitle, null);
+            description = FormatTemplate(_tagDescription, null);
+        }
+        else if (PageState.QueryString.ContainsKey("year") || PageState.QueryString.ContainsKey("month"))
+        {
+            title = FormatTemplate(_archiveTitle, null);
+            description = FormatTemplate(_archiveDescription, null);
+        }
+
+        if(!string.IsNullOrEmpty(title))
+        {
+            SetPageTitle(title);
+        }
+
+        if (!string.IsNullOrEmpty(description))
+        {
+            AddHeadContent($"<meta name=\"description\" content=\"{description}\" />");
+        }
+    }
+
+    private string GetQueryString(string key)
+    {
+        if(PageState.QueryString.ContainsKey(key))
+        {
+            var value = WebUtility.UrlDecode(PageState.QueryString[key]);
+            if (value == WebUtility.HtmlEncode(value) && value == WebUtility.HtmlDecode(value))
+            {
+                return value;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private string GenerateTagsMeta(Blog blog)
+    {
+        if(blog?.BlogTags != null)
+        {
+            return string.Join("", blog.BlogTags.Select(i =>
+            {
+                return $"<meta property=\"og:tag\" content=\"{i.TagSource.Tag}\" />";
+            }));
+        }
+
+        return string.Empty;
     }
 
     private async Task Subscribe()

@@ -47,34 +47,89 @@
                 <input id="columnCssClass" type="text" class="form-control" @bind="@_columnCssClass" />
             </div>
         </div>
-        <hr />
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="subscriptions" ResourceKey="Subscriptions" ResourceType="@resourceType" HelpText="Do you wish to allow email subscriptions to the blog?">Subscriptions? </Label>
-            <div class="col-sm-9">
-                <select id="subscriptions" class="form-select" @bind="@_subscriptions">
-                    <option value="True">@SharedLocalizer["Yes"]</option>
-                    <option value="False">@SharedLocalizer["No"]</option>
-                </select>
+        <Section Name="Subscriptions" Heading="Subscriptions" ResourceKey="Subscriptions">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="subscriptions" ResourceKey="Subscriptions" ResourceType="@resourceType" HelpText="Do you wish to allow email subscriptions to the blog?">Subscriptions? </Label>
+                    <div class="col-sm-9">
+                        <select id="subscriptions" class="form-select" @bind="@_subscriptions">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="sender" ResourceKey="Sender" ResourceType="@resourceType" HelpText="Email address which subscriptions will be sent from">Sender: </Label>
+                    <div class="col-sm-9">
+                        <input id="sender" type="text" class="form-control" @bind="@_sender" />
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="sender" ResourceKey="Sender" ResourceType="@resourceType" HelpText="Email address which subscriptions will be sent from">Sender: </Label>
-            <div class="col-sm-9">
-                <input id="sender" type="text" class="form-control" @bind="@_sender" />
+        </Section>
+        <Section Name="SEO" Heading="SEO" ResourceKey="SEO">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="blogName" ResourceKey="BlogName" ResourceType="@resourceType" HelpText="Blog Name">Blog Name: </Label>
+                    <div class="col-sm-9">
+                        <input id="blogName" type="text" class="form-control" @bind="@_blogName" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="pageTitle" ResourceKey="PageTitle" ResourceType="@resourceType" HelpText="Title of the detail page">Page Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="pageTitle" type="text" class="form-control" @bind="@_pageTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="archiveTitle" ResourceKey="ArchiveTitle" ResourceType="@resourceType" HelpText="Title of the archive list">Archive Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="archiveTitle" type="text" class="form-control" @bind="@_archiveTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="archiveDescription" ResourceKey="ArchiveDescription" ResourceType="@resourceType" HelpText="Description of the archive list">Archive Description: </Label>
+                    <div class="col-sm-9">
+                        <input id="archiveDescription" type="text" class="form-control" @bind="@_archiveDescription" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="categoryTitle" ResourceKey="CategoryTitle" ResourceType="@resourceType" HelpText="Title of the list view by category">Category Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="categoryTitle" type="text" class="form-control" @bind="@_categoryTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="categoryDescription" ResourceKey="CategoryDescription" ResourceType="@resourceType" HelpText="Description of the list view by category">Category Description: </Label>
+                    <div class="col-sm-9">
+                        <input id="categoryDescription" type="text" class="form-control" @bind="@_categoryDescription" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="tagTitle" ResourceKey="TagTitle" ResourceType="@resourceType" HelpText="Title of the list view by tag">Tag Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="tagTitle" type="text" class="form-control" @bind="@_tagTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="tagDescription" ResourceKey="TagDescription" ResourceType="@resourceType" HelpText="Description of the list view by tag">Tag Description: </Label>
+                    <div class="col-sm-9">
+                        <input id="tagDescription" type="text" class="form-control" @bind="@_tagDescription" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="paginationTitle" ResourceKey="PaginationTitle" ResourceType="@resourceType" HelpText="Title suffix of the pagination info">Pagination Title: </Label>
+                    <div class="col-sm-9">
+                        <input id="paginationTitle" type="text" class="form-control" @bind="@_paginationTitle" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="metaTags" ResourceKey="MetaTags" ResourceType="@resourceType" HelpText="Meta tags for the detail page">Meta Tags: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="metaTags" class="form-control" rows="10" @bind="@_metaTags" />
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="metaDescription" ResourceKey="MetaDescription" ResourceType="@resourceType" HelpText="Enter the meta description content">Meta Description: </Label>
-            <div class="col-sm-9">
-                <input id="metaDescription" type="text" class="form-control" @bind="@_metaDescription" />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="metaRobots" ResourceKey="MetaRobots" ResourceType="@resourceType" HelpText="Enter the meta robots content">Meta Robots: </Label>
-            <div class="col-sm-9">
-                <input id="metaRobots" type="text" class="form-control" @bind="@_metaRobots" />
-            </div>
-        </div>
+        </Section>
     </div>
 </form>
 
@@ -90,10 +145,19 @@
     private string _searchProperties;
     private string _searchPosition;
     private string _columnCssClass;
-    private string _metaDescription;
-    private string _metaRobots;
     private string _subscriptions;
     private string _sender;
+
+    private string _blogName;
+    private string _pageTitle;
+    private string _archiveTitle;
+    private string _categoryTitle;
+    private string _tagTitle;
+    private string _archiveDescription;
+    private string _categoryDescription;
+    private string _tagDescription;
+    private string _paginationTitle;
+    private string _metaTags;
 
     protected override void OnInitialized()
     {
@@ -105,10 +169,18 @@
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", BlogConstants.DefaultSearchPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
-            _metaDescription = SettingService.GetSetting(ModuleState.Settings, "MetaDescription", string.Empty);
-            _metaRobots = SettingService.GetSetting(ModuleState.Settings, "MetaRobots", "INDEX, FOLLOW");
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
+            _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
+            _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
+            _archiveTitle = SettingService.GetSetting(ModuleState.Settings, "ArchiveTitle", "[BlogName] | [Month] [Year]");
+            _categoryTitle = SettingService.GetSetting(ModuleState.Settings, "CategoryTitle", "[BlogName] | [Category]");
+            _tagTitle = SettingService.GetSetting(ModuleState.Settings, "TagTitle", "[BlogName] | [Tag]");
+            _archiveDescription = SettingService.GetSetting(ModuleState.Settings, "ArchiveDescription", "Find all [BlogName] posts published on [Month] [Year]");
+            _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
+            _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
+            _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
+            _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
         }
         catch (Exception ex)
         {
@@ -127,11 +199,19 @@
             settings = SettingService.SetSetting(settings, "SearchProperties", _searchProperties);
             settings = SettingService.SetSetting(settings, "SearchPosition", _searchPosition);
             settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
-            settings = SettingService.SetSetting(settings, "MetaDescription", _metaDescription);
-            settings = SettingService.SetSetting(settings, "MetaRobots", _metaRobots);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
             settings = SettingService.SetSetting(settings, "Sender", _sender);
             settings = SettingService.SetSetting(settings, "PagePath", PageState.Page.Path);
+            settings = SettingService.SetSetting(settings, "BlogName", _blogName);
+            settings = SettingService.SetSetting(settings, "PageTitle", _pageTitle);
+            settings = SettingService.SetSetting(settings, "ArchiveTitle", _archiveTitle);
+            settings = SettingService.SetSetting(settings, "CategoryTitle", _categoryTitle);
+            settings = SettingService.SetSetting(settings, "TagTitle", _tagTitle);
+            settings = SettingService.SetSetting(settings, "ArchiveDescription", _archiveDescription);
+            settings = SettingService.SetSetting(settings, "CategoryDescription", _categoryDescription);
+            settings = SettingService.SetSetting(settings, "TagDescription", _tagDescription);
+            settings = SettingService.SetSetting(settings, "PaginationTitle", _paginationTitle);
+            settings = SettingService.SetSetting(settings, "MetaTags", _metaTags);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)

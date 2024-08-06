@@ -171,16 +171,64 @@
   <data name="Top" xml:space="preserve">
     <value>Top</value>
   </data>
-  <data name="MetaDescription.HelpText" xml:space="preserve">
-    <value>Enter the meta description content</value>
+  <data name="SEO" xml:space="preserve">
+    <value>SEO Settings</value>
   </data>
-  <data name="MetaDescription.Text" xml:space="preserve">
-    <value>Meta Description:</value>
+  <data name="Subscriptions" xml:space="preserve">
+    <value>Subscriptions</value>
   </data>
-  <data name="MetaRobots.HelpText" xml:space="preserve">
-    <value>Enter the meta robots content</value>
+  <data name="ArchiveTitle.HelpText" xml:space="preserve">
+    <value>Title of the archive list</value>
   </data>
-  <data name="MetaRobots.Text" xml:space="preserve">
-    <value>Meta Robots:</value>
+  <data name="ArchiveTitle.Text" xml:space="preserve">
+    <value>Archive Title:</value>
+  </data>
+  <data name="CategoryTitle.HelpText" xml:space="preserve">
+    <value>Title of the list view by category</value>
+  </data>
+  <data name="CategoryTitle.Text" xml:space="preserve">
+    <value>Category Title:</value>
+  </data>
+  <data name="PageTitle.HelpText" xml:space="preserve">
+    <value>Title of the detail page</value>
+  </data>
+  <data name="PageTitle.Text" xml:space="preserve">
+    <value>Page Title:</value>
+  </data>
+  <data name="PaginationTitle.HelpText" xml:space="preserve">
+    <value>Title suffix of the pagination info</value>
+  </data>
+  <data name="PaginationTitle.Text" xml:space="preserve">
+    <value>Pagination Title:</value>
+  </data>
+  <data name="TagTitle.HelpText" xml:space="preserve">
+    <value>Title of the list view by tag</value>
+  </data>
+  <data name="TagTitle.Text" xml:space="preserve">
+    <value>Tag Title:</value>
+  </data>
+  <data name="MetaTags.HelpText" xml:space="preserve">
+    <value>Meta tags for the detail page</value>
+  </data>
+  <data name="MetaTags.Text" xml:space="preserve">
+    <value>Meta Tags:</value>
+  </data>
+  <data name="ArchiveDescription.HelpText" xml:space="preserve">
+    <value>Description of the archive list</value>
+  </data>
+  <data name="ArchiveDescription.Text" xml:space="preserve">
+    <value>Archive Description:</value>
+  </data>
+  <data name="CategoryDescription.HelpText" xml:space="preserve">
+    <value>Description of the list view by category</value>
+  </data>
+  <data name="CategoryDescription.Text" xml:space="preserve">
+    <value>Category Description:</value>
+  </data>
+  <data name="TagDescription.HelpText" xml:space="preserve">
+    <value>Description of the list view by tag</value>
+  </data>
+  <data name="TagDescription.Text" xml:space="preserve">
+    <value>Tag Description:</value>
   </data>
 </root>
