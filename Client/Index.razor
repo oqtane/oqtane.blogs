@@ -7,6 +7,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject ICategoryService CategoryService
 @inject IFileService FileService
 @inject ISubscriberService SubscriberService
 @inject NavigationManager NavigationManager
@@ -136,14 +137,24 @@ else
     private string _searchProperties;
     private string _searchPosition;
     private string _columnCssClass;
-    private string _metaDescription;
-    private string _metaRobots;
     private string _email = "";
     private string _validation = "";
     private string _date = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
     private int _mintime = 5; // 5 second minimum
     private int _maxtime = 300; // 5 minute maximum
     private string _rss = "";
+    private string _blogName;
+    private string _pageTitle;
+    private string _archiveTitle;
+    private string _categoryTitle;
+    private string _tagTitle;
+    private string _archiveDescription;
+    private string _categoryDescription;
+    private string _tagDescription;
+    private string _paginationTitle;
+    private bool _useOpenGraphTags;
+    private string _baseUrl;
+    private string _categoryName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,14 +169,29 @@ else
     {
         try
         {
+            _baseUrl = PageState.Alias.Protocol + PageState.Alias.Name.Replace("/" + PageState.Alias.Path, "");
+
+            if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
+            {
+                _categoryName = (await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.CategorySourceId == categoryId)?.Name ?? string.Empty;
+            }
+
             _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", string.Empty);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
-            _metaDescription = SettingService.GetSetting(ModuleState.Settings, "MetaDescription", string.Empty);
-            _metaRobots = SettingService.GetSetting(ModuleState.Settings, "MetaRobots", "INDEX, FOLLOW");
+            _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
+            _useOpenGraphTags = SettingService.GetSetting(ModuleState.Settings, "UseOpenGraphTags", "true") == "true";
+            _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
+            _archiveTitle = SettingService.GetSetting(ModuleState.Settings, "ArchiveTitle", "[BlogName] | [Month] [Year]");
+            _categoryTitle = SettingService.GetSetting(ModuleState.Settings, "CategoryTitle", "[BlogName] | [Category]");
+            _tagTitle = SettingService.GetSetting(ModuleState.Settings, "TagTitle", "[BlogName] | [Tag]");
+            _archiveDescription = SettingService.GetSetting(ModuleState.Settings, "ArchiveDescription", "Find all [BlogName] posts published on [Month] [Year]");
+            _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
+            _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
+            _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
 
             var summaryItemTemplate = string.Empty;
             if (BlogUtilities.ParseListTemplate(_summary, out summaryItemTemplate, out _summaryHeader, out _summaryFooter))
@@ -190,7 +216,7 @@ else
                     var blogContent = PageState.EditMode ? _blog.LatestBlogContent : _blog.PublishedBlogContent;
                     if(blogContent != null)
                     {
-                        SetPageTitle(_blog.Title);
+                        SetPageTitle(FormatMetaContent(_pageTitle, _blog));
 
                         if (!string.IsNullOrEmpty(blogContent.Summary))
                         {
@@ -200,6 +226,13 @@ else
                         {
                             AddHeadContent($"<meta name=\"keywords\" content=\"{_blog.Tags}\" />");
                         }
+
+                        if(_useOpenGraphTags)
+                        {
+                            InjectOpenGraphTags(_blog);
+                        }
+
+                        AddHeadContent($"<link rel=\"canonical\" href=\"{_baseUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                     }
 
                     //update views
@@ -215,17 +248,10 @@ else
             if (_blog == null)
             {
                 await GetBlogs();
-
-                if (!string.IsNullOrEmpty(_metaDescription))
-                {
-                    AddHeadContent($"<meta name=\"description\" content=\"{_metaDescription}\" />");
-                }
+                SetListMetaTags();
             }
 
-            if (!string.IsNullOrEmpty(_metaRobots))
-            {
-                AddHeadContent($"<meta name=\"robots\" content=\"{_metaRobots}\" />");
-            }
+            AddHeadContent($"<meta name=\"robots\" content=\"INDEX, FOLLOW\" />");
 
             _rss = $"/api/blog/rss/{ModuleState.ModuleId}";
         }
@@ -293,6 +319,83 @@ else
         template = template.Replace("[PUBLISHDAY]", BlogUtilities.FormatDate(publishDate, "dd"));
         template = template.Replace("[PUBLISHMONTH]", BlogUtilities.FormatDate(publishDate, "MMMM"));
         return template;
+    }
+
+    private void SetListMetaTags()
+    {
+        var title = string.Empty;
+        var description = string.Empty;
+        if (PageState.QueryString.ContainsKey("category"))
+        {
+            title = FormatMetaContent(_categoryTitle, null);
+            description = FormatMetaContent(_categoryDescription, null);
+        }
+        else if (PageState.QueryString.ContainsKey("tag"))
+        {
+            title = FormatMetaContent(_tagTitle, null);
+            description = FormatMetaContent(_tagDescription, null);
+        }
+        else if (PageState.QueryString.ContainsKey("year") || PageState.QueryString.ContainsKey("month"))
+        {
+            title = FormatMetaContent(_archiveTitle, null);
+            description = FormatMetaContent(_archiveDescription, null);
+        }
+
+        if(!string.IsNullOrEmpty(title))
+        {
+            SetPageTitle(title);
+        }
+
+        if (!string.IsNullOrEmpty(description))
+        {
+            AddHeadContent($"<meta name=\"description\" content=\"{description}\" />");
+        }
+    }
+
+    private string FormatMetaContent(string format, Blog blog)
+    {
+        var title = format
+                .Replace("[BlogName]", _blogName)
+                .Replace("[Category]", _categoryName)
+                .Replace("[Tag]", PageState.QueryString.ContainsKey("tag") ? WebUtility.UrlDecode(PageState.QueryString["tag"]) : string.Empty)
+                .Replace("[Month]", PageState.QueryString.ContainsKey("month") ? WebUtility.UrlDecode(PageState.QueryString["month"]) : string.Empty)
+                .Replace("[Year]", PageState.QueryString.ContainsKey("year") ? WebUtility.UrlDecode(PageState.QueryString["year"]) : string.Empty)
+                .Replace("[Post:title]", blog?.Title ?? string.Empty);
+
+        if (PageState.QueryString.ContainsKey("page") && int.TryParse(PageState.QueryString["page"], out int page) && page > 1)
+        {
+            title += _paginationTitle.Replace("[PageNumber]", page.ToString());
+        }
+
+        return title;
+    }
+
+    private void InjectOpenGraphTags(Blog blog)
+    {
+        var blogContent = PageState.EditMode ? blog.LatestBlogContent : blog.PublishedBlogContent;
+        var publishDate = blogContent.PublishStatus == PublishStatus.Scheduled
+                                        ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
+                                        : blogContent.CreatedOn;
+        var thumbnailPath = blog.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
+        
+
+        AddHeadContent($"<meta property=\"og:title\" content=\"{FormatMetaContent(_pageTitle, blog)}\" />");
+        AddHeadContent($"<meta property=\"og:url\" content=\"{_baseUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, blog)}\" />");
+        AddHeadContent($"<meta property=\"og:type\" content=\"article\" />");
+        AddHeadContent($"<meta property=\"og:publish_time\" content=\"{BlogUtilities.FormatDate(publishDate, "MM/dd/yyyy HH:mm:ss")}\" />");
+        AddHeadContent($"<meta property=\"og:modify_time\" content=\"{BlogUtilities.FormatDate(blogContent.ModifiedOn, "MM/dd/yyyy HH:mm:ss")}\" />");
+        if(blog.BlogTags != null)
+        {
+            blog.BlogTags.ForEach(i =>
+            {
+                AddHeadContent($"<meta property=\"og:tag\" content=\"{i.TagSource.Tag}\" />");
+            });
+        }
+        if (!string.IsNullOrEmpty(thumbnailPath))
+        {
+            
+            AddHeadContent($"<meta property=\"og:image\" content=\"{BlogUtilities.FormatThumbnail(blog, thumbnailPath)}\" />");
+        }
     }
 
     private async Task Subscribe()
