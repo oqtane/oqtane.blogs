@@ -71,7 +71,7 @@ else
         @if (_blogs.Any())
         {
             @((MarkupString)_summaryHeader)
-            <Pager Format="Grid" Items="@_blogs" DisplayPages="10" PageSize="@_items.ToString()" ColumnClass="@_columnCssClass" SearchProperties="@_searchProperties" Toolbar="@_searchPosition">
+            <Pager Format="Grid" Items="@_blogs" DisplayPages="10" PageSize="@_items.ToString()" ColumnClass="@_columnCssClass" SearchProperties="@_searchProperties" Toolbar="@_pagerPosition">
                 <Row>
                     @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
                     @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
@@ -135,7 +135,7 @@ else
     private string _summaryHeader;
     private string _summaryFooter;
     private string _searchProperties;
-    private string _searchPosition;
+    private string _pagerPosition;
     private string _columnCssClass;
     private string _email = "";
     private string _validation = "";
@@ -180,7 +180,7 @@ else
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
-            _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", string.Empty);
+            _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
             _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
             _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);

@@ -148,25 +148,25 @@
     <value>Subscriptions?</value>
   </data>
   <data name="SearchProperties.HelpText" xml:space="preserve">
-    <value>Enter the search properties</value>
+    <value>Specify if users can search blog posts</value>
   </data>
   <data name="SearchProperties.Text" xml:space="preserve">
-    <value>Search Properties:</value>
+    <value>Allow Search?</value>
   </data>
   <data name="ColumnCssClass.HelpText" xml:space="preserve">
-    <value>Enter the column css class</value>
+    <value>Enter the CSS class for each summary blog post</value>
   </data>
   <data name="ColumnCssClass.Text" xml:space="preserve">
-    <value>Column Css Class:</value>
+    <value>Summary CSS Class:</value>
   </data>
   <data name="Bottom" xml:space="preserve">
     <value>Bottom</value>
   </data>
-  <data name="SearchPosition.HelpText" xml:space="preserve">
-    <value>Select the search position</value>
+  <data name="PagerPosition.HelpText" xml:space="preserve">
+    <value>Select the position of the pager</value>
   </data>
-  <data name="SearchPosition.Text" xml:space="preserve">
-    <value>Search Position:</value>
+  <data name="PagerPosition.Text" xml:space="preserve">
+    <value>Pager Position:</value>
   </data>
   <data name="Top" xml:space="preserve">
     <value>Top</value>
@@ -208,7 +208,7 @@
     <value>Tag Title:</value>
   </data>
   <data name="MetaTags.HelpText" xml:space="preserve">
-    <value>Meta tags for the detail page</value>
+    <value>Specify meta tags for the blog detail page</value>
   </data>
   <data name="MetaTags.Text" xml:space="preserve">
     <value>Meta Tags:</value>
@@ -230,5 +230,8 @@
   </data>
   <data name="TagDescription.Text" xml:space="preserve">
     <value>Tag Description:</value>
+  </data>
+  <data name="Both" xml:space="preserve">
+    <value>Both</value>
   </data>
 </root>

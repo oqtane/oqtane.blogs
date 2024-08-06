@@ -15,6 +15,12 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="columnCssClass" ResourceKey="ColumnCssClass" ResourceType="@resourceType" HelpText="Enter the CSS class for each summary blog post">Summary CSS Class: </Label>
+            <div class="col-sm-9">
+                <input id="columnCssClass" type="text" class="form-control" @bind="@_columnCssClass" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
             <div class="col-sm-9">
                 <textarea id="summary" class="form-control" @bind="@_summary" rows="5"></textarea>
@@ -27,24 +33,22 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="searchProperties" ResourceKey="SearchProperties" ResourceType="@resourceType" HelpText="Enter the search properties">Search Properties: </Label>
+            <Label Class="col-sm-3" For="searchProperties" ResourceKey="SearchProperties" ResourceType="@resourceType" HelpText="Specify if users can search blog posts">Allow Search? </Label>
             <div class="col-sm-9">
-                <input id="searchProperties" type="text" class="form-control" @bind="@_searchProperties" />
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="searhPosition" ResourceKey="SearchPosition" ResourceType="@resourceType" HelpText="Select the search position">Search Position: </Label>
-            <div class="col-sm-9">
-                <select id="searhPosition" class="form-select" @bind="@_searchPosition">
-                    <option value="Top">@Localizer["Top"]</option>
-                    <option value="Bottom">@Localizer["Bottom"]</option>
+                <select id="searchProperties" class="form-select" @bind="@_searchProperties">
+                    <option value="@BlogConstants.DefaultSearchProperties">@SharedLocalizer["Yes"]</option>
+                    <option value="">@SharedLocalizer["No"]</option>
                 </select>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="columnCssClass" ResourceKey="ColumnCssClass" ResourceType="@resourceType" HelpText="Enter the column css class">Column Css Class: </Label>
+            <Label Class="col-sm-3" For="pagerPosition" ResourceKey="PagerPosition" ResourceType="@resourceType" HelpText="Select the position of the pager">Pager Position: </Label>
             <div class="col-sm-9">
-                <input id="columnCssClass" type="text" class="form-control" @bind="@_columnCssClass" />
+                <select id="pagerPosition" class="form-select" @bind="@_pagerPosition">
+                    <option value="Top">@Localizer["Top"]</option>
+                    <option value="Bottom">@Localizer["Bottom"]</option>
+                    <option value="Both">@Localizer["Both"]</option>
+                </select>
             </div>
         </div>
         <Section Name="Subscriptions" Heading="Subscriptions" ResourceKey="Subscriptions">
@@ -123,9 +127,9 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="metaTags" ResourceKey="MetaTags" ResourceType="@resourceType" HelpText="Meta tags for the detail page">Meta Tags: </Label>
+                    <Label Class="col-sm-3" For="metaTags" ResourceKey="MetaTags" ResourceType="@resourceType" HelpText="Specify meta tags for the blog detail page">Meta Tags: </Label>
                     <div class="col-sm-9">
-                        <textarea id="metaTags" class="form-control" rows="10" @bind="@_metaTags" />
+                        <textarea id="metaTags" class="form-control" rows="3" @bind="@_metaTags" />
                     </div>
                 </div>
             </div>
@@ -140,11 +144,12 @@
     private bool validated = false;
 
     private string _items;
+    private string _columnCssClass;
     private string _summary;
     private string _detail;
     private string _searchProperties;
-    private string _searchPosition;
-    private string _columnCssClass;
+    private string _pagerPosition;
+
     private string _subscriptions;
     private string _sender;
 
@@ -167,7 +172,7 @@
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
-            _searchPosition = SettingService.GetSetting(ModuleState.Settings, "SearchPosition", BlogConstants.DefaultSearchPosition);
+            _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
@@ -194,11 +199,11 @@
         {
             var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             settings = SettingService.SetSetting(settings, "Items", _items);
+            settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
             settings = SettingService.SetSetting(settings, "SearchProperties", _searchProperties);
-            settings = SettingService.SetSetting(settings, "SearchPosition", _searchPosition);
-            settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
+            settings = SettingService.SetSetting(settings, "PagerPosition", _pagerPosition);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);
             settings = SettingService.SetSetting(settings, "Sender", _sender);
             settings = SettingService.SetSetting(settings, "PagePath", PageState.Page.Path);
