@@ -115,7 +115,7 @@ else
 <br />
 
 @code {
-    public override string UrlParametersTemplate => "/{slug}";
+    public override string UrlParametersTemplate => "/{id}/{slug}";
     public override string RenderMode => RenderModes.Static;
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]

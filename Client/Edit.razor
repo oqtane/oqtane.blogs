@@ -248,8 +248,8 @@
                     _modifiedon = blog.ModifiedOn;
 
                     //get the latest version
-                    var blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blog.BlogId);
-                    var blogContent = blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
+                    _blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, blog.BlogId);
+                    var blogContent = _blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
                     if(blogContent != null)
                     {
                         _summary = blogContent.Summary;
