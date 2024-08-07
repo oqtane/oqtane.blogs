@@ -20,7 +20,7 @@ namespace Oqtane.Blogs.Shared
             {
                 return string.Empty;
             }
-            return Utilities.NavigateUrl(alias, path, Utilities.AddUrlParameters(blog.Slug));
+            return Utilities.NavigateUrl(alias, path, Utilities.AddUrlParameters(blog.BlogId, blog.Slug));
         }
 
         public static string FormatDate(DateTime? date, string format)

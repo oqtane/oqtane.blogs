@@ -20,7 +20,7 @@
 }
 
 @code{
-    public override string UrlParametersTemplate => "/{slug}";
+    public override string UrlParametersTemplate => "/{id}/{slug}";
     public override string RenderMode => RenderModes.Static;
 
     private StringBuilder _templateBuilder;
