@@ -1,23 +1,18 @@
 ﻿using Oqtane.Models;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Oqtane.Blogs.Models
 {
-    [Table("BlogTag")]
     public class BlogTag : IAuditable
     {
         public int BlogTagId { get; set; }
 
         public int BlogId { get; set; }
 
-        public int TagSourceId { get; set; }
+        public int BlogTagSourceId { get; set; }
 
-        public TagSource TagSource { get; set; }
+        public BlogTagSource BlogTagSource { get; set; }
 
         public string CreatedBy { get; set; }
 

@@ -1,17 +1,12 @@
 ﻿using Oqtane.Models;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Oqtane.Blogs.Models
 {
-    [Table("BlogCategorySource")]
-    public class CategorySource : IAuditable
+    public class BlogCategorySource : IAuditable
     {
-        public int CategorySourceId { get; set; }
+        public int BlogCategorySourceId { get; set; }
 
         public int ModuleId { get; set; }
 

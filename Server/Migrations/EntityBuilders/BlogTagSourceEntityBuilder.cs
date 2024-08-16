@@ -12,7 +12,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
     public class BlogTagSourceEntityBuilder : AuditableBaseEntityBuilder<BlogTagSourceEntityBuilder>
     {
         private const string _entityTableName = "BlogTagSource";
-        private readonly PrimaryKey<BlogTagSourceEntityBuilder> _primaryKey = new("PK_BlogTagSource", x => x.TagSourceId);
+        private readonly PrimaryKey<BlogTagSourceEntityBuilder> _primaryKey = new("PK_BlogTagSource", x => x.BlogTagSourceId);
         private readonly ForeignKey<BlogTagSourceEntityBuilder> _moduleForeignKey = new("FK_BlogTagSource_Module", x => x.ModuleId, "Module", "ModuleId", ReferentialAction.Cascade);
 
         public BlogTagSourceEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
@@ -24,7 +24,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
 
         protected override BlogTagSourceEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            TagSourceId = AddAutoIncrementColumn(table, "TagSourceId");
+            BlogTagSourceId = AddAutoIncrementColumn(table, "BlogTagSourceId");
             ModuleId = AddIntegerColumn(table, "ModuleId");
             Tag = AddStringColumn(table, "Tag", 50);
 
@@ -33,7 +33,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
             return this;
         }
 
-        public OperationBuilder<AddColumnOperation> TagSourceId { get; set; }
+        public OperationBuilder<AddColumnOperation> BlogTagSourceId { get; set; }
 
         public OperationBuilder<AddColumnOperation> ModuleId { get; set; }
 

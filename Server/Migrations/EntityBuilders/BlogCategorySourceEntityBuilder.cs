@@ -12,7 +12,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
     public class BlogCategorySourceEntityBuilder : AuditableBaseEntityBuilder<BlogCategorySourceEntityBuilder>
     {
         private const string _entityTableName = "BlogCategorySource";
-        private readonly PrimaryKey<BlogCategorySourceEntityBuilder> _primaryKey = new("PK_BlogCategorySource", x => x.CategorySourceId);
+        private readonly PrimaryKey<BlogCategorySourceEntityBuilder> _primaryKey = new("PK_BlogCategorySource", x => x.BlogCategorySourceId);
         private readonly ForeignKey<BlogCategorySourceEntityBuilder> _moduleForeignKey = new("FK_BlogCategorySource_Module", x => x.ModuleId, "Module", "ModuleId", ReferentialAction.Cascade);
 
         public BlogCategorySourceEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
@@ -24,7 +24,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
 
         protected override BlogCategorySourceEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            CategorySourceId = AddAutoIncrementColumn(table, "CategorySourceId");
+            BlogCategorySourceId = AddAutoIncrementColumn(table, "BlogCategorySourceId");
             ModuleId = AddIntegerColumn(table, "ModuleId");
             Name = AddStringColumn(table, "Name", 50);
 
@@ -33,7 +33,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
             return this;
         }
 
-        public OperationBuilder<AddColumnOperation> CategorySourceId { get; set; }
+        public OperationBuilder<AddColumnOperation> BlogCategorySourceId { get; set; }
 
         public OperationBuilder<AddColumnOperation> ModuleId { get; set; }
 

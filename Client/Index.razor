@@ -7,9 +7,10 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogService BlogService
-@inject ICategoryService CategoryService
+@inject IBlogCommentService BlogCommentService
+@inject IBlogCategoryService BlogCategoryService
 @inject IFileService FileService
-@inject ISubscriberService SubscriberService
+@inject IBlogSubscriberService BlogSubscriberService
 @inject NavigationManager NavigationManager
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
@@ -25,13 +26,73 @@
             <p class="mb-0">@Localizer["NotPublished"]</p>
         </div>
     }
-    @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
+    @if (_blogEditor)
     {
         <div class="text-center">
             <ActionLink Action="Edit" Parameters="@($"id=" + _blog.BlogId.ToString())" ReturnUrl="@PageState.Route.PathAndQuery" ResourceKey="EditBlog" Text="Edit" />
         </div>
     }
     @((MarkupString)Utilities.FormatContent(FormatTemplate(_detail, _blog), PageState.Alias, "render"))
+
+    @if (_comments == "True" && _blogComments != null)
+    {
+        <Section Name="Comments" Heading="@_commentTitle" Expanded="True">
+            @foreach (var blogComment in _blogComments.Where(item => item.IsPublished || _blogEditor))
+            {
+                @if (_blogEditor)
+                {
+                    <div>
+                        <NavLink class="btn btn-primary" href="@(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={blogComment.BlogCommentId}")">@SharedLocalizer["Edit"]</NavLink>
+                        @if (!blogComment.IsPublished)
+                        {
+                            <strong> ** Not Published **</strong>
+                        }
+                    </div>
+                }
+                @((MarkupString)Utilities.FormatContent(FormatComment(_commentTemplate, blogComment), PageState.Alias, "render"))
+            }
+            @if (_blog.AllowComments)
+            {
+                <br />
+                <div class="container mt-2">
+                    <div class="row mb-1 justify-content-center">
+                        <h5 class="text-center">Share Your Feedback...</h5>
+                        <div class="col">
+                            <form method="post" @onsubmit="SubmitComment" @formname="BlogCommentForm" data-enhance>
+                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <input type="hidden" name="commentValidation" @bind="@_commentValidation" />
+                                <input type="hidden" name="commentDate" @bind="@_commentDate" />
+                                <div class="input-group">
+                                    <input name="commentName" class="form-control" placeholder="@Localizer["Name"]" @bind="@_commentName" />
+                                    <input name="commentEmail" class="form-control mx-1" placeholder="@Localizer["Email"]" @bind="@_commentEmail" />
+                                </div>
+                                <textarea name="commentComment" class="form-control mt-1" rows="3" @bind="@_commentComment" />
+                                <input type="hidden" name="commentCreated" @bind="@_commentCreated" />
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary mt-2">@Localizer["Submit"]</button>
+                                    @if (PageState.QueryString.ContainsKey("comment"))
+                                    {
+                                        if (_blogEditor || _commentEditor)
+                                        {
+                                            <NavLink class="btn btn-secondary mt-2" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
+                                        }
+                                        if (_blogEditor)
+                                        {
+                                            <NavLink class="btn btn-danger mt-2" href="@(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={PageState.QueryString["comment"]}&delete")">@SharedLocalizer["Delete"]</NavLink>
+                                        }
+                                    }
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="This Blog Is No Longer Accepting Comments" />
+            }
+        </Section>
+    }
 
     @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
     {
@@ -42,13 +103,13 @@
                 <div class="col-sm-12 col-md-9 col-lg-6">
                     <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
                         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <input type="hidden" name="subscriptionValidation" @bind="@_subscriptionValidation" />
+                        <input type="hidden" name="subscriptionDate" @bind="@_subscriptionDate" />
                         <div class="input-group">
-                            <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
+                            <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
                             <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
                             <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
                         </div>
-                        <input type="hidden" name="validation" @bind="@_validation" />
-                        <input type="hidden" name="date" @bind="@_date" />
                     </form>
                 </div>
             </div>
@@ -97,18 +158,17 @@ else
                     <div class="col-sm-12 col-md-9 col-lg-6">
                         <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
                             <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                            <input type="hidden" name="subscriptionValidation" @bind="@_subscriptionValidation" />
+                            <input type="hidden" name="subscriptionDate" @bind="@_subscriptionDate" />
                             <div class="input-group">
-                                <input name="email" class="form-control" placeholder="@Localizer["Email"]" @bind="@_email" />
+                                <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
                                 <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
                                 <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
                             </div>
-                            <input type="hidden" name="validation" @bind="@_validation" />
-                            <input type="hidden" name="date" @bind="@_date" />
                         </form>
                     </div>
                 </div>
             </div>
-
         }
     }
 }
@@ -118,32 +178,50 @@ else
     public override string UrlParametersTemplate => "/{id}/{slug}";
     public override string RenderMode => RenderModes.Static;
 
-    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
-    public string email { get => ""; set => _email = value; }
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentName { get => ""; set => _commentName = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentEmail { get => ""; set => _commentEmail = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentComment { get => ""; set => _commentComment = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentCreated { get => ""; set => _commentCreated = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentValidation { get => ""; set => _commentValidation = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentDate { get => ""; set => _commentDate = value; }
+
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
-    public string validation { get => ""; set => _validation = value; }
+    public string subscriptionEmail { get => ""; set => _subscriptionEmail = value; }
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
-    public string date { get => ""; set => _date = value; }
+    public string subscriptionValidation { get => ""; set => _subscriptionValidation = value; }
 
-    private List<Blog> _blogs;
-    private Blog _blog;
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionDate { get => ""; set => _subscriptionDate = value; }
+
+    private int _mintime = 5; // 5 second minimum
+    private int _maxtime = 300; // 5 minute maximum
+
+    private bool _blogEditor = false;
+    private bool _commentEditor = false;
+
     private int _items;
     private string _summary;
     private string _detail;
-    private string _summaryHeader;
-    private string _summaryFooter;
+    private string _commentTemplate;
+    private string _comments;
     private string _searchProperties;
     private string _pagerPosition;
     private string _columnCssClass;
-    private string _email = "";
-    private string _validation = "";
-    private string _date = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-    private int _mintime = 5; // 5 second minimum
-    private int _maxtime = 300; // 5 minute maximum
-    private string _rss = "";
     private string _blogName;
+    private string _metaTags;
     private string _pageTitle;
     private string _archiveTitle;
     private string _categoryTitle;
@@ -152,33 +230,78 @@ else
     private string _categoryDescription;
     private string _tagDescription;
     private string _paginationTitle;
-    private string _metaTags;
+
+    private List<Blog> _blogs;
+    private string _summaryHeader;
+    private string _summaryFooter;
+
+    private Blog _blog;
     private string _baseUrl;
     private string _categoryName;
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (PageState.QueryString.ContainsKey("guid"))
-        {
-            await SubscriberService.DeleteSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
-            AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
-        }
-    }
+    private List<BlogComment> _blogComments;
+    private string _commentTitle = "";
+    private string _commentName = "";
+    private string _commentEmail = "";
+    private string _commentComment = "";
+    private string _commentCreated = "";
+    private string _commentValidation = "";
+    private string _commentDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+    private string _subscriptionEmail = "";
+    private string _subscriptionValidation = "";
+    private string _subscriptionDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+    private string _rss = "";
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
+            _blogEditor = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode;
+
+            if (PageState.QueryString.ContainsKey("guid"))
+            {
+                await BlogSubscriberService.DeleteBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+                AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
+            }
+
+            if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("created"))
+            {
+                var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                if (blogComment != null && blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff") == PageState.QueryString["created"])
+                {
+                    if (!blogComment.IsPublished)
+                    {
+                        blogComment.IsPublished = true;
+                        await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
+                        AddModuleMessage("Blog Comment Published", MessageType.Success);
+                    }
+                    _commentEditor = true;
+                }
+            }
+
+            if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("delete") && _blogEditor)
+            {
+                var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                if (blogComment != null)
+                {
+                    await BlogCommentService.DeleteBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                    AddModuleMessage("Blog Comment Deleted", MessageType.Success);
+                }
+            }
+
             _baseUrl = PageState.Alias.Protocol + PageState.Alias.Name.Replace("/" + PageState.Alias.Path, "");
 
             if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
             {
-                _categoryName = (await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.CategorySourceId == categoryId)?.Name ?? string.Empty;
+                _categoryName = (await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.BlogCategorySourceId == categoryId)?.Name ?? string.Empty;
             }
 
             _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
+            _commentTemplate = SettingService.GetSetting(ModuleState.Settings, "Comment", BlogConstants.DefaultCommentTemplate);
+            _comments = SettingService.GetSetting(ModuleState.Settings, "Comments", "False");
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
@@ -235,9 +358,24 @@ else
                         AddHeadContent($"<link rel=\"canonical\" href=\"{_baseUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                     }
 
+                    _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
+                    var comments = _blogComments.Where(item => item.IsPublished || _blogEditor).Count();
+                    _commentTitle = comments.ToString() + " " + ((comments == 1) ? Localizer["Comment"] : Localizer["Comments"]);
+
+                    if (_commentName == "" && PageState.QueryString.ContainsKey("comment"))
+                    {
+                        var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                        if (blogComment != null)
+                        {
+                            _commentName = WebUtility.HtmlDecode(blogComment.Name);
+                            _commentEmail = WebUtility.HtmlDecode(blogComment.Email);
+                            _commentComment = WebUtility.HtmlDecode(blogComment.Comment);
+                            _commentCreated = blogComment.CreatedOn.ToString();
+                        }
+                    }
+
                     //update views
-                    _blog.Views++;
-                    await BlogService.UpdateBlogAsync(_blog);
+                    await BlogService.UpdateBlogViewsAsync(_blog.BlogId, ModuleState.ModuleId);
                 }
                 else
                 {
@@ -333,6 +471,16 @@ else
         return template;
     }
 
+    private string FormatComment(string template, BlogComment blogComment)
+    {
+        template = template.Replace("[COMMENT]", blogComment.Comment, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[NAME]", blogComment.Name, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[EMAIL]", blogComment.Email, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[DATE]", blogComment.CreatedOn.ToShortDateString(), StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("[TIME]", blogComment.CreatedOn.ToShortTimeString(), StringComparison.OrdinalIgnoreCase);
+        return template;
+    }
+
     private void SetListMetaTags()
     {
         var title = string.Empty;
@@ -384,7 +532,7 @@ else
         {
             return string.Join("", blog.BlogTags.Select(i =>
             {
-                return $"<meta property=\"og:tag\" content=\"{i.TagSource.Tag}\" />";
+                return $"<meta property=\"og:tag\" content=\"{i.BlogTagSource.Tag}\" />";
             }));
         }
 
@@ -393,16 +541,16 @@ else
 
     private async Task Subscribe()
     {
-        if (!string.IsNullOrEmpty(_email) && Utilities.IsValidEmail(_email))
+        if (!string.IsNullOrEmpty(_subscriptionEmail) && Utilities.IsValidEmail(_subscriptionEmail))
         {
-            if (string.IsNullOrEmpty(_validation) && DateTime.TryParseExact(_date, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
+            if (string.IsNullOrEmpty(_subscriptionValidation) && DateTime.TryParseExact(_subscriptionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
             {
-                var subscriber = new Subscriber();
+                var subscriber = new BlogSubscriber();
                 subscriber.ModuleId = ModuleState.ModuleId;
-                subscriber.Email = _email;
-                await SubscriberService.AddSubscriberAsync(subscriber);
+                subscriber.Email = _subscriptionEmail;
+                await BlogSubscriberService.AddBlogSubscriberAsync(subscriber);
                 AddModuleMessage(Localizer["Activated"], MessageType.Success, "bottom");
-                _email = "";
+                _subscriptionEmail = "";
             }
             else // try again
             {
@@ -414,4 +562,43 @@ else
             AddModuleMessage(Localizer["EmailInvalid"], MessageType.Warning, "bottom");
         }
     }
+
+    private async Task SubmitComment()
+    {
+        if (!string.IsNullOrEmpty(_commentName) && !string.IsNullOrEmpty(_commentEmail) && Utilities.IsValidEmail(_commentEmail) && !string.IsNullOrEmpty(_commentComment))
+        {
+            if (string.IsNullOrEmpty(_commentValidation) && DateTime.TryParseExact(_commentDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
+            {
+                var blogComment = new BlogComment { BlogId = _blog.BlogId, Name = _commentName, Email = _commentEmail, Comment = _commentComment, PagePath = PageState.Page.Path };
+                if (PageState.QueryString.ContainsKey("comment"))
+                {
+                    blogComment.BlogCommentId = int.Parse(PageState.QueryString["comment"]);
+                    blogComment.CreatedOn = DateTime.Parse(_commentCreated);
+                    blogComment.IsPublished = true;
+                    blogComment = await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
+                }
+                else
+                {
+                    blogComment = await BlogCommentService.AddBlogCommentAsync(blogComment, ModuleState.ModuleId);
+                }
+
+                _commentName = "";
+                _commentEmail = "";
+                _commentComment = "";
+
+                _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
+                StateHasChanged();
+
+                if (!blogComment.IsPublished)
+                {
+                    AddModuleMessage("Thank You For Submitting a Comment. Please Check Your Email For Instructions On How To Publish Or Edit Your Comment.", MessageType.Success, "bottom");
+                }
+            }
+        }
+        else
+        {
+            AddModuleMessage("You Must Enter All Required Fields", MessageType.Warning, "bottom");
+        }
+    }
+
 }

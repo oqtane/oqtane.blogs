@@ -10,6 +10,25 @@ using System.Web;
 
 namespace Oqtane.Blogs.Services
 {
+    public interface IBlogService
+    {
+        Task<List<Blog>> GetBlogsAsync(int moduleId, BlogSearch searchQuery);
+
+        Task<Blog> GetBlogAsync(int blogId, int moduleId);
+
+        Task<Blog> GetBlogBySlugAsync(string slug, int moduleId);
+
+        Task<Blog> AddBlogAsync(Blog blog);
+
+        Task<Blog> UpdateBlogAsync(Blog blog);
+
+        Task UpdateBlogViewsAsync(int blogId, int moduleId);
+
+        Task DeleteBlogAsync(int blogId, int moduleId);
+
+        Task<int> NotifyAsync(int blogId, int moduleId);
+    }
+
     public class BlogService : ServiceBase, IBlogService, IService
     {
         private readonly SiteState _siteState;
@@ -54,6 +73,11 @@ namespace Oqtane.Blogs.Services
         public async Task<Blog> UpdateBlogAsync(Blog blog)
         {
             return await PutJsonAsync<Blog>(CreateAuthorizationPolicyUrl($"{Apiurl}/{blog.BlogId}", EntityNames.Module, blog.ModuleId), blog);
+        }
+
+        public async Task UpdateBlogViewsAsync(int blogId, int moduleId)
+        {
+            await PutAsync(CreateAuthorizationPolicyUrl($"{Apiurl}?id={blogId}", EntityNames.Module, moduleId));
         }
 
         public async Task DeleteBlogAsync(int blogId, int moduleId)

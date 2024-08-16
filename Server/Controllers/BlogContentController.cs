@@ -8,14 +8,8 @@ using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Controllers;
-using Oqtane.Repository;
 using Oqtane.Models;
-using Oqtane.Blogs.Shared;
-using Oqtane.Extensions;
 using System.Linq;
-using System;
-using System.Net;
-using System.Reflection;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -23,10 +17,12 @@ namespace Oqtane.Blogs.Controllers
     public class BlogContentController : ModuleControllerBase
     {
         private readonly IBlogRepository _blogRepository;
+        private readonly IBlogContentRepository _blogContentRepository;
 
-        public BlogContentController(IBlogRepository BlogRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
+        public BlogContentController(IBlogRepository BlogRepository, IBlogContentRepository blogContentRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
         {
             _blogRepository = BlogRepository;
+            _blogContentRepository = blogContentRepository;
         }
 
         [HttpGet]
@@ -35,7 +31,7 @@ namespace Oqtane.Blogs.Controllers
         {
             if (moduleId == _authEntityId[EntityNames.Module])
             {
-                return _blogRepository.GetBlogContents(blogId);
+                return _blogContentRepository.GetBlogContents(blogId);
             }
             else
             {
@@ -51,12 +47,12 @@ namespace Oqtane.Blogs.Controllers
             {
                 if(type == "restore")
                 {
-                    blogContent = _blogRepository.RestoreBlogContent(blogContent);
+                    blogContent = _blogContentRepository.RestoreBlogContent(blogContent);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Content Restored {blogContent}", blogContent);
                 }
                 else
                 {
-                    blogContent = _blogRepository.AddBlogContent(blogContent);
+                    blogContent = _blogContentRepository.AddBlogContent(blogContent);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Content Added {blogContent}", blogContent);
                 }
             }
@@ -71,7 +67,7 @@ namespace Oqtane.Blogs.Controllers
         {
             if (ModelState.IsValid && blogContent.BlogContentId == id && moduleId == _authEntityId[EntityNames.Module])
             {
-                blogContent = _blogRepository.UpdateBlogContent(blogContent);
+                blogContent = _blogContentRepository.UpdateBlogContent(blogContent);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Blog Content Updated {blogContent}", blogContent);
             }
             return blogContent;
@@ -82,10 +78,10 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "EditModule")]
         public void Delete(int moduleId, int blogId, int blogContentId)
         {
-            var blogContents = _blogRepository.GetBlogContents(blogId);
+            var blogContents = _blogContentRepository.GetBlogContents(blogId);
             if (blogContents.Any(i => i.BlogContentId == blogContentId) && moduleId == _authEntityId[EntityNames.Module])
             {
-                _blogRepository.DeleteBlogContent(blogContentId);
+                _blogContentRepository.DeleteBlogContent(blogContentId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Blog Content Deleted {BlogContentId}", blogContentId);
             }
         }

@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Blogs.Shared;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
-using System;
+
 
 namespace Oqtane.Blogs.Migrations.EntityBuilders
 {

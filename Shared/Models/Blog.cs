@@ -19,6 +19,7 @@ namespace Oqtane.Blogs.Models
         public string Slug { get; set; }
         public int Thumbnail { get; set; }
         public string AlternateText { get; set; }
+        public bool AllowComments { get; set; }
         public int Views { get; set; }
         public List<BlogContent> BlogContentList { get; set; }
         public List<BlogCategory> BlogCategories { get; set; }
@@ -53,7 +54,7 @@ namespace Oqtane.Blogs.Models
             {
                 if (_tags == null && BlogTags != null)
                 {
-                    _tags = string.Join(",", BlogTags.Select(i => i.TagSource.Tag));
+                    _tags = string.Join(",", BlogTags.Select(i => i.BlogTagSource.Tag));
                 }
 
                 return _tags;
@@ -71,7 +72,7 @@ namespace Oqtane.Blogs.Models
             {
                 if (_categories == null && BlogCategories != null)
                 {
-                    _categories = string.Join(",", BlogCategories.Select(i => i.CategorySourceId));
+                    _categories = string.Join(",", BlogCategories.Select(i => i.BlogCategorySourceId));
                 }
 
                 return _categories;

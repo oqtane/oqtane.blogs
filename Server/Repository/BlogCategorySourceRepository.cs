@@ -3,38 +3,45 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
 using Oqtane.Blogs.Models;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Blogs.Repository
 {
-    public class CategorySourceRepository : ICategorySourceRepository, IService
+    public interface IBlogCategorySourceRepository
     {
-        private const string CategorySourcesCacheKey = "blogcategorysources_{0}";
+        IEnumerable<BlogCategorySource> GetBlogCategorySources(int moduleId);
+        BlogCategorySource AddBlogCategorySource(BlogCategorySource blogCategorySource);
+        BlogCategorySource UpdateBlogCategorySource(BlogCategorySource blogCategorySource);
+        void DeleteBlogCategorySource(int categorySourceId);
+    }
+
+    public class BlogCategorySourceRepository : IBlogCategorySourceRepository, IService
+    {
+        private const string BlogCategorySourcesCacheKey = "blogcategorysources_{0}";
 
         private readonly IDbContextFactory<BlogContext> _dbContextFactory;
         private readonly IMemoryCache _cache;
 
-        public CategorySourceRepository(IDbContextFactory<BlogContext> dbContextFactory, IMemoryCache cache)
+        public BlogCategorySourceRepository(IDbContextFactory<BlogContext> dbContextFactory, IMemoryCache cache)
         {
             _dbContextFactory = dbContextFactory;
             _cache = cache;
         }
 
-        public IEnumerable<CategorySource> GetCategorySources(int moduleId)
+        public IEnumerable<BlogCategorySource> GetBlogCategorySources(int moduleId)
         {
-            var cacheKey = string.Format(CategorySourcesCacheKey, moduleId);
-            return _cache.GetOrCreate<IEnumerable<CategorySource>>(cacheKey, entry =>
+            var cacheKey = string.Format(BlogCategorySourcesCacheKey, moduleId);
+            return _cache.GetOrCreate<IEnumerable<BlogCategorySource>>(cacheKey, entry =>
             {
                 using var db = _dbContextFactory.CreateDbContext();
                 var blogIds = from b in db.BlogContent
                               where b.PublishStatus == Shared.PublishStatus.Published || (b.PublishStatus == Shared.PublishStatus.Scheduled && b.PublishDate <= DateTime.UtcNow)
                               select b.BlogId;
-                var data = (from c in db.CategorySource
-                            from bc in db.Category.Where(i => i.CategorySourceId == c.CategorySourceId).DefaultIfEmpty()
+                var data = (from c in db.BlogCategorySource
+                            from bc in db.BlogCategory.Where(i => i.BlogCategorySourceId == c.BlogCategorySourceId).DefaultIfEmpty()
                             where (bc == null || blogIds.Contains(bc.BlogId)) && c.ModuleId == moduleId
-                            group new { c, bc } by c.CategorySourceId into g
+                            group new { c, bc } by c.BlogCategorySourceId into g
                             select new { CategorySourceId = g.Key, Items = g.ToList() }
                            ).ToList();
 
@@ -48,33 +55,33 @@ namespace Oqtane.Blogs.Repository
             });
         }
 
-        public CategorySource AddCategorySource(CategorySource categorySource)
+        public BlogCategorySource AddBlogCategorySource(BlogCategorySource blogCategorySource)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.CategorySource.Add(categorySource);
+            db.BlogCategorySource.Add(blogCategorySource);
             db.SaveChanges();
 
-            ClearCache(categorySource.ModuleId);
-            return categorySource;
+            ClearCache(blogCategorySource.ModuleId);
+            return blogCategorySource;
         }
 
-        public CategorySource UpdateCategorySource(CategorySource categorySource)
+        public BlogCategorySource UpdateBlogCategorySource(BlogCategorySource blogCategorySource)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.Entry(categorySource).State = EntityState.Modified;
+            db.Entry(blogCategorySource).State = EntityState.Modified;
             db.SaveChanges();
 
-            ClearCache(categorySource.ModuleId);
-            return categorySource;
+            ClearCache(blogCategorySource.ModuleId);
+            return blogCategorySource;
         }
 
-        public void DeleteCategorySource(int categorySourceId)
+        public void DeleteBlogCategorySource(int categorySourceId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var categorySource = db.CategorySource.Find(categorySourceId);
+            var categorySource = db.BlogCategorySource.Find(categorySourceId);
             if (categorySource != null)
             {
-                db.CategorySource.Remove(categorySource);
+                db.BlogCategorySource.Remove(categorySource);
 
                 ClearCache(categorySource.ModuleId);
                 db.SaveChanges();
@@ -83,7 +90,7 @@ namespace Oqtane.Blogs.Repository
 
         private void ClearCache(int moduleId)
         {
-            var cacheKey = string.Format(CategorySourcesCacheKey, moduleId);
+            var cacheKey = string.Format(BlogCategorySourcesCacheKey, moduleId);
             _cache.Remove(cacheKey);
         }
     }

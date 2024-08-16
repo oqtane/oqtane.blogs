@@ -15,9 +15,9 @@ namespace Oqtane.Blogs.Models
 
         public int BlogId { get; set; }
 
-        public int CategorySourceId { get; set; }
+        public int BlogCategorySourceId { get; set; }
 
-        public CategorySource CategorySource { get; set; }
+        public BlogCategorySource BlogCategorySource { get; set; }
 
         public string CreatedBy { get; set; }
 
