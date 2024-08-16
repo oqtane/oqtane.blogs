@@ -1,11 +1,9 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Blogs.Shared;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
-using System;
 
 namespace Oqtane.Blogs.Migrations.EntityBuilders
 {
@@ -14,7 +12,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
         private const string _entityTableName = "BlogTag";
         private readonly PrimaryKey<BlogTagEntityBuilder> _primaryKey = new("PK_BlogTag", x => x.BlogTagId);
         private readonly ForeignKey<BlogTagEntityBuilder> _blogForeignKey = new("FK_BlogTag_Blog", x => x.BlogId, "Blog", "BlogId", ReferentialAction.Cascade);
-        private readonly ForeignKey<BlogTagEntityBuilder> _tagSourceForeignKey = new("FK_BlogTag_BlogTagSource", x => x.TagSourceId, "BlogTagSource", "TagSourceId", ReferentialAction.NoAction);
+        private readonly ForeignKey<BlogTagEntityBuilder> _tagSourceForeignKey = new("FK_BlogTag_BlogTagSource", x => x.BlogTagSourceId, "BlogTagSource", "BlogTagSourceId", ReferentialAction.NoAction);
 
         public BlogTagEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
@@ -28,7 +26,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
         {
             BlogTagId = AddAutoIncrementColumn(table, "BlogTagId");
             BlogId = AddIntegerColumn(table, "BlogId");
-            TagSourceId = AddIntegerColumn(table, "TagSourceId");
+            BlogTagSourceId = AddIntegerColumn(table, "BlogTagSourceId");
 
             AddAuditableColumns(table);
 
@@ -39,6 +37,6 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> BlogId { get; set; }
 
-        public OperationBuilder<AddColumnOperation> TagSourceId { get; set; }
+        public OperationBuilder<AddColumnOperation> BlogTagSourceId { get; set; }
     }
 }

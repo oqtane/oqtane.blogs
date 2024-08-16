@@ -6,7 +6,7 @@
 @inject IBlogService BlogService
 @inject IBlogContentService BlogContentService
 @inject ISettingService SettingService
-@inject ICategoryService CategoryService
+@inject IBlogCategoryService BlogCategoryService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -47,13 +47,13 @@
                             <div class="input-group">
                                 <input class="form-control dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" readonly @bind-value="_categoriesName" required />
                                 <ul class="dropdown-menu w-100">
-                                    @if (_categorySources != null)
+                                    @if (_blogCategorySources != null)
                                     {
-                                        foreach (var cat in _categorySources)
+                                        foreach (var cat in _blogCategorySources)
                                         {
                                             <li class="px-3 py-1">
-                                                <input type="checkbox" class="form-check-input" id="cat-@cat.CategorySourceId" @onchange="@((e) => CategoryChanged(cat, e))" checked="@_categories.Contains(cat.CategorySourceId)" />
-                                                <label for="cat-@cat.CategorySourceId" class="ms-1">@cat.Name</label>
+                                                <input type="checkbox" class="form-check-input" id="cat-@cat.BlogCategorySourceId" @onchange="@((e) => CategoryChanged(cat, e))" checked="@_categories.Contains(cat.BlogCategorySourceId)" />
+                                                <label for="cat-@cat.BlogCategorySourceId" class="ms-1">@cat.Name</label>
                                             </li>
                                         }
                                     }
@@ -100,6 +100,18 @@
                             <input id="tags" type="text" class="form-control" @bind="@_tagsValue" maxlength="50" />
                         </div>
                     </div>
+                    @if (SettingService.GetSetting(ModuleState.Settings, "Comments", "False") == "True")
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="allowComments" ResourceKey="AllowComments" HelpText="Specify if users can submit comments for this blog">Allow Comments? </Label>
+                            <div class="col-sm-9">
+                                <select id="allowComments" class="form-select" @bind="@_allowComments">
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
                 </div>
                 <br /><br />
                 <button type="button" class="btn btn-success" @onclick="SaveBlog">@Localizer["Save"]</button>
@@ -140,12 +152,12 @@
             <TabPanel Name="Categories" Heading="Categories" ResourceKey="Categories">
                 @if (!_editing)
                 {
-                    @if (_categorySources != null)
+                    @if (_blogCategorySources != null)
                     {
                         <div class="text-center mb-2">
                             <button type="button" class="btn btn-primary" @onclick="AddCategory">@Localizer["AddCategory"]</button>
                         </div>
-                        <Pager Items="@_categorySources">
+                        <Pager Items="@_blogCategorySources">
                             <Header>
                             <th style="width: 1px;">&nbsp;</th>
                             <th style="width: 1px;">&nbsp;</th>
@@ -211,6 +223,7 @@
     private string _publishStatus = ((int)PublishStatus.Draft).ToString();
     private DateTime? _publishDate;
     private string _tagsValue;
+    private string _allowComments = "True";
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -218,7 +231,7 @@
 
     private List<BlogContent> _blogContents;
 
-    private List<CategorySource> _categorySources;
+    private List<BlogCategorySource> _blogCategorySources;
     private bool _editing;
     private string _name;
     private int _editId;
@@ -227,7 +240,7 @@
     {
         try
         {
-            _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+            _blogCategorySources = await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId);
 
             if (PageState.QueryString.ContainsKey("id"))
             {
@@ -239,9 +252,10 @@
                     _slug = blog.Slug;
                     _thumbnail = blog.Thumbnail;
                     _alternateText = blog.AlternateText;
-                    _categories = blog.BlogCategories.Select(i => i.CategorySourceId).ToList();
-                    _categoriesName = string.Join(",", blog.BlogCategories.Select(i => i.CategorySource.Name));
-                    _tagsValue = string.Join(",", blog.BlogTags.Select(i => i.TagSource.Tag));
+                    _categories = blog.BlogCategories.Select(i => i.BlogCategorySourceId).ToList();
+                    _categoriesName = string.Join(",", blog.BlogCategories.Select(i => i.BlogCategorySource.Name));
+                    _tagsValue = string.Join(",", blog.BlogTags.Select(i => i.BlogTagSource.Tag));
+                    _allowComments = blog.AllowComments.ToString();
                     _createdby = blog.CreatedBy;
                     _createdon = blog.CreatedOn;
                     _modifiedby = blog.ModifiedBy;
@@ -314,7 +328,8 @@
                         Thumbnail = _fileManager.GetFileId(),
                         AlternateText = _alternateText,
                         Categories = string.Join(",", _categories),
-                        Tags = _tagsValue
+                        Tags = _tagsValue,
+                        AllowComments = bool.Parse(_allowComments)
                     };
                     blog = await BlogService.AddBlogAsync(blog);
                     _id = blog.BlogId;
@@ -331,6 +346,7 @@
                         blog.AlternateText = _alternateText;
                         blog.Categories = string.Join(",", _categories);
                         blog.Tags = _tagsValue;
+                        blog.AllowComments = bool.Parse(_allowComments);
                         blog = await BlogService.UpdateBlogAsync(blog);
                         await logger.LogInformation("Blog Updated {Blog}", blog);
                     }
@@ -430,18 +446,18 @@
         StateHasChanged();
     }
 
-    private void CategoryChanged(CategorySource cat, ChangeEventArgs e)
+    private void CategoryChanged(BlogCategorySource cat, ChangeEventArgs e)
     {
-        if (Convert.ToInt32(e.Value) == CheckedValue && !_categories.Contains(cat.CategorySourceId))
+        if (Convert.ToInt32(e.Value) == CheckedValue && !_categories.Contains(cat.BlogCategorySourceId))
         {
-            _categories.Add(cat.CategorySourceId);
+            _categories.Add(cat.BlogCategorySourceId);
         }
         else
         {
-            _categories.Remove(cat.CategorySourceId);
+            _categories.Remove(cat.BlogCategorySourceId);
         }
 
-        _categoriesName = string.Join(", ", _categorySources.Where(i => _categories.Contains(i.CategorySourceId)).Select(i => i.Name));
+        _categoriesName = string.Join(", ", _blogCategorySources.Where(i => _categories.Contains(i.BlogCategorySourceId)).Select(i => i.Name));
 
         StateHasChanged();
     }
@@ -482,20 +498,20 @@
         _editing = true;
     }
 
-    private void EditCategory(CategorySource categorySource)
+    private void EditCategory(BlogCategorySource categorySource)
     {
-        _editId = categorySource.CategorySourceId;
+        _editId = categorySource.BlogCategorySourceId;
         _name = categorySource.Name;
 
         _editing = true;
         StateHasChanged();
     }
 
-    private async Task DeleteCategory(CategorySource categorySource)
+    private async Task DeleteCategory(BlogCategorySource categorySource)
     {
-        await CategoryService.DeleteCategorySourceAsync(categorySource.CategorySourceId, ModuleState.ModuleId);
+        await BlogCategoryService.DeleteBlogCategorySourceAsync(categorySource.BlogCategorySourceId, ModuleState.ModuleId);
 
-        _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+        _blogCategorySources = await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId);
         StateHasChanged();
     }
 
@@ -507,8 +523,8 @@
             return;
         }
 
-        var existCat = _categorySources.FirstOrDefault(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase)
-                                                && (_editId == 0 || i.CategorySourceId != Convert.ToInt32(_editId)));
+        var existCat = _blogCategorySources.FirstOrDefault(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase)
+                                                && (_editId == 0 || i.BlogCategorySourceId != Convert.ToInt32(_editId)));
         if (existCat != null)
         {
             AddModuleMessage(Localizer["Name.RequireUnique"], MessageType.Warning);
@@ -520,28 +536,28 @@
         if (_editId > 0)
         {
             var id = Convert.ToInt32(_editId);
-            var categorySource = _categorySources.FirstOrDefault(i => i.CategorySourceId == id);
+            var categorySource = _blogCategorySources.FirstOrDefault(i => i.BlogCategorySourceId == id);
             if (categorySource != null)
             {
                 categorySource.Name = _name;
-                await CategoryService.UpdateCategorySourceAsync(categorySource);
+                await BlogCategoryService.UpdateBlogCategorySourceAsync(categorySource);
             }
         }
         else
         {
-            var categorySource = new CategorySource
+            var categorySource = new BlogCategorySource
                 {
                     Name = _name,
                     ModuleId = ModuleState.ModuleId
                 };
 
-            await CategoryService.AddCategorySourceAsync(categorySource);
+            await BlogCategoryService.AddBlogCategorySourceAsync(categorySource);
         }
 
         _editing = false;
         _name = string.Empty;
         _editId = 0;
-        _categorySources = await CategoryService.GetCategorySourcesAsync(ModuleState.ModuleId);
+        _blogCategorySources = await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId);
         StateHasChanged();
     }
 

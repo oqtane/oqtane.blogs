@@ -8,6 +8,16 @@ using Oqtane.Blogs.Shared;
 
 namespace Oqtane.Blogs.Repository
 {
+    public interface IBlogRepository
+    {
+        IEnumerable<Blog> GetBlogs(int moduleId, BlogSearch searchQuery);
+        Blog GetBlog(int blogId);
+        Blog GetBlogBySlug(string slug);
+        Blog AddBlog(Blog blog);
+        Blog UpdateBlog(Blog blog);
+        void DeleteBlog(int blogId);
+    }
+
     public class BlogRepository : IBlogRepository, IService
     {
         private readonly IDbContextFactory<BlogContext> _dbContextFactory;
@@ -39,9 +49,9 @@ namespace Oqtane.Blogs.Repository
             var blogs = db.Blog.AsNoTracking()
                 .Include(i => i.BlogContentList)
                 .Include(i => i.BlogCategories)
-                .ThenInclude(i => i.CategorySource)
+                .ThenInclude(i => i.BlogCategorySource)
                 .Include(i => i.BlogTags)
-                .ThenInclude(i => i.TagSource)
+                .ThenInclude(i => i.BlogTagSource)
                 .Where(item =>
                         (moduleId == -1 || item.ModuleId == moduleId)
                         && (excludeBlogs == null || !excludeBlogs.Any() || !excludeBlogs.Contains(item.BlogId))
@@ -51,8 +61,8 @@ namespace Oqtane.Blogs.Repository
                             || (item.BlogContentList.Any(i => i.PublishStatus == PublishStatus.Published || (i.PublishStatus == PublishStatus.Scheduled && i.PublishDate <= DateTime.UtcNow))
                                     && item.BlogContentList.OrderByDescending(i => i.Version).First(i => i.PublishStatus == PublishStatus.Published || (i.PublishStatus == PublishStatus.Scheduled && i.PublishDate <= DateTime.UtcNow)).Summary.Contains(keywords))
                         )
-                        && (categories == null || !categories.Any() || item.BlogCategories.Any(c => categories.Contains(c.CategorySourceId)))
-                        && (tags == null || !tags.Any() || item.BlogTags.Any(c => tags.Contains(c.TagSource.Tag)))
+                        && (categories == null || !categories.Any() || item.BlogCategories.Any(c => categories.Contains(c.BlogCategorySourceId)))
+                        && (tags == null || !tags.Any() || item.BlogTags.Any(c => tags.Contains(c.BlogTagSource.Tag)))
                         && (startDate == DateTime.MinValue || item.CreatedOn >= startDate)
                         && (endDate == DateTime.MinValue || item.CreatedOn <= endDate)
                 );
@@ -81,9 +91,9 @@ namespace Oqtane.Blogs.Repository
             return db.Blog
                 .Include(i => i.BlogContentList)
                 .Include(i => i.BlogCategories)
-                .ThenInclude(i => i.CategorySource)
+                .ThenInclude(i => i.BlogCategorySource)
                 .Include(i => i.BlogTags)
-                .ThenInclude(i => i.TagSource)
+                .ThenInclude(i => i.BlogTagSource)
                 .FirstOrDefault(i => i.BlogId == blogId);
         }
 
@@ -93,9 +103,9 @@ namespace Oqtane.Blogs.Repository
             return db.Blog
                 .Include(i => i.BlogContentList)
                 .Include(i => i.BlogCategories)
-                .ThenInclude(i => i.CategorySource)
+                .ThenInclude(i => i.BlogCategorySource)
                 .Include(i => i.BlogTags)
-                .ThenInclude(i => i.TagSource)
+                .ThenInclude(i => i.BlogTagSource)
                 .FirstOrDefault(i => slug == i.Slug);
         }
 
@@ -109,9 +119,9 @@ namespace Oqtane.Blogs.Repository
             {
                 foreach (var cat in blog.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (int.TryParse(cat, out int categorySourceId))
+                    if (int.TryParse(cat, out int blogCategorySourceId))
                     {
-                        blog.BlogCategories.Add(new BlogCategory { CategorySourceId = categorySourceId });
+                        blog.BlogCategories.Add(new BlogCategory { BlogCategorySourceId = blogCategorySourceId });
                     }
                 }
             }
@@ -124,13 +134,13 @@ namespace Oqtane.Blogs.Repository
                 {
                     if(!string.IsNullOrWhiteSpace(tag))
                     {
-                        var tagSource = db.TagSource.FirstOrDefault(i => i.Tag == tag);
+                        var tagSource = db.BlogTagSource.FirstOrDefault(i => i.Tag == tag);
                         if (tagSource == null)
                         {
-                            tagSource = new TagSource { Tag = tag, ModuleId = blog.ModuleId };
+                            tagSource = new BlogTagSource { Tag = tag, ModuleId = blog.ModuleId };
                         }
 
-                        blog.BlogTags.Add(new BlogTag { TagSource = tagSource });
+                        blog.BlogTags.Add(new BlogTag { BlogTagSource = tagSource });
                     }
                 }
             }
@@ -152,15 +162,15 @@ namespace Oqtane.Blogs.Repository
                 var categories = blog.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => Convert.ToInt32(i)).ToList();
 
                 //mark deleted items
-                foreach (var c in blog.BlogCategories.Where(i => !categories.Any(c => c == i.CategorySourceId)))
+                foreach (var c in blog.BlogCategories.Where(i => !categories.Any(c => c == i.BlogCategorySourceId)))
                 {
                     db.Entry(c).State = EntityState.Deleted;
                 }
 
                 //add new items
-                foreach (var id in categories.Where(i => !blog.BlogCategories.Any(c => c.CategorySourceId == i)))
+                foreach (var id in categories.Where(i => !blog.BlogCategories.Any(c => c.BlogCategorySourceId == i)))
                 {
-                    blog.BlogCategories.Add(new BlogCategory { CategorySourceId = id });
+                    blog.BlogCategories.Add(new BlogCategory { BlogCategorySourceId = id });
                 }
             }
 
@@ -168,22 +178,22 @@ namespace Oqtane.Blogs.Repository
             if (!string.IsNullOrEmpty(blog.Tags))
             {
                 var tags = blog.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var deletedTags = blog.BlogTags.Where(i => !tags.Any(c => c.Equals(i.TagSource.Tag, StringComparison.OrdinalIgnoreCase)));
+                var deletedTags = blog.BlogTags.Where(i => !tags.Any(c => c.Equals(i.BlogTagSource.Tag, StringComparison.OrdinalIgnoreCase)));
                 foreach (var tag in deletedTags)
                 {
                     blog.BlogTags.Remove(tag);
                 }
 
-                var newTags = tags.Where(i => !blog.BlogTags.Any(c => c.TagSource.Tag.Equals(i, StringComparison.OrdinalIgnoreCase)));
+                var newTags = tags.Where(i => !blog.BlogTags.Any(c => c.BlogTagSource.Tag.Equals(i, StringComparison.OrdinalIgnoreCase)));
                 foreach(var tag in newTags)
                 {
-                    var tagSource = db.TagSource.FirstOrDefault(i => i.Tag == tag);
+                    var tagSource = db.BlogTagSource.FirstOrDefault(i => i.Tag == tag);
                     if (tagSource == null)
                     {
-                        tagSource = new TagSource { Tag = tag, ModuleId = blog.ModuleId };
+                        tagSource = new BlogTagSource { Tag = tag, ModuleId = blog.ModuleId };
                     }
 
-                    blog.BlogTags.Add(new BlogTag { TagSource = tagSource });
+                    blog.BlogTags.Add(new BlogTag { BlogTagSource = tagSource });
                 }
             }
 
@@ -197,80 +207,6 @@ namespace Oqtane.Blogs.Repository
             var Blog = db.Blog.Find(blogId);
             db.Blog.Remove(Blog);
             db.SaveChanges();
-        }
-
-        public IEnumerable<BlogContent> GetBlogContents(int blogId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            return db.BlogContent.AsNoTracking()
-                .Where(i => i.BlogId == blogId)
-                .OrderByDescending(i => i.Version)
-                .ToList();
-        }
-
-        public BlogContent AddBlogContent(BlogContent blogContent)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            db.BlogContent.Add(blogContent);
-            db.SaveChanges();
-            return blogContent;
-        }
-
-        public BlogContent UpdateBlogContent(BlogContent blogContent)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            db.Entry(blogContent).State = EntityState.Modified;
-            db.SaveChanges();
-            return blogContent;
-        }
-
-        public BlogContent RestoreBlogContent(BlogContent blogContent)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var latestVersion = GetBlogContents(blogContent.BlogId).OrderByDescending(i => i.Version).FirstOrDefault();
-            if(latestVersion != null && latestVersion.BlogContentId != blogContent.BlogContentId)
-            {
-                if(latestVersion.PublishStatus == Shared.PublishStatus.Draft 
-                    || (latestVersion.PublishStatus == Shared.PublishStatus.Scheduled && latestVersion.PublishDate >= DateTime.UtcNow))
-                {
-                    latestVersion.Summary = blogContent.Summary;
-                    latestVersion.Content = blogContent.Content;
-
-                    db.Entry(latestVersion).State = EntityState.Modified;
-                    db.SaveChanges();
-
-                    return latestVersion;
-                }
-                else
-                {
-                    var newVersion = new BlogContent
-                    {
-                        BlogId = blogContent.BlogId,
-                        Version = latestVersion.Version + 1,
-                        Summary = blogContent.Summary,
-                        Content = blogContent.Content,
-                        PublishStatus = Shared.PublishStatus.Draft,
-                        PublishDate = null
-                    };
-                    db.BlogContent.Add(newVersion);
-                    db.SaveChanges();
-
-                    return newVersion;
-                }
-            }
-
-            return null;
-        }
-
-        public void DeleteBlogContent(int blogContentId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var blogContent = db.BlogContent.Find(blogContentId);
-            if (blogContent != null)
-            {
-                db.BlogContent.Remove(blogContent);
-                db.SaveChanges();
-            }
         }
     }
 }

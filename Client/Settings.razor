@@ -23,13 +23,28 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="summary" ResourceKey="Summary" ResourceType="@resourceType" HelpText="Enter the summary blog template">Summary Template: </Label>
             <div class="col-sm-9">
-                <textarea id="summary" class="form-control" @bind="@_summary" rows="5"></textarea>
+                <textarea id="summary" class="form-control" @bind="@_summary" rows="3"></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="detail" ResourceKey="Detail" ResourceType="@resourceType" HelpText="Enter the detail blog template">Detail Template: </Label>
             <div class="col-sm-9">
-                <textarea id="detail" class="form-control" @bind="@_detail" rows="5"></textarea>
+                <textarea id="detail" class="form-control" @bind="@_detail" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="comment" ResourceKey="Comment" ResourceType="@resourceType" HelpText="Enter the blog comment template">Comment Template: </Label>
+            <div class="col-sm-9">
+                <textarea id="comment" class="form-control" @bind="@_comment" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="comments" ResourceKey="Comments" ResourceType="@resourceType" HelpText="Do you wish to allow users to submit comments?">Allow Commments? </Label>
+            <div class="col-sm-9">
+                <select id="comments" class="form-select" @bind="@_comments">
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -147,6 +162,8 @@
     private string _columnCssClass;
     private string _summary;
     private string _detail;
+    private string _comment;
+    private string _comments;
     private string _searchProperties;
     private string _pagerPosition;
 
@@ -171,6 +188,8 @@
             _items = SettingService.GetSetting(ModuleState.Settings, "Items", "10");
             _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
             _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
+            _comment = SettingService.GetSetting(ModuleState.Settings, "Comment", BlogConstants.DefaultCommentTemplate);
+            _comments = SettingService.GetSetting(ModuleState.Settings, "Comments", "False");
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
@@ -202,6 +221,8 @@
             settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
+            settings = SettingService.SetSetting(settings, "Comment", _comment);
+            settings = SettingService.SetSetting(settings, "Comments", _comments);
             settings = SettingService.SetSetting(settings, "SearchProperties", _searchProperties);
             settings = SettingService.SetSetting(settings, "PagerPosition", _pagerPosition);
             settings = SettingService.SetSetting(settings, "Subscriptions", _subscriptions);

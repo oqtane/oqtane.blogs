@@ -53,7 +53,7 @@ namespace Oqtane.Blogs.Shared
             var categories = new StringBuilder("<ul class=\"blog-categories-list\">");
             foreach (var category in blog.BlogCategories)
             {
-                categories.Append($"<li><a href=\"{baseUrl}?Category={category.CategorySourceId}\">{category.CategorySource.Name}</a>");
+                categories.Append($"<li><a href=\"{baseUrl}?Category={category.BlogCategorySourceId}\">{category.BlogCategorySource.Name}</a>");
             }
             categories.Append("</ul>");
 
@@ -68,9 +68,9 @@ namespace Oqtane.Blogs.Shared
             }
 
             var tags = new StringBuilder("<ul class=\"blog-tags-list\">");
-            foreach (var tag in blog.BlogTags.OrderBy(i => i.TagSource.Tag))
+            foreach (var tag in blog.BlogTags.OrderBy(i => i.BlogTagSource.Tag))
             {
-                tags.Append($"<li><a href=\"{baseUrl}?Tag={tag.TagSource.Tag}\">{tag.TagSource.Tag}</a>");
+                tags.Append($"<li><a href=\"{baseUrl}?Tag={tag.BlogTagSource.Tag}\">{tag.BlogTagSource.Tag}</a>");
             }
             tags.Append("</ul>");
 

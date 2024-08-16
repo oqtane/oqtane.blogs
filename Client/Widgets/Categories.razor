@@ -6,7 +6,7 @@
 
 @namespace Oqtane.Blogs.Widgets
 @inherits WidgetBase
-@inject ICategoryService CategoryService
+@inject IBlogCategoryService BlogCategoryService
 
 @if (_templateBuilder != null)
 {
@@ -17,7 +17,7 @@
     public override string RenderMode => RenderModes.Static;
 
     private StringBuilder _templateBuilder;
-    private IList<CategorySource> _categories;
+    private IList<BlogCategorySource> _categories;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,7 +28,7 @@
     {
         await base.OnParametersSetAsync();
 
-        _categories = await CategoryService.GetCategorySourcesAsync(BlogModuleId);
+        _categories = await BlogCategoryService.GetBlogCategorySourcesAsync(BlogModuleId);
 
         _templateBuilder = new StringBuilder(await RenderTemplate());
     }
@@ -43,7 +43,7 @@
         {
             var tokens = new Dictionary<string, string>
             {
-                { "URL", $"{blogUrl}?category={c.CategorySourceId}" },
+                { "URL", $"{blogUrl}?category={c.BlogCategorySourceId}" },
                 { "NAME", c.Name },
                 { "COUNT", c.BlogCount.ToString() }
             };

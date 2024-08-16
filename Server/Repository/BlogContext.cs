@@ -10,11 +10,12 @@ namespace Oqtane.Blogs.Repository
     {
         public virtual DbSet<Blog> Blog { get; set; }
         public virtual DbSet<BlogContent> BlogContent { get; set; }
-        public virtual DbSet<CategorySource> CategorySource { get; set; }
-        public virtual DbSet<BlogCategory> Category { get; set; }
-        public virtual DbSet<TagSource> TagSource { get; set; }
-        public virtual DbSet<BlogTag> Tag { get; set; }
-        public virtual DbSet<Subscriber> Subscriber { get; set; }
+        public virtual DbSet<BlogCategorySource> BlogCategorySource { get; set; }
+        public virtual DbSet<BlogCategory> BlogCategory { get; set; }
+        public virtual DbSet<BlogTagSource> BlogTagSource { get; set; }
+        public virtual DbSet<BlogTag> BlogTag { get; set; }
+        public virtual DbSet<BlogSubscriber> BlogSubscriber { get; set; }
+        public virtual DbSet<BlogComment> BlogComment { get; set; }
 
         public BlogContext(IDBContextDependencies DBContextDependencies) : base(DBContextDependencies)
         {

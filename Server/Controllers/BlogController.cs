@@ -24,15 +24,15 @@ namespace Oqtane.Blogs.Controllers
         private readonly IBlogRepository _blogRepository;
         private readonly ISiteRepository _siteRepository;
         private readonly ISettingRepository _settingRepository;
-        private readonly ISubscriberRepository _subscriberRepository;
+        private readonly IBlogSubscriberRepository _blogSubscriberRepository;
         private readonly INotificationRepository _notificationRepository;
 
-        public BlogController(IBlogRepository blogRepository, ISiteRepository siteRepository, ISettingRepository settingRepository, ISubscriberRepository subscriberRepository, INotificationRepository notificationRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
+        public BlogController(IBlogRepository blogRepository, ISiteRepository siteRepository, ISettingRepository settingRepository, IBlogSubscriberRepository blogSubscriberRepository, INotificationRepository notificationRepository, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
         {
             _blogRepository = blogRepository;
             _siteRepository = siteRepository;
             _settingRepository = settingRepository;
-            _subscriberRepository = subscriberRepository;
+            _blogSubscriberRepository = blogSubscriberRepository;
             _notificationRepository = notificationRepository;
         }
 
@@ -103,6 +103,20 @@ namespace Oqtane.Blogs.Controllers
             return blog;
         }
 
+        // PUT api/<controller>?5
+        [HttpPut]
+        [IgnoreAntiforgeryToken]
+        [Authorize(Policy = "ViewModule")]
+        public void Put(int id)
+        {
+            var blog = _blogRepository.GetBlog(id);
+            if (blog.ModuleId == _authEntityId[EntityNames.Module])
+            {
+                blog.Views += 1;
+                _blogRepository.UpdateBlog(blog);
+            }
+        }
+
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         [Authorize(Policy = "EditModule")]
@@ -135,7 +149,7 @@ namespace Oqtane.Blogs.Controllers
                     var url = rooturl + Utilities.NavigateUrl(alias.Path, pagepath, parameters);
 
                     // this will likely need to be asynchronous in the future as it may timeout
-                    foreach (var subscriber in _subscriberRepository.GetSubscribers(blog.ModuleId))
+                    foreach (var subscriber in _blogSubscriberRepository.GetBlogSubscribers(blog.ModuleId))
                     {
                         var body = blog.PublishedBlogContent.Summary;
                         body += $"<br /><br />Read Full Article: <a href=\"{url}\">{url}</a>";
