@@ -36,7 +36,7 @@ namespace Oqtane.Blogs.Repository
             {
                 using var db = _dbContextFactory.CreateDbContext();
                 var blogIds = from b in db.BlogContent
-                              where b.PublishStatus == Shared.PublishStatus.Published || (b.PublishStatus == Shared.PublishStatus.Scheduled && b.PublishDate <= DateTime.UtcNow)
+                              where b.IsPublished && (b.PublishDate == null || b.PublishDate <= DateTime.UtcNow)
                               select b.BlogId;
                 var data = (from c in db.BlogCategorySource
                             from bc in db.BlogCategory.Where(i => i.BlogCategorySourceId == c.BlogCategorySourceId).DefaultIfEmpty()

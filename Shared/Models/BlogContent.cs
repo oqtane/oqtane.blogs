@@ -16,7 +16,7 @@ namespace Oqtane.Blogs.Models
 
         public string Content { get; set; }
 
-        public PublishStatus PublishStatus { get; set; }
+        public bool IsPublished { get; set; }
 
         public DateTime? PublishDate { get; set; }
 

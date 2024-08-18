@@ -32,7 +32,7 @@ namespace Oqtane.Blogs.Models
             {
                 return BlogContentList?
                     .OrderByDescending(i => i.Version)
-                    .FirstOrDefault(i => i.PublishStatus == PublishStatus.Published || (i.PublishStatus == PublishStatus.Scheduled && i.PublishDate <= DateTime.UtcNow));
+                    .FirstOrDefault(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow));
             }
         }
 

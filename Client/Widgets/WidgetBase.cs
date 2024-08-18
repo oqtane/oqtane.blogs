@@ -97,9 +97,7 @@ namespace Oqtane.Blogs.Widgets
                     var blogContent = PageState.EditMode ? blog.LatestBlogContent : blog.PublishedBlogContent;
                     if (blogContent != null)
                     {
-                        var publishDate = blogContent.PublishStatus == PublishStatus.Scheduled
-                                        ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
-                                        : blogContent.CreatedOn;
+                        var publishDate = blogContent.PublishDate.GetValueOrDefault(blogContent.CreatedOn);
                         var thumbnailPath = blog.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
 
                         var tokens = new Dictionary<string, string>

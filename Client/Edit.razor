@@ -78,19 +78,15 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this blog is visible to all users or only editors">Published? </Label>
                         <div class="col-sm-9">
-                            <select id="published" class="form-select" @bind="@_publishStatus">
-                                <option value="0">@SharedLocalizer["Draft"]</option>
-                                <option value="1">@SharedLocalizer["Published"]</option>
-                                <option value="2">@SharedLocalizer["Scheduled"]</option>
-                            </select>
+                            <input id="published" type="checkbox" class="form-check-input" @bind="@_isPublished" />
                         </div>
                     </div>
-                    @if (_publishStatus == ((int)PublishStatus.Scheduled).ToString())
+                    @if (_isPublished)
                     {
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of your blog">Publish Date: </Label>
                             <div class="col-sm-9">
-                                <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" required />
+                                <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" />
                             </div>
                         </div>
                     }
@@ -119,7 +115,7 @@
                 @if (_id != -1)
                 {
                     <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
-                    @if (_publishStatus == ((int)PublishStatus.Published).ToString() && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+                    @if (_isPublished && (_publishDate == null || _publishDate <= DateTime.UtcNow) && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
                     {
                         <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
                     }
@@ -220,7 +216,7 @@
     private string _summary;
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
-    private string _publishStatus = ((int)PublishStatus.Draft).ToString();
+    private bool _isPublished;
     private DateTime? _publishDate;
     private string _tagsValue;
     private string _allowComments = "True";
@@ -268,7 +264,7 @@
                     {
                         _summary = blogContent.Summary;
                         _content = Utilities.FormatContent(blogContent.Content, PageState.Alias, "render");
-                        _publishStatus = ((int)blogContent.PublishStatus).ToString();
+                        _isPublished = blogContent.IsPublished;
                         _publishDate = blogContent.PublishDate;
                     }
                 }
@@ -296,12 +292,6 @@
         {
             try
             {
-                if(_publishStatus == ((int)PublishStatus.Scheduled).ToString() && _publishDate == null)
-                {
-                    AddModuleMessage(Localizer["PublishDate.Required"], MessageType.Warning);
-                    return;
-                }
-
                 var checkBlog = await BlogService.GetBlogBySlugAsync(_slug, ModuleState.ModuleId);
                 if (checkBlog != null && checkBlog.BlogId != _id)
                 {
@@ -355,17 +345,15 @@
                 //update blog content
                 var blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, _id);
                 var blogContent = blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
-                var publishStatus = (PublishStatus)Convert.ToInt32(_publishStatus);
-                if (_summary != blogContent?.Summary || _content != blogContent?.Content || publishStatus != blogContent?.PublishStatus || _publishDate != blogContent?.PublishDate)
+                if (_summary != blogContent?.Summary || _content != blogContent?.Content || _isPublished != blogContent?.IsPublished || _publishDate != blogContent?.PublishDate)
                 {
-                    if (blogContent == null
-                        || blogContent.PublishStatus == PublishStatus.Published
-                        || (blogContent.PublishStatus == PublishStatus.Scheduled && blogContent.PublishDate <= DateTime.UtcNow))
+                    var contentChanged = _summary != blogContent?.Summary || _content != blogContent?.Content;
+                    if (contentChanged && (blogContent == null || blogContent.IsPublished && (blogContent.PublishDate == null || blogContent.PublishDate <= DateTime.UtcNow)))
                     {
                         //set publish status to draft for new edited version.
                         if (blogContent != null)
                         {
-                            publishStatus = PublishStatus.Draft;
+                            _isPublished = false;
                             _publishDate = null;
                         }
 
@@ -375,17 +363,17 @@
                                 Version = blogContent != null ? blogContent.Version + 1 : BlogConstants.DefaultVersion,
                                 Summary = _summary,
                                 Content = _content,
-                                PublishStatus = publishStatus,
+                                IsPublished = _isPublished,
                                 PublishDate = _publishDate
                             };
 
                         await BlogContentService.AddBlogContentAsync(ModuleState.ModuleId, blogContent);
                     }
-                    else
+                    else if (blogContent != null)
                     {
                         blogContent.Summary = _summary;
                         blogContent.Content = _content;
-                        blogContent.PublishStatus = publishStatus;
+                        blogContent.IsPublished = _isPublished;
                         blogContent.PublishDate = _publishDate;
 
                         await BlogContentService.UpdateBlogContentAsync(ModuleState.ModuleId, blogContent);
