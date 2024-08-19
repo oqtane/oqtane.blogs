@@ -19,8 +19,8 @@
                 <Label Class="col-sm-3" For="blogModule" ResourceKey="BlogModule" ResourceType="@resourceType" HelpText="Select the blog module">Blog module: </Label>
                 <div class="col-sm-9">
                     <select id="blogModule" class="form-select" @bind="_blogModule">
-                        <option value="">@Localizer["SelectModule"]</option>
-                        @foreach(var kvp in _blogModules)
+                        <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                        @foreach (var kvp in _blogModules)
                         {
                             <option value="@kvp.Key">@kvp.Value</option>
                         }
@@ -28,50 +28,18 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="cssClass" ResourceKey="CssClass" ResourceType="@resourceType" HelpText="Enter the css class">Css Class: </Label>
-                <div class="col-sm-9">
-                    <input id="cssClass" type="text" class="form-control" @bind="@_cssClass" maxlength="50" />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="widget" ResourceKey="Widget" ResourceType="@resourceType" HelpText="Select a widget to add">Widget: </Label>
+                <Label Class="col-sm-3" For="widget" ResourceKey="Widget" ResourceType="@resourceType" HelpText="Select a widget">Widget: </Label>
                 <div class="col-sm-9">
                     <select id="widget" @bind-value="_widget" @bind-value:event="oninput" class="form-select" @onchange="WidgetChanged">
-                        <option value="">@Localizer["AddWidget"]</option>
-                        @foreach (var widget in BlogConstants.AvailableWidgets.Where(i => !_widgets.Contains(i)))
+                        <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                        @foreach (var widget in BlogConstants.AvailableWidgets)
                         {
                             <option value="@widget">@Localizer[widget]</option>
                         }
                     </select>
                 </div>
             </div>
-            <div class="row mt-3 align-items-start">
-                <div class="col-sm-9 offset-sm-3">
-                    <ul class="list-group">
-                        @{var index = 0;}
-                        @foreach(var widget in _widgets)
-                        {
-                            <li class="list-group-item">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <span>@Localizer[widget]</span>
-                                        </div>
-                                        <div class="col-4 text-end">
-                                            <button type="button" class="btn btn-primary @(index == 0 ? "disabled" : "")" @onclick="@(() => MoveUp(widget))"><span class="oi oi-arrow-circle-top"></span></button>
-                                            <button type="button" class="btn btn-primary @(index == _widgets.Count - 1 ? "disabled" : "")" @onclick="@(() => MoveDown(widget))"><span class="oi oi-arrow-circle-bottom"></span></button>
-                                            <button type="button" class="btn btn-primary" @onclick="@(async () => await EditWidgetSetting(widget))"><span class="oi oi-cog"></span></button>
-                                            <button type="button" class="btn btn-danger" @onclick="@(() => RemoveWidget(widget))"><span class="oi oi-trash"></span></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            index++;
-                        }
-                    </ul>
-                </div>
-            </div>
-            @if(!string.IsNullOrEmpty(_editWidget))
+            @if (!string.IsNullOrEmpty(_widget))
             {
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="template" ResourceKey="WidgetTemplate" ResourceType="@resourceType" HelpText="Edit the widget template">Template: </Label>
@@ -83,12 +51,6 @@
                     <Label Class="col-sm-3" For="itemsCount" ResourceKey="WidgetItemsCount" ResourceType="@resourceType" HelpText="Enter the widget items count">Items Count: </Label>
                     <div class="col-sm-9">
                         <input id="itemsCount" type="number" class="form-control" @bind="_widgetItemsCount" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <div class="col-sm-4 offset-sm-8 text-end">
-                        <button type="button" class="btn btn-primary" @onclick="@(async () => await SaveWidgetSettings())">@Localizer["Save"]</button>
-                        <button type="button" class="btn btn-secondary" @onclick="CancelEditSettings">@Localizer["Cancel"]</button>
                     </div>
                 </div>
             }
@@ -107,11 +69,8 @@ else
     private bool validated = false;
 
     private string _blogModule;
-    private string _cssClass;
     private IDictionary<int, string> _blogModules;
     private string _widget;
-    private IList<string> _widgets;
-    private string _editWidget;
     private string _widgetTemplate;
     private string _widgetItemsCount;
     private bool _initialized;
@@ -121,10 +80,10 @@ else
         try
         {
             _blogModules = await LoadBlogModules();
-
             _blogModule = SettingService.GetSetting(ModuleState.Settings, "BlogModule", "");
-            _cssClass = SettingService.GetSetting(ModuleState.Settings, "CssClass", "");
-            _widgets = SettingService.GetSetting(ModuleState.Settings, "Widgets", "").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+            _widget = SettingService.GetSetting(ModuleState.Settings, "Widget", "");
+            _widgetTemplate = SettingService.GetSetting(ModuleState.Settings, "WidgetTemplate", "");
+            _widgetItemsCount = SettingService.GetSetting(ModuleState.Settings, "WidgetItemsCount", "10");
 
             _initialized = true;
         }
@@ -140,11 +99,12 @@ else
         {
             var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             settings = SettingService.SetSetting(settings, "BlogModule", _blogModule);
-            settings = SettingService.SetSetting(settings, "CssClass", _cssClass);
-            settings = SettingService.SetSetting(settings, "Widgets", string.Join(",", _widgets));
+            settings = SettingService.SetSetting(settings, "Widget", _widget);
+            settings = SettingService.SetSetting(settings, "WidgetTemplate", _widgetTemplate);
+            settings = SettingService.SetSetting(settings, "WidgetItemsCount", _widgetItemsCount);
 
             //also save the blog page id so that it can be referenced later
-            if(!string.IsNullOrEmpty(_blogModule) && int.TryParse(_blogModule, out int blogModuleId))
+            if (!string.IsNullOrEmpty(_blogModule) && int.TryParse(_blogModule, out int blogModuleId))
             {
                 var pageId = (await ModuleService.GetModulesAsync(PageState.Site.SiteId)).FirstOrDefault(i => i.ModuleId == blogModuleId)?.PageId ?? 0;
                 settings = SettingService.SetSetting(settings, "BlogPage", pageId.ToString());
@@ -161,17 +121,17 @@ else
     {
         var blogModules = new Dictionary<int, string>();
         var modules = (await ModuleService.GetModulesAsync(PageState.Site.SiteId))
-        .Where(i => i.ModuleDefinitionName == "Oqtane.Blogs, Oqtane.Blogs.Client.Oqtane" && !i.IsDeleted)
-        .ToList();
+            .Where(i => i.ModuleDefinitionName == "Oqtane.Blogs, Oqtane.Blogs.Client.Oqtane" && !i.IsDeleted)
+            .ToList();
 
-        foreach(var module in modules)
+        foreach (var module in modules)
         {
             var page = await PageService.GetPageAsync(module.PageId);
             var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
             if (page != null && pageModule != null && !pageModule.IsDeleted)
             {
                 var key = module.ModuleId;
-                var value = $"{page.Name} - {pageModule.Title} ({module.ModuleId})";
+                var value = $"{page.Name} - {pageModule.Title}";
                 blogModules.Add(key, value);
             }
         }
@@ -181,76 +141,7 @@ else
 
     private void WidgetChanged(ChangeEventArgs e)
     {
-        var widget = Convert.ToString(e.Value);
-        if (!string.IsNullOrEmpty(widget))
-        {
-            if (!_widgets.Contains(widget))
-            {
-                _widgets.Add(widget);
-            }
-
-            _widget = string.Empty;
-
-            StateHasChanged();
-        }
-    }
-
-    private void MoveUp(string widget)
-    {
-        var index = _widgets.IndexOf(widget);
-        if(index > 0)
-        {
-            var temp = _widgets[index - 1];
-            _widgets[index - 1] = widget;
-            _widgets[index] = temp;
-
-            StateHasChanged();
-        }
-    }
-
-    private void MoveDown(string widget)
-    {
-        var index = _widgets.IndexOf(widget);
-        if (index < _widgets.Count - 1)
-        {
-            var temp = _widgets[index + 1];
-            _widgets[index + 1] = widget;
-            _widgets[index] = temp;
-
-            StateHasChanged();
-        }
-    }
-
-    private void RemoveWidget(string widget)
-    {
-        _widgets.Remove(widget);
-        StateHasChanged();
-    }
-
-    private async Task EditWidgetSetting(string widget)
-    {
-        _editWidget = widget;
-        var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-        _widgetTemplate = WidgetTemplateService.GetWidgetTemplate(settings, _editWidget);
-        _widgetItemsCount = SettingService.GetSetting(settings, $"WidgetItemsCount.{_editWidget}", "10");
-
-        StateHasChanged();
-    }
-
-    private async Task SaveWidgetSettings()
-    {
-        var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-        settings = SettingService.SetSetting(settings, $"WidgetTemplate.{_editWidget}", _widgetTemplate);
-        settings = SettingService.SetSetting(settings, $"WidgetItemsCount.{_editWidget}", _widgetItemsCount);
-        await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-
-        _editWidget = string.Empty;
-        StateHasChanged();
-    }
-
-    private void CancelEditSettings()
-    {
-        _editWidget = string.Empty;
-        StateHasChanged();
+        _widget = Convert.ToString(e.Value);
+        _widgetTemplate = WidgetTemplateService.GetWidgetTemplate(ModuleState.Settings, _widget);
     }
 }

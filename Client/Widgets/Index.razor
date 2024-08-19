@@ -12,9 +12,9 @@
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 
-@if(_missingSettings)
+@if (_missingSettings)
 {
-    if(PageState.EditMode)
+    if (PageState.EditMode)
     {
         <div class="alert alert-warning" role="alert">
             @Localizer["MissingSettings"]
@@ -23,9 +23,7 @@
 }
 else
 {
-    <div class="@_cssClass">
-        @_widgetComponent
-    </div>
+    @_widgetComponent
 }
 
 @code{
@@ -33,24 +31,17 @@ else
 
     private string _blogModule;
     private string _blogPage;
-    private IList<string> _widgets;
+    private string _widget;
     private bool _missingSettings;
-    private string _cssClass;
     private RenderFragment _widgetComponent;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Task.CompletedTask;
-    }
 
     protected override async Task OnParametersSetAsync()
     {
-        await Task.CompletedTask;
         _blogModule = SettingService.GetSetting(ModuleState.Settings, "BlogModule", "");
         _blogPage = SettingService.GetSetting(ModuleState.Settings, "BlogPage", "");
-        _cssClass = SettingService.GetSetting(ModuleState.Settings, "CssClass", "");
-        _widgets = SettingService.GetSetting(ModuleState.Settings, "Widgets", "").Split(',').ToList();
-        if(string.IsNullOrEmpty(_blogModule) || _widgets.Count == 0 || !int.TryParse(_blogModule, out int blogModuleId))
+        _widget = SettingService.GetSetting(ModuleState.Settings, "Widget", "");
+
+        if (string.IsNullOrEmpty(_blogModule) || !int.TryParse(_blogModule, out int blogModuleId))
         {
             _missingSettings = true;
         }
@@ -58,10 +49,10 @@ else
         {
             _missingSettings = false;
 
-            if(string.IsNullOrEmpty(_blogPage) || !int.TryParse(_blogPage, out int blogPageId))
+            if (string.IsNullOrEmpty(_blogPage) || !int.TryParse(_blogPage, out int blogPageId))
             {
                 blogPageId = (await ModuleService.GetModulesAsync(PageState.Site.SiteId)).FirstOrDefault(i => i.ModuleId == blogModuleId)?.PageId ?? 0;
-                if(blogPageId > 0)
+                if (blogPageId > 0)
                 {
                     var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
                     settings = SettingService.SetSetting(settings, "BlogPage", blogPageId.ToString());
@@ -70,28 +61,25 @@ else
             }
             _widgetComponent = (builder) =>
             {
-                CreateWidgets(builder, blogPageId, blogModuleId);
+                CreateWidget(builder, blogPageId, blogModuleId);
             };
         }
     }
 
-    private void CreateWidgets(RenderTreeBuilder builder, int blogPageId, int blogModuleId)
+    private void CreateWidget(RenderTreeBuilder builder, int blogPageId, int blogModuleId)
     {
         var index = 0;
-        foreach(var widget in _widgets)
+        var widgetType = Type.GetType($"Oqtane.Blogs.Widgets.{_widget}, Oqtane.Blogs.Client.Oqtane");
+        if (widgetType != null)
         {
-            var widgetType = Type.GetType($"Oqtane.Blogs.Widgets.{widget}, Oqtane.Blogs.Client.Oqtane");
-            if(widgetType != null)
-            {
-                var template = WidgetTemplateService.GetWidgetTemplate(ModuleState.Settings, widget);
-                var itemsCount = SettingService.GetSetting(ModuleState.Settings, $"WidgetItemsCount.{widget}", "10");
-                builder.OpenComponent(index++, widgetType);
-                builder.AddAttribute(index++, "BlogPageId", blogPageId);
-                builder.AddAttribute(index++, "BlogModuleId", blogModuleId);
-                builder.AddAttribute(index++, "Template", template);
-                builder.AddAttribute(index++, "ItemsCount", int.TryParse(itemsCount, out int itemsCountValue) ? itemsCountValue : 10);
-                builder.CloseComponent();
-            }
+            var template = WidgetTemplateService.GetWidgetTemplate(ModuleState.Settings, _widget);
+            var itemsCount = SettingService.GetSetting(ModuleState.Settings, $"WidgetItemsCount", "10");
+            builder.OpenComponent(index++, widgetType);
+            builder.AddAttribute(index++, "BlogPageId", blogPageId);
+            builder.AddAttribute(index++, "BlogModuleId", blogModuleId);
+            builder.AddAttribute(index++, "Template", template);
+            builder.AddAttribute(index++, "ItemsCount", int.TryParse(itemsCount, out int itemsCountValue) ? itemsCountValue : 10);
+            builder.CloseComponent();
         }
     }
 }
