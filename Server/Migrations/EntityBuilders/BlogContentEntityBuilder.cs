@@ -28,7 +28,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
             Version = AddIntegerColumn(table, "Version");
             Summary = AddStringColumn(table, "Summary", 2000);
             Content = AddMaxStringColumn(table, "Content");
-            PublishStatus = AddIntegerColumn(table, "PublishStatus");
+            IsPublished = AddBooleanColumn(table, "IsPublished");
             PublishDate = AddDateTimeColumn(table, "PublishDate", true);
 
             AddAuditableColumns(table);
@@ -46,7 +46,7 @@ namespace Oqtane.Blogs.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> Content { get; set; }
 
-        public OperationBuilder<AddColumnOperation> PublishStatus { get; set; }
+        public OperationBuilder<AddColumnOperation> IsPublished { get; set; }
 
         public OperationBuilder<AddColumnOperation> PublishDate { get; set; }
     }

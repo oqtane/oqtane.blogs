@@ -55,7 +55,7 @@ namespace Oqtane.Blogs.Migrations
 
             //merge content
             migrationBuilder.Sql(@"
-UPDATE b SET b.Summary = c.Summary, b.Content = c.Content, b.Published = CASE WHEN c.PublishStatus = 0 THEN 0 ELSE 1 END
+UPDATE b SET b.Summary = c.Summary, b.Content = c.Content, b.Published = c.IsPublished
 FROM [Blog] AS b INNER JOIN [BlogContent] as c ON c.BlogId = b.BlogId
 WHERE c.BlogContentId IN (SELECT MAX(BlogContentId) FROM [BlogContent] GROUP BY BlogId)");
 

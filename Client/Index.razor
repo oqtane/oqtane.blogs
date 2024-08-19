@@ -434,9 +434,7 @@ else
     {
         var blogContent = blog != null ? (PageState.EditMode ? blog.LatestBlogContent : blog.PublishedBlogContent) : null;
         var blogPageUrl = Utilities.NavigateUrl(PageState.Alias.Path, PageState.Page.Path, string.Empty);
-        DateTime? publishDate = blogContent != null ? (blogContent.PublishStatus == PublishStatus.Scheduled
-                                        ? blogContent.PublishDate.GetValueOrDefault(DateTime.MinValue)
-                                        : blogContent.CreatedOn) : null;
+        DateTime? publishDate = blogContent != null ? blogContent.PublishDate : null;
         var thumbnailPath = blog?.Thumbnail > 0 ? Utilities.FileUrl(PageState.Alias, blog.Thumbnail) : string.Empty;
 
         template = template.Replace("[ID]", blog?.BlogId.ToString(), StringComparison.OrdinalIgnoreCase);

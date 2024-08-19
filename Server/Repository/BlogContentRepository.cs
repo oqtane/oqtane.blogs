@@ -55,8 +55,7 @@ namespace Oqtane.Blogs.Repository
             var latestVersion = GetBlogContents(blogContent.BlogId).OrderByDescending(i => i.Version).FirstOrDefault();
             if(latestVersion != null && latestVersion.BlogContentId != blogContent.BlogContentId)
             {
-                if(latestVersion.PublishStatus == Shared.PublishStatus.Draft 
-                    || (latestVersion.PublishStatus == Shared.PublishStatus.Scheduled && latestVersion.PublishDate >= DateTime.UtcNow))
+                if(!latestVersion.IsPublished || latestVersion.PublishDate > DateTime.UtcNow)
                 {
                     latestVersion.Summary = blogContent.Summary;
                     latestVersion.Content = blogContent.Content;
@@ -74,7 +73,7 @@ namespace Oqtane.Blogs.Repository
                         Version = latestVersion.Version + 1,
                         Summary = blogContent.Summary,
                         Content = blogContent.Content,
-                        PublishStatus = Shared.PublishStatus.Draft,
+                        IsPublished = false,
                         PublishDate = null
                     };
                     db.BlogContent.Add(newVersion);
