@@ -26,7 +26,9 @@ namespace Oqtane.Blogs.Migrations
 
             var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             blogSubscriberEntityBuilder.Create();
-            migrationBuilder.Sql("INSERT INTO [BlogSubscriber] SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM [Subscriber]");
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogSubscriber") + " SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Subscriber"));
+            var subscriberEntityBuilder = new SubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
+            subscriberEntityBuilder.Drop();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
