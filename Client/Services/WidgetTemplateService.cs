@@ -35,13 +35,13 @@ namespace Oqtane.Blogs.Services
 
         public string GetWidgetTemplate(Dictionary<string, string> settings, string widgetName)
         {
-            var settingName = $"WidgetTemplate.{widgetName}";
+            var settingName = $"WidgetTemplate";
             if (settings.ContainsKey(settingName))
             {
                 return _settingService.GetSetting(settings, settingName, string.Empty);
             }
             
-            if(_defaultTemplates.ContainsKey(widgetName))
+            if (_defaultTemplates.ContainsKey(widgetName))
             {
                 return _defaultTemplates[widgetName] ?? string.Empty;
             }

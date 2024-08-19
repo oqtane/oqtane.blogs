@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AddWidget" xml:space="preserve">
-    <value>Select a widget to add</value>
-  </data>
   <data name="Archives" xml:space="preserve">
     <value>Archives</value>
   </data>
@@ -132,14 +129,8 @@
   <data name="Categories" xml:space="preserve">
     <value>Categories</value>
   </data>
-  <data name="CssClass.HelpText" xml:space="preserve">
-    <value>Enter the css class</value>
-  </data>
-  <data name="CssClass.Text" xml:space="preserve">
-    <value>Css Class:</value>
-  </data>
-  <data name="LatestBlog" xml:space="preserve">
-    <value>Latest Blog</value>
+  <data name="LatestPosts" xml:space="preserve">
+    <value>Latest Posts</value>
   </data>
   <data name="PopularPosts" xml:space="preserve">
     <value>Popular Posts</value>
@@ -147,17 +138,14 @@
   <data name="RelatedPosts" xml:space="preserve">
     <value>Related Posts</value>
   </data>
-  <data name="SelectModule" xml:space="preserve">
-    <value>Select the Blog Module</value>
-  </data>
   <data name="Widget.HelpText" xml:space="preserve">
-    <value>Select a widget to add</value>
+    <value>Select a widget</value>
   </data>
   <data name="Widget.Text" xml:space="preserve">
     <value>Widget:</value>
   </data>
   <data name="WidgetItemsCount.HelpText" xml:space="preserve">
-    <value>Enter the widget items count.</value>
+    <value>Enter the widget items count</value>
   </data>
   <data name="WidgetItemsCount.Text" xml:space="preserve">
     <value>Items Count:</value>

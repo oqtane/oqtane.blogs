@@ -141,7 +141,7 @@
     &lt;/div&gt;
 &lt;/div&gt;</value>
   </data>
-  <data name="LatestBlog.Template" xml:space="preserve">
+  <data name="LatestPosts.Template" xml:space="preserve">
     <value>&lt;div class="latest-posts"&gt;
     &lt;h4&gt;
         Latest Posts
