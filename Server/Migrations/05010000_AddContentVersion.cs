@@ -21,7 +21,7 @@ namespace Oqtane.Blogs.Migrations
             blogContentEntityBuilder.Create();
 
             //merge content
-            migrationBuilder.Sql("INSERT INTO [BlogContent] SELECT BlogId, 1, Summary, Content, Published, NULL, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM [Blog]");
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogContent") + " SELECT BlogId, 1, Summary, Content, Published, NULL, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Blog"));
 
             var blogEntityBuilder = new BlogEntityBuilder(migrationBuilder, ActiveDatabase);
             blogEntityBuilder.DropColumn("Published");
@@ -54,10 +54,9 @@ namespace Oqtane.Blogs.Migrations
             blogEntityBuilder.UpdateColumn("Published", "1", "bool", "");
 
             //merge content
-            migrationBuilder.Sql(@"
-UPDATE b SET b.Summary = c.Summary, b.Content = c.Content, b.Published = c.IsPublished
-FROM [Blog] AS b INNER JOIN [BlogContent] as c ON c.BlogId = b.BlogId
-WHERE c.BlogContentId IN (SELECT MAX(BlogContentId) FROM [BlogContent] GROUP BY BlogId)");
+            migrationBuilder.Sql("UPDATE b SET b.Summary = c.Summary, b.Content = c.Content, b.Published = c.IsPublished " +
+                "FROM " + RewriteName("Blog") + " AS b INNER JOIN " + RewriteName("BlogContent") + " AS c ON c.BlogId = b.BlogId " +
+                "WHERE c.BlogContentId IN (SELECT MAX(BlogContentId) FROM " + RewriteName("BlogContent") + " GROUP BY BlogId)");
 
             var blogContentEntityBuilder = new BlogContentEntityBuilder(migrationBuilder, ActiveDatabase);
             blogContentEntityBuilder.Drop();
