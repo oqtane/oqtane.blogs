@@ -58,31 +58,31 @@
                     <div class="row mb-1 justify-content-center">
                         <h5 class="text-center">Share Your Feedback...</h5>
                         <div class="col">
-                            <form method="post" @onsubmit="SubmitComment" @formname="BlogCommentForm" data-enhance>
-                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                                <input type="hidden" name="commentValidation" @bind="@_commentValidation" />
-                                <input type="hidden" name="commentDate" @bind="@_commentDate" />
-                                <div class="input-group">
-                                    <input name="commentName" class="form-control" placeholder="@Localizer["Name"]" @bind="@_commentName" />
-                                    <input name="commentEmail" class="form-control mx-1" placeholder="@Localizer["Email"]" @bind="@_commentEmail" />
-                                </div>
-                                <textarea name="commentComment" class="form-control mt-1" rows="3" @bind="@_commentComment" />
-                                <input type="hidden" name="commentCreated" @bind="@_commentCreated" />
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary mt-2">@Localizer["Submit"]</button>
-                                    @if (PageState.QueryString.ContainsKey("comment"))
+                            <div class="text-center">
+                                <form method="post" class="app-form-inline" @onsubmit="SubmitComment" @formname="BlogCommentForm" data-enhance>
+                                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                    <input type="hidden" name="commentValidation" @bind="@_commentValidation" />
+                                    <input type="hidden" name="commentDate" @bind="@_commentDate" />
+                                    <div class="input-group">
+                                        <input name="commentName" class="form-control" placeholder="@Localizer["Name"]" @bind="@_commentName" />
+                                        <input name="commentEmail" class="form-control mx-1" placeholder="@Localizer["Email"]" @bind="@_commentEmail" />
+                                    </div>
+                                    <textarea name="commentComment" class="form-control mt-1 mb-2" rows="3" @bind="@_commentComment" />
+                                    <input type="hidden" name="commentCreated" @bind="@_commentCreated" />
+                                    <button type="submit" class="btn btn-primary">@Localizer["Submit"]</button>
+                                </form>
+                                @if (PageState.QueryString.ContainsKey("comment"))
+                                {
+                                    if (_blogEditor || _commentEditor)
                                     {
-                                        if (_blogEditor || _commentEditor)
-                                        {
-                                            <NavLink class="btn btn-secondary mt-2" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
-                                        }
-                                        if (_blogEditor)
-                                        {
-                                            <NavLink class="btn btn-danger mt-2" href="@(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={PageState.QueryString["comment"]}&delete")">@SharedLocalizer["Delete"]</NavLink>
-                                        }
+                                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
                                     }
-                                </div>
-                            </form>
+                                    if (_blogEditor)
+                                    {
+                                        <ActionDialog Header="Delete Comment" Message="Are You Sure You Wish To Delete This Comment?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="DeleteComment" ResourceKey="DeleteComment" />
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -599,4 +599,8 @@ else
         }
     }
 
+    private void DeleteComment()
+    {
+        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={PageState.QueryString["comment"]}&delete=true");
+    }
 }
