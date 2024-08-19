@@ -236,7 +236,6 @@ else
     private string _summaryFooter;
 
     private Blog _blog;
-    private string _baseUrl;
     private string _categoryName;
 
     private List<BlogComment> _blogComments;
@@ -289,8 +288,6 @@ else
                     AddModuleMessage("Blog Comment Deleted", MessageType.Success);
                 }
             }
-
-            _baseUrl = PageState.Alias.Protocol + PageState.Alias.Name.Replace("/" + PageState.Alias.Path, "");
 
             if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
             {
@@ -355,7 +352,7 @@ else
                             AddHeadContent(FormatTemplate(_metaTags, _blog));
                         }
 
-                        AddHeadContent($"<link rel=\"canonical\" href=\"{_baseUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
+                        AddHeadContent($"<link rel=\"canonical\" href=\"{PageState.Route.RootUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                     }
 
                     _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
