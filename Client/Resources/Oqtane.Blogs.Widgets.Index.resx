@@ -117,7 +117,90 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Archives.Template" xml:space="preserve">
+    <value>&lt;div class="archives"&gt;
+    &lt;h3&gt;
+        Archives
+    &lt;/h3&gt;
+    [ITEMS]
+&lt;/div&gt;</value>
+  </data>
+  <data name="Categories.Template" xml:space="preserve">
+    <value>&lt;div class="categories-list"&gt;
+    &lt;h3&gt;
+        Categories
+    &lt;/h3&gt;
+    &lt;div&gt;
+        &lt;ul&gt;
+            &lt;#itemtemplate&gt;
+            &lt;li&gt;
+                &lt;a href="[URL]"&gt;[NAME]&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;/#itemtemplate&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="LatestBlog.Template" xml:space="preserve">
+    <value>&lt;div class="latest-posts"&gt;
+    &lt;h4&gt;
+        Latest Posts
+    &lt;/h4&gt;
+    &lt;ul&gt;
+        &lt;#itemtemplate&gt;
+        &lt;li&gt;
+            &lt;div&gt;
+                [THUMBNAIL]
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;a href="[URL]"&gt;[TITLE]&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+        &lt;/#itemtemplate&gt;
+    &lt;/ul&gt;
+	&lt;a class="read-more" href="[BLOGURL]"&gt;Read More&lt;/a&gt;
+&lt;/div&gt;</value>
+  </data>
   <data name="MissingSettings" xml:space="preserve">
     <value>Please update the module settings.</value>
+  </data>
+  <data name="PopularPosts.Template" xml:space="preserve">
+    <value>&lt;div class="popular-posts"&gt;
+    &lt;h3&gt;
+        Popular Posts
+    &lt;/h3&gt;
+    &lt;ul&gt;
+        &lt;#itemtemplate&gt;
+        &lt;li&gt;
+            &lt;div&gt;
+                [THUMBNAIL]
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;a href="[URL]"&gt;[TITLE]&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+        &lt;/#itemtemplate&gt;
+    &lt;/ul&gt;
+    &lt;a class="read-more" href="[BLOGURL]"&gt;Read More&lt;/a&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="RelatedPosts.Template" xml:space="preserve">
+    <value>&lt;div class="related-posts"&gt;
+    &lt;h4&gt;
+        Related Posts
+    &lt;/h4&gt;
+    &lt;ul&gt;
+        &lt;#itemtemplate&gt;
+        &lt;li&gt;
+            &lt;div&gt;
+                [THUMBNAIL]
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;a href="[URL]"&gt;[TITLE]&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+        &lt;/#itemtemplate&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;</value>
   </data>
 </root>

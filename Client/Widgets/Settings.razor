@@ -1,4 +1,5 @@
 @namespace Oqtane.Blogs.Widgets
+@using Oqtane.Blogs.Services
 @using Oqtane.Blogs.Shared
 @inherits ModuleBase
 @implements Oqtane.Interfaces.ISettingsControl
@@ -6,6 +7,7 @@
 @inject IPageService PageService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
+@inject IWidgetTemplateService WidgetTemplateService
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -36,7 +38,7 @@
                 <div class="col-sm-9">
                     <select id="widget" @bind-value="_widget" @bind-value:event="oninput" class="form-select" @onchange="WidgetChanged">
                         <option value="">@Localizer["AddWidget"]</option>
-                        @foreach(var widget in AvailableWidgets.Where(i => !_widgets.Contains(i)))
+                        @foreach (var widget in BlogConstants.AvailableWidgets.Where(i => !_widgets.Contains(i)))
                         {
                             <option value="@widget">@Localizer[widget]</option>
                         }
@@ -100,9 +102,7 @@ else
 
 @code {
     private string resourceType = "Oqtane.Blogs.Widgets.Settings, Oqtane.Blogs.Client.Oqtane"; // for localization
-
-    private readonly IList<string> AvailableWidgets = new List<string> { "PopularPosts", "RelatedPosts", "Categories", "Archives", "LatestBlog" };
-
+    
     private ElementReference form;
     private bool validated = false;
 
@@ -231,7 +231,7 @@ else
     {
         _editWidget = widget;
         var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-        _widgetTemplate = SettingService.GetSetting(settings, $"WidgetTemplate.{_editWidget}", "");
+        _widgetTemplate = WidgetTemplateService.GetWidgetTemplate(settings, _editWidget);
         _widgetItemsCount = SettingService.GetSetting(settings, $"WidgetItemsCount.{_editWidget}", "10");
 
         StateHasChanged();

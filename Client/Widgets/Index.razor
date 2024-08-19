@@ -7,6 +7,7 @@
 @namespace Oqtane.Blogs.Widgets
 @inherits ModuleBase
 @inject IBlogService BlogService
+@inject IWidgetTemplateService WidgetTemplateService
 @inject IModuleService ModuleService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
@@ -82,7 +83,7 @@ else
             var widgetType = Type.GetType($"Oqtane.Blogs.Widgets.{widget}, Oqtane.Blogs.Client.Oqtane");
             if(widgetType != null)
             {
-                var template = SettingService.GetSetting(ModuleState.Settings, $"WidgetTemplate.{widget}", "");
+                var template = WidgetTemplateService.GetWidgetTemplate(ModuleState.Settings, widget);
                 var itemsCount = SettingService.GetSetting(ModuleState.Settings, $"WidgetItemsCount.{widget}", "10");
                 builder.OpenComponent(index++, widgetType);
                 builder.AddAttribute(index++, "BlogPageId", blogPageId);

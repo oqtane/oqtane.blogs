@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Oqtane.Blogs.Shared
 {
@@ -12,5 +13,7 @@ namespace Oqtane.Blogs.Shared
         public const string DefaultCommentTemplate = "<figure><blockquote class=\"blockquote\"><p>[COMMENT]</p></blockquote><figcaption class=\"blockquote-footer\">[NAME] on [DATE] at [TIME]</figcaption></figure>";
         public const string DefaultSearchProperties = "Title,Summary";
         public const string DefaultPagerPosition = "Top";
+
+        public static readonly IList<string> AvailableWidgets = new List<string> { "PopularPosts", "RelatedPosts", "Categories", "Archives", "LatestBlog" };
     }
 }
