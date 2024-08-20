@@ -33,7 +33,17 @@ namespace Oqtane.Blogs.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // not implemented
+            var subscriberEntityBuilder = new SubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
+            subscriberEntityBuilder.Create();
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("Subscriber") + " SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("BlogSubscriber"));
+            var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
+            blogSubscriberEntityBuilder.Drop();
+
+            var blogEntityBuilder = new BlogEntityBuilder(migrationBuilder, ActiveDatabase);
+            blogEntityBuilder.DropColumn("AllowComments");
+
+            var blogCommentEntityBuilder = new BlogCommentEntityBuilder(migrationBuilder, ActiveDatabase);
+            blogCommentEntityBuilder.Drop();
         }
     }
 }
