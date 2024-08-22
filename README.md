@@ -4,16 +4,15 @@ This module allows an authorized user to create blog entries including title, su
 
 The module is being used on https://www.oqtane.org/blog (as well as other production sites)
 
-Note that you cannot run this module directly in your IDE. You need to ensure that the DNF.Projects folder is located within the same parent folder as the Oqtane framework:  
+Note that you need to ensure that the folder is organized as a sibling of the Oqtane framework in your local environment (ie. it is located within the same parent folder):  
 
 ```
 /parent
   /Oqtane.Blogs
-  /oqtane.framework
+  /Oqtane.Theme.Arsha
 ```
 
-Organizing the folders in this way allows the system to automatically deploy the module DLLs to the Oqtane framework when your build the module solution. Then you can run the Oqtane framework and it will dynamically load the module.
-
+Organizing the folders in this way allows the system to automatically deploy the module DLLs to the Oqtane framework when your build the module solution.
 
 # Example Screenshots
 
