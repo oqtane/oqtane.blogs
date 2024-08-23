@@ -350,16 +350,20 @@
                             _isPublished = false;
                             _publishDate = null;
                         }
+                        else
+                        {
+                            _publishDate = (!_isPublished) ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
+                        }
 
                         blogContent = new BlogContent
-                            {
-                                BlogId = _id,
-                                Version = blogContent != null ? blogContent.Version + 1 : BlogConstants.DefaultVersion,
-                                Summary = _summary,
-                                Content = _content,
-                                IsPublished = _isPublished,
-                                PublishDate = _publishDate
-                            };
+                        {
+                            BlogId = _id,
+                            Version = blogContent != null ? blogContent.Version + 1 : BlogConstants.DefaultVersion,
+                            Summary = _summary,
+                            Content = _content,
+                            IsPublished = _isPublished,
+                            PublishDate = _publishDate
+                        };
 
                         await BlogContentService.AddBlogContentAsync(ModuleState.ModuleId, blogContent);
                     }
@@ -368,7 +372,7 @@
                         blogContent.Summary = _summary;
                         blogContent.Content = _content;
                         blogContent.IsPublished = _isPublished;
-                        blogContent.PublishDate = _publishDate;
+                        blogContent.PublishDate = (!_isPublished) ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
 
                         await BlogContentService.UpdateBlogContentAsync(ModuleState.ModuleId, blogContent);
                     }
