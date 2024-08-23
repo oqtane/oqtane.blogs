@@ -75,7 +75,7 @@
                                 {
                                     if (_blogEditor || _commentEditor)
                                     {
-                                        <NavLink class="btn btn-secondary" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
+                                        <NavLink class="btn btn-secondary ms-2" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
                                     }
                                     if (_blogEditor)
                                     {
@@ -116,6 +116,7 @@
     }
     <br />
     <div class="text-center"><NavLink class="btn btn-secondary btn-view-all" href="@NavigateUrl()">@Localizer["ViewAll"]</NavLink></div>
+    <br />
 }
 else
 {
