@@ -207,7 +207,6 @@ else
     public string subscriptionDate { get => ""; set => _subscriptionDate = value; }
 
     private int _mintime = 5; // 5 second minimum
-    private int _maxtime = 300; // 5 minute maximum
 
     private bool _blogEditor = false;
     private bool _commentEditor = false;
@@ -538,7 +537,7 @@ else
     {
         if (!string.IsNullOrEmpty(_subscriptionEmail) && Utilities.IsValidEmail(_subscriptionEmail))
         {
-            if (string.IsNullOrEmpty(_subscriptionValidation) && DateTime.TryParseExact(_subscriptionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
+            if (string.IsNullOrEmpty(_subscriptionValidation) && DateTime.TryParseExact(_subscriptionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime)
             {
                 var subscriber = new BlogSubscriber();
                 subscriber.ModuleId = ModuleState.ModuleId;
@@ -562,7 +561,7 @@ else
     {
         if (!string.IsNullOrEmpty(_commentName) && !string.IsNullOrEmpty(_commentEmail) && Utilities.IsValidEmail(_commentEmail) && !string.IsNullOrEmpty(_commentComment))
         {
-            if (string.IsNullOrEmpty(_commentValidation) && DateTime.TryParseExact(_commentDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp).TotalSeconds <= _maxtime)
+            if (string.IsNullOrEmpty(_commentValidation) && DateTime.TryParseExact(_commentDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime)
             {
                 var blogComment = new BlogComment { BlogId = _blog.BlogId, Name = _commentName, Email = _commentEmail, Comment = _commentComment, PagePath = PageState.Page.Path };
                 if (PageState.QueryString.ContainsKey("comment"))
