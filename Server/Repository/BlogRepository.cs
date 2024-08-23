@@ -157,44 +157,31 @@ namespace Oqtane.Blogs.Repository
             db.Entry(blog).State = EntityState.Modified;
 
             //save categories
-            if (!string.IsNullOrEmpty(blog.Categories))
+            var categories = blog.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => Convert.ToInt32(i)).ToList();
+            foreach (var category in blog.BlogCategories.Where(i => !categories.Any(c => c == i.BlogCategorySourceId)))
             {
-                var categories = blog.Categories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => Convert.ToInt32(i)).ToList();
-
-                //mark deleted items
-                foreach (var c in blog.BlogCategories.Where(i => !categories.Any(c => c == i.BlogCategorySourceId)))
-                {
-                    db.Entry(c).State = EntityState.Deleted;
-                }
-
-                //add new items
-                foreach (var id in categories.Where(i => !blog.BlogCategories.Any(c => c.BlogCategorySourceId == i)))
-                {
-                    blog.BlogCategories.Add(new BlogCategory { BlogCategorySourceId = id });
-                }
+                db.Entry(category).State = EntityState.Deleted;
+            }
+            foreach (var id in categories.Where(i => !blog.BlogCategories.Any(c => c.BlogCategorySourceId == i)))
+            {
+                blog.BlogCategories.Add(new BlogCategory { BlogCategorySourceId = id });
             }
 
             //save tags
-            if (!string.IsNullOrEmpty(blog.Tags))
+            var tags = blog.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var tag in blog.BlogTags.Where(i => !tags.Any(c => c.Equals(i.BlogTagSource.Tag, StringComparison.OrdinalIgnoreCase))))
             {
-                var tags = blog.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var deletedTags = blog.BlogTags.Where(i => !tags.Any(c => c.Equals(i.BlogTagSource.Tag, StringComparison.OrdinalIgnoreCase)));
-                foreach (var tag in deletedTags)
+                db.Entry(tag).State = EntityState.Deleted;
+            }
+            var newTags = tags.Where(i => !blog.BlogTags.Any(c => c.BlogTagSource.Tag.Equals(i, StringComparison.OrdinalIgnoreCase)));
+            foreach(var tag in newTags)
+            {
+                var tagSource = db.BlogTagSource.FirstOrDefault(i => i.Tag == tag);
+                if (tagSource == null)
                 {
-                    blog.BlogTags.Remove(tag);
+                    tagSource = new BlogTagSource { Tag = tag, ModuleId = blog.ModuleId };
                 }
-
-                var newTags = tags.Where(i => !blog.BlogTags.Any(c => c.BlogTagSource.Tag.Equals(i, StringComparison.OrdinalIgnoreCase)));
-                foreach(var tag in newTags)
-                {
-                    var tagSource = db.BlogTagSource.FirstOrDefault(i => i.Tag == tag);
-                    if (tagSource == null)
-                    {
-                        tagSource = new BlogTagSource { Tag = tag, ModuleId = blog.ModuleId };
-                    }
-
-                    blog.BlogTags.Add(new BlogTag { BlogTagSource = tagSource });
-                }
+                blog.BlogTags.Add(new BlogTag { BlogTagSource = tagSource });
             }
 
             db.SaveChanges();

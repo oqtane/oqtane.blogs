@@ -299,12 +299,6 @@
                     return;
                 }
 
-                if (!_categories.Any())
-                {
-                    AddModuleMessage(Localizer["Categories.Required"], MessageType.Warning);
-                    return;
-                }
-
                 _content = await RichTextEditorHtml.GetHtml();
                 _content = Utilities.FormatContent(_content, PageState.Alias, "save");
 
