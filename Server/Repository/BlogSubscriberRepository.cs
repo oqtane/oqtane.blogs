@@ -10,6 +10,7 @@ namespace Oqtane.Blogs.Repository
     {
         IEnumerable<BlogSubscriber> GetBlogSubscribers(int ModuleId);
         BlogSubscriber AddBlogSubscriber(BlogSubscriber BlogSubscriber);
+        BlogSubscriber UpdateBlogSubscriber(BlogSubscriber BlogSubscriber);
         void DeleteBlogSubscriber(int SubscriberId);
     }
 
@@ -38,6 +39,14 @@ namespace Oqtane.Blogs.Repository
                 return BlogSubscriber;
             }
             return null;
+        }
+
+        public BlogSubscriber UpdateBlogSubscriber(BlogSubscriber BlogSubscriber)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            db.Entry(BlogSubscriber).State = EntityState.Modified;
+            db.SaveChanges();
+            return BlogSubscriber;
         }
 
         public void DeleteBlogSubscriber(int BlogSubscriberId)

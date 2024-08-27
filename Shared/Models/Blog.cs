@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Security.Cryptography;
-using Oqtane.Blogs.Shared;
 using Oqtane.Models;
 
 namespace Oqtane.Blogs.Models

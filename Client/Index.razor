@@ -256,10 +256,18 @@ else
         {
             _blogEditor = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode;
 
-            if (PageState.QueryString.ContainsKey("guid"))
+            if (PageState.QueryString.ContainsKey("guid") && PageState.QueryString.ContainsKey("action"))
             {
-                await BlogSubscriberService.DeleteBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
-                AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
+                if (PageState.QueryString["action"] == "unsubscribe")
+                {
+                    await BlogSubscriberService.DeleteBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+                    AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
+                }
+                if (PageState.QueryString["action"] == "verify")
+                {
+                    await BlogSubscriberService.UpdateBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+                    AddModuleMessage(Localizer["Verified"], MessageType.Success);
+                }
             }
 
             if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("created"))
