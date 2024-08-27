@@ -9,6 +9,7 @@ namespace Oqtane.Blogs.Models
         public int ModuleId { get; set; }
         public string Email { get; set; }
         public string Guid { get; set; }
+        public bool IsVerified { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

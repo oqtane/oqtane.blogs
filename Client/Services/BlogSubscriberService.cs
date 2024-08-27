@@ -10,7 +10,7 @@ namespace Oqtane.Blogs.Services
     public interface IBlogSubscriberService
     {
         Task AddBlogSubscriberAsync(BlogSubscriber BlogSubscriber);
-
+        Task UpdateBlogSubscriberAsync(int ModuleId, string Guid);
         Task DeleteBlogSubscriberAsync(int ModuleId, string Guid);
     }
 
@@ -28,6 +28,11 @@ namespace Oqtane.Blogs.Services
         public async Task AddBlogSubscriberAsync(BlogSubscriber BlogSubscriber)
         {
             await PostJsonAsync(Apiurl, BlogSubscriber);
+        }
+
+        public async Task UpdateBlogSubscriberAsync(int ModuleId, string Guid)
+        {
+            await PutAsync($"{Apiurl}/{ModuleId}/{Guid}");
         }
 
         public async Task DeleteBlogSubscriberAsync(int ModuleId, string Guid)
