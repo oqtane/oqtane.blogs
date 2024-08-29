@@ -132,7 +132,7 @@ else
         @if (_blogs.Any())
         {
             @((MarkupString)_summaryHeader)
-            <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="@_columnCssClass" SearchProperties="@_searchProperties" Toolbar="@_pagerPosition">
+            <Pager Format="Grid" Items="@_blogs" DisplayPages="1" PageSize="@_items.ToString()" ColumnClass="@_columnCssClass" RowClass="@_rowCssClass" SearchProperties="@_searchProperties" Toolbar="@_pagerPosition">
                 <Row>
                     @((MarkupString)Utilities.FormatContent(FormatTemplate(_summary, context), PageState.Alias, "render"))
                     @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode)
@@ -218,6 +218,7 @@ else
     private string _searchProperties;
     private string _pagerPosition;
     private string _columnCssClass;
+    private string _rowCssClass;
     private string _blogName;
     private string _metaTags;
     private string _pageTitle;

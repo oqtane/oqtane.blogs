@@ -15,9 +15,15 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="columnCssClass" ResourceKey="ColumnCssClass" ResourceType="@resourceType" HelpText="Enter the CSS class for each summary blog post">Summary CSS Class: </Label>
+            <Label Class="col-sm-3" For="columnCssClass" ResourceKey="ColumnCssClass" ResourceType="@resourceType" HelpText="Enter the Column CSS class for each summary blog post">Summary Column CSS Class: </Label>
             <div class="col-sm-9">
                 <input id="columnCssClass" type="text" class="form-control" @bind="@_columnCssClass" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="rowCssClass" ResourceKey="rowCssClass" ResourceType="@resourceType" HelpText="Enter the Row CSS class for each summary blog post">Summary Row CSS Class: </Label>
+            <div class="col-sm-9">
+                <input id="rowCssClass" type="text" class="form-control" @bind="@_rowCssClass" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -160,6 +166,7 @@
 
     private string _items;
     private string _columnCssClass;
+    private string _rowCssClass;
     private string _summary;
     private string _detail;
     private string _comment;
@@ -193,6 +200,7 @@
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
+            _rowCssClass = SettingService.GetSetting(ModuleState.Settings, "RowCssClass", BlogConstants.DefaultRowCssClass);
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
             _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
@@ -219,6 +227,7 @@
             var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
             settings = SettingService.SetSetting(settings, "Items", _items);
             settings = SettingService.SetSetting(settings, "ColumnCssClass", _columnCssClass);
+            settings = SettingService.SetSetting(settings, "RowCssClass", _rowCssClass);
             settings = SettingService.SetSetting(settings, "Summary", _summary);
             settings = SettingService.SetSetting(settings, "Detail", _detail);
             settings = SettingService.SetSetting(settings, "Comment", _comment);
