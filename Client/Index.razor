@@ -254,147 +254,150 @@ else
     {
         try
         {
-            _blogEditor = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode;
-
-            if (PageState.QueryString.ContainsKey("guid") && PageState.QueryString.ContainsKey("action"))
+            if (ShouldRender())
             {
-                if (PageState.QueryString["action"] == "unsubscribe")
-                {
-                    await BlogSubscriberService.DeleteBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
-                    AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
-                }
-                if (PageState.QueryString["action"] == "verify")
-                {
-                    await BlogSubscriberService.UpdateBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
-                    AddModuleMessage(Localizer["Verified"], MessageType.Success);
-                }
-            }
+                _blogEditor = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode;
 
-            if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("created"))
-            {
-                var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                if (blogComment != null && blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff") == PageState.QueryString["created"])
+                if (PageState.QueryString.ContainsKey("guid") && PageState.QueryString.ContainsKey("action"))
                 {
-                    if (!blogComment.IsPublished)
+                    if (PageState.QueryString["action"] == "unsubscribe")
                     {
-                        blogComment.IsPublished = true;
-                        await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
-                        AddModuleMessage("Blog Comment Published", MessageType.Success);
+                        await BlogSubscriberService.DeleteBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+                        AddModuleMessage(Localizer["Unsubscribed"], MessageType.Success);
                     }
-                    _commentEditor = true;
-                }
-            }
-
-            if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("delete") && _blogEditor)
-            {
-                var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                if (blogComment != null)
-                {
-                    await BlogCommentService.DeleteBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                    AddModuleMessage("Blog Comment Deleted", MessageType.Success);
-                }
-            }
-
-            if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
-            {
-                _categoryName = (await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.BlogCategorySourceId == categoryId)?.Name ?? string.Empty;
-            }
-
-            _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
-            _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
-            _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
-            _commentTemplate = SettingService.GetSetting(ModuleState.Settings, "Comment", BlogConstants.DefaultCommentTemplate);
-            _comments = SettingService.GetSetting(ModuleState.Settings, "Comments", "False");
-            _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
-            _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
-            _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
-            _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
-            _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
-            _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
-            _archiveTitle = SettingService.GetSetting(ModuleState.Settings, "ArchiveTitle", "[BlogName] | [Month] [Year]");
-            _categoryTitle = SettingService.GetSetting(ModuleState.Settings, "CategoryTitle", "[BlogName] | [Category]");
-            _tagTitle = SettingService.GetSetting(ModuleState.Settings, "TagTitle", "[BlogName] | [Tag]");
-            _archiveDescription = SettingService.GetSetting(ModuleState.Settings, "ArchiveDescription", "Find all [BlogName] posts published on [Month] [Year]");
-            _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
-            _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
-            _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
-
-            var summaryItemTemplate = string.Empty;
-            if (BlogUtilities.ParseListTemplate(_summary, out summaryItemTemplate, out _summaryHeader, out _summaryFooter))
-            {
-                _summary = summaryItemTemplate;
-            }
-
-            _blog = null;
-            if (!string.IsNullOrEmpty(PageState.UrlParameters))
-            {
-                if (UrlParameters.ContainsKey("id"))
-                {
-                    _blog = await BlogService.GetBlogAsync(int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                }
-                else if(UrlParameters.ContainsKey("slug"))
-                {
-                    _blog = await BlogService.GetBlogBySlugAsync(UrlParameters["slug"], ModuleState.ModuleId);
-                }
-
-                if (_blog != null && (_blog.PublishedBlogContent != null || PageState.EditMode))
-                {
-                    var blogContent = PageState.EditMode ? _blog.LatestBlogContent : _blog.PublishedBlogContent;
-                    if(blogContent != null)
+                    if (PageState.QueryString["action"] == "verify")
                     {
-                        SetPageTitle(FormatTemplate(_pageTitle, _blog));
+                        await BlogSubscriberService.UpdateBlogSubscriberAsync(ModuleState.ModuleId, PageState.QueryString["guid"]);
+                        AddModuleMessage(Localizer["Verified"], MessageType.Success);
+                    }
+                }
 
-                        if (!string.IsNullOrEmpty(blogContent.Summary))
+                if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("created"))
+                {
+                    var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                    if (blogComment != null && blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff") == PageState.QueryString["created"])
+                    {
+                        if (!blogComment.IsPublished)
                         {
-                            AddHeadContent($"<meta name=\"description\" content=\"{blogContent.Summary}\" />");
+                            blogComment.IsPublished = true;
+                            await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
+                            AddModuleMessage("Blog Comment Published", MessageType.Success);
                         }
-                        if (!string.IsNullOrEmpty(_blog.Tags))
-                        {
-                            AddHeadContent($"<meta name=\"keywords\" content=\"{_blog.Tags}\" />");
-                        }
+                        _commentEditor = true;
+                    }
+                }
 
-                        if(!string.IsNullOrEmpty(_metaTags))
-                        {
-                            AddHeadContent(FormatTemplate(_metaTags, _blog));
-                        }
+                if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("delete") && _blogEditor)
+                {
+                    var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                    if (blogComment != null)
+                    {
+                        await BlogCommentService.DeleteBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                        AddModuleMessage("Blog Comment Deleted", MessageType.Success);
+                    }
+                }
 
-                        AddHeadContent($"<link rel=\"canonical\" href=\"{PageState.Route.RootUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
+                if (PageState.QueryString.ContainsKey("category") && int.TryParse(PageState.QueryString["category"], out int categoryId))
+                {
+                    _categoryName = (await BlogCategoryService.GetBlogCategorySourcesAsync(ModuleState.ModuleId)).FirstOrDefault(i => i.BlogCategorySourceId == categoryId)?.Name ?? string.Empty;
+                }
+
+                _items = int.Parse(SettingService.GetSetting(ModuleState.Settings, "Items", "10"));
+                _summary = SettingService.GetSetting(ModuleState.Settings, "Summary", BlogConstants.DefaultSummaryTemplate);
+                _detail = SettingService.GetSetting(ModuleState.Settings, "Detail", BlogConstants.DefaultDetailTemplate);
+                _commentTemplate = SettingService.GetSetting(ModuleState.Settings, "Comment", BlogConstants.DefaultCommentTemplate);
+                _comments = SettingService.GetSetting(ModuleState.Settings, "Comments", "False");
+                _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
+                _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
+                _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
+                _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
+                _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
+                _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
+                _archiveTitle = SettingService.GetSetting(ModuleState.Settings, "ArchiveTitle", "[BlogName] | [Month] [Year]");
+                _categoryTitle = SettingService.GetSetting(ModuleState.Settings, "CategoryTitle", "[BlogName] | [Category]");
+                _tagTitle = SettingService.GetSetting(ModuleState.Settings, "TagTitle", "[BlogName] | [Tag]");
+                _archiveDescription = SettingService.GetSetting(ModuleState.Settings, "ArchiveDescription", "Find all [BlogName] posts published on [Month] [Year]");
+                _categoryDescription = SettingService.GetSetting(ModuleState.Settings, "CategoryDescription", "Find all [BlogName] posts in category [Category]");
+                _tagDescription = SettingService.GetSetting(ModuleState.Settings, "TagDescription", "Find all [BlogName] posts tagged with [Tag]");
+                _paginationTitle = SettingService.GetSetting(ModuleState.Settings, "PaginationTitle", " | Page [PageNumber]");
+
+                var summaryItemTemplate = string.Empty;
+                if (BlogUtilities.ParseListTemplate(_summary, out summaryItemTemplate, out _summaryHeader, out _summaryFooter))
+                {
+                    _summary = summaryItemTemplate;
+                }
+
+                _blog = null;
+                if (!string.IsNullOrEmpty(PageState.UrlParameters))
+                {
+                    if (UrlParameters.ContainsKey("id"))
+                    {
+                        _blog = await BlogService.GetBlogAsync(int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                    }
+                    else if (UrlParameters.ContainsKey("slug"))
+                    {
+                        _blog = await BlogService.GetBlogBySlugAsync(UrlParameters["slug"], ModuleState.ModuleId);
                     }
 
-                    _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
-                    var comments = _blogComments.Where(item => item.IsPublished || _blogEditor).Count();
-                    _commentTitle = comments.ToString() + " " + ((comments == 1) ? Localizer["Comment"] : Localizer["Comments"]);
-
-                    if (_commentName == "" && PageState.QueryString.ContainsKey("comment"))
+                    if (_blog != null && (_blog.PublishedBlogContent != null || PageState.EditMode))
                     {
-                        var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                        if (blogComment != null)
+                        var blogContent = PageState.EditMode ? _blog.LatestBlogContent : _blog.PublishedBlogContent;
+                        if (blogContent != null)
                         {
-                            _commentName = WebUtility.HtmlDecode(blogComment.Name);
-                            _commentEmail = WebUtility.HtmlDecode(blogComment.Email);
-                            _commentComment = WebUtility.HtmlDecode(blogComment.Comment);
-                            _commentCreated = blogComment.CreatedOn.ToString();
+                            SetPageTitle(FormatTemplate(_pageTitle, _blog));
+
+                            if (!string.IsNullOrEmpty(blogContent.Summary))
+                            {
+                                AddHeadContent($"<meta name=\"description\" content=\"{blogContent.Summary}\" />");
+                            }
+                            if (!string.IsNullOrEmpty(_blog.Tags))
+                            {
+                                AddHeadContent($"<meta name=\"keywords\" content=\"{_blog.Tags}\" />");
+                            }
+
+                            if (!string.IsNullOrEmpty(_metaTags))
+                            {
+                                AddHeadContent(FormatTemplate(_metaTags, _blog));
+                            }
+
+                            AddHeadContent($"<link rel=\"canonical\" href=\"{PageState.Route.RootUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                         }
+
+                        _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
+                        var comments = _blogComments.Where(item => item.IsPublished || _blogEditor).Count();
+                        _commentTitle = comments.ToString() + " " + ((comments == 1) ? Localizer["Comment"] : Localizer["Comments"]);
+
+                        if (_commentName == "" && PageState.QueryString.ContainsKey("comment"))
+                        {
+                            var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
+                            if (blogComment != null)
+                            {
+                                _commentName = WebUtility.HtmlDecode(blogComment.Name);
+                                _commentEmail = WebUtility.HtmlDecode(blogComment.Email);
+                                _commentComment = WebUtility.HtmlDecode(blogComment.Comment);
+                                _commentCreated = blogComment.CreatedOn.ToString();
+                            }
+                        }
+
+                        //update views
+                        await BlogService.UpdateBlogViewsAsync(_blog.BlogId, ModuleState.ModuleId);
                     }
-
-                    //update views
-                    await BlogService.UpdateBlogViewsAsync(_blog.BlogId, ModuleState.ModuleId);
+                    else
+                    {
+                        AddModuleMessage(Localizer["NotFound"], MessageType.Error);
+                        _blog = null;
+                    }
                 }
-                else
+                if (_blog == null)
                 {
-                    AddModuleMessage(Localizer["NotFound"], MessageType.Error);
-                    _blog = null;
+                    await GetBlogs();
+                    SetListMetaTags();
                 }
-            }
-            if (_blog == null)
-            {
-                await GetBlogs();
-                SetListMetaTags();
-            }
 
-            AddHeadContent($"<meta name=\"robots\" content=\"INDEX, FOLLOW\" />");
+                AddHeadContent($"<meta name=\"robots\" content=\"INDEX, FOLLOW\" />");
 
-            _rss = $"/api/blog/rss/{ModuleState.ModuleId}";
+                _rss = $"/api/blog/rss/{ModuleState.ModuleId}";
+            }
         }
         catch (Exception ex)
         {
