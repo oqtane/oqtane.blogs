@@ -234,4 +234,25 @@
   <data name="Both" xml:space="preserve">
     <value>Both</value>
   </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Ascending</value>
+  </data>
+  <data name="BlogId" xml:space="preserve">
+    <value>Blog Id</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="ModifiedOn" xml:space="preserve">
+    <value>Modified On</value>
+  </data>
+  <data name="SortBy.HelpText" xml:space="preserve">
+    <value>Select the sort setting of the blog list.</value>
+  </data>
+  <data name="SortBy.Text" xml:space="preserve">
+    <value>Sort By:</value>
+  </data>
+  <data name="Views" xml:space="preserve">
+    <value>Views</value>
+  </data>
 </root>

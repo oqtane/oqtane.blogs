@@ -218,6 +218,8 @@ else
     private string _searchProperties;
     private string _pagerPosition;
     private string _columnCssClass;
+    private string _sortBy;
+    private string _sortDirection;
     private string _blogName;
     private string _metaTags;
     private string _pageTitle;
@@ -310,6 +312,8 @@ else
                 _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
                 _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
                 _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
+                _sortBy = SettingService.GetSetting(ModuleState.Settings, "SortBy", BlogConstants.DefaultSortBy);
+                _sortDirection = SettingService.GetSetting(ModuleState.Settings, "SortDirection", BlogConstants.DefaultSortDirection);
                 _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
                 _metaTags = SettingService.GetSetting(ModuleState.Settings, "MetaTags", string.Empty);
                 _pageTitle = SettingService.GetSetting(ModuleState.Settings, "PageTitle", "[BlogName] | [Post:title]");
@@ -418,8 +422,8 @@ else
             EndDate = null,
             PageIndex = 0,
             PageSize = 0,
-            SortBy = string.Empty,
-            SortByDescending = true
+            SortBy = _sortBy,
+            SortByDescending = _sortDirection == "desc"
         };
 
         if(PageState.QueryString.ContainsKey("year") && int.TryParse(PageState.QueryString["year"], out int year))

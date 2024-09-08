@@ -66,6 +66,20 @@
                 </select>
             </div>
         </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="sortBy" ResourceKey="SortBy" ResourceType="@resourceType" HelpText="Select the sort setting of the blog list.">Sort By: </Label>
+            <div class="col-sm-9">
+                <select id="sortBy" class="form-select d-inline w-25" @bind="@_sortBy">
+                    <option value="ModifiedOn">@Localizer["ModifiedOn"]</option>
+                    <option value="BlogId">@Localizer["BlogId"]</option>
+                    <option value="Views">@Localizer["Views"]</option>
+                </select>
+                <select id="sortDirection" class="form-select d-inline w-25" @bind="@_sortDirection">
+                    <option value="asc">@Localizer["Ascending"]</option>
+                    <option value="desc">@Localizer["Descending"]</option>
+                </select>
+            </div>
+        </div>
         <Section Name="Subscriptions" Heading="Subscriptions" ResourceKey="Subscriptions">
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -166,6 +180,8 @@
     private string _comments;
     private string _searchProperties;
     private string _pagerPosition;
+    private string _sortBy;
+    private string _sortDirection;
 
     private string _subscriptions;
     private string _sender;
@@ -193,6 +209,8 @@
             _searchProperties = SettingService.GetSetting(ModuleState.Settings, "SearchProperties", BlogConstants.DefaultSearchProperties);
             _pagerPosition = SettingService.GetSetting(ModuleState.Settings, "PagerPosition", BlogConstants.DefaultPagerPosition);
             _columnCssClass = SettingService.GetSetting(ModuleState.Settings, "ColumnCssClass", BlogConstants.DefaultColumnCssClass);
+            _sortBy = SettingService.GetSetting(ModuleState.Settings, "SortBy", BlogConstants.DefaultSortBy);
+            _sortDirection = SettingService.GetSetting(ModuleState.Settings, "SortDirection", BlogConstants.DefaultSortDirection);
             _subscriptions = SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False");
             _sender = SettingService.GetSetting(ModuleState.Settings, "Sender", string.Empty);
             _blogName = SettingService.GetSetting(ModuleState.Settings, "BlogName", "Blog");
@@ -238,6 +256,8 @@
             settings = SettingService.SetSetting(settings, "TagDescription", _tagDescription);
             settings = SettingService.SetSetting(settings, "PaginationTitle", _paginationTitle);
             settings = SettingService.SetSetting(settings, "MetaTags", _metaTags);
+            settings = SettingService.SetSetting(settings, "SortBy", _sortBy);
+            settings = SettingService.SetSetting(settings, "SortDirection", _sortDirection);
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
         }
         catch (Exception ex)
