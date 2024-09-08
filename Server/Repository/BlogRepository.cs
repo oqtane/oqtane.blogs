@@ -73,7 +73,7 @@ namespace Oqtane.Blogs.Repository
                     blogs = sortByDescending ? blogs.OrderByDescending(i => i.Views) : blogs.OrderBy(i => i.Views);
                     break;
                 default:
-                    blogs = blogs.OrderByDescending(i => i.BlogId);
+                    blogs = blogs.OrderByDescending(i => i.ModifiedOn);
                     break;
             }
 
