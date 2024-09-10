@@ -52,28 +52,36 @@ namespace Oqtane.Blogs.Repository
                 .ThenInclude(i => i.BlogCategorySource)
                 .Include(i => i.BlogTags)
                 .ThenInclude(i => i.BlogTagSource)
+                .Select(i => new
+                {
+                    Blog = i,
+                    PublishedVersion = i.BlogContentList.FirstOrDefault(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow)),
+                    LatestVersion = i.BlogContentList.OrderByDescending(i => i.Version).FirstOrDefault()
+                })
                 .Where(item =>
-                        (moduleId == -1 || item.ModuleId == moduleId)
-                        && (excludeBlogs == null || !excludeBlogs.Any() || !excludeBlogs.Contains(item.BlogId))
-                        && (includeDraft || item.BlogContentList.Any(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow)))
+                        (moduleId == -1 || item.Blog.ModuleId == moduleId)
+                        && (excludeBlogs == null || !excludeBlogs.Any() || !excludeBlogs.Contains(item.Blog.BlogId))
+                        && (includeDraft || item.PublishedVersion != null)
                         && (string.IsNullOrEmpty(keywords)
-                            || item.Title.Contains(keywords)
-                            || (item.BlogContentList.Any(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow))
-                                    && item.BlogContentList.OrderByDescending(i => i.Version).First(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow)).Summary.Contains(keywords))
+                            || item.Blog.Title.Contains(keywords)
+                            || (item.PublishedVersion != null
+                                    && item.Blog.BlogContentList.OrderByDescending(i => i.Version).First(i => i.IsPublished && (i.PublishDate == null || i.PublishDate <= DateTime.UtcNow)).Summary.Contains(keywords))
                         )
-                        && (categories == null || !categories.Any() || item.BlogCategories.Any(c => categories.Contains(c.BlogCategorySourceId)))
-                        && (tags == null || !tags.Any() || item.BlogTags.Any(c => tags.Contains(c.BlogTagSource.Tag)))
-                        && (startDate == DateTime.MinValue || item.CreatedOn >= startDate)
-                        && (endDate == DateTime.MinValue || item.CreatedOn <= endDate)
+                        && (categories == null || !categories.Any() || item.Blog.BlogCategories.Any(c => categories.Contains(c.BlogCategorySourceId)))
+                        && (tags == null || !tags.Any() || item.Blog.BlogTags.Any(c => tags.Contains(c.BlogTagSource.Tag)))
+                        && (startDate == DateTime.MinValue || item.Blog.CreatedOn >= startDate)
+                        && (endDate == DateTime.MinValue || item.Blog.CreatedOn <= endDate)
                 );
 
             switch(sortBy.ToLower())
             {
                 case "views":
-                    blogs = sortByDescending ? blogs.OrderByDescending(i => i.Views) : blogs.OrderBy(i => i.Views);
+                    blogs = sortByDescending ? blogs.OrderByDescending(i => i.Blog.Views) : blogs.OrderBy(i => i.Blog.Views);
                     break;
                 default:
-                    blogs = blogs.OrderByDescending(i => i.BlogId);
+                    blogs = sortByDescending
+                        ? blogs.OrderByDescending(i => i.PublishedVersion != null ? i.PublishedVersion.PublishDate : i.LatestVersion.CreatedOn)
+                        : blogs.OrderBy(i => i.PublishedVersion != null ? i.PublishedVersion.PublishDate : i.LatestVersion.CreatedOn);
                     break;
             }
 
@@ -82,7 +90,7 @@ namespace Oqtane.Blogs.Repository
                 blogs = blogs.Skip(pageIndex * pageSize.Value).Take(pageSize.Value);
             }
 
-            return blogs.ToList();
+            return blogs.Select(i => i.Blog).ToList();
         }
 
         public Blog GetBlog(int blogId)
