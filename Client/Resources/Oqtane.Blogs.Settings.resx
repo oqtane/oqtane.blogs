@@ -154,10 +154,10 @@
     <value>Allow Search?</value>
   </data>
   <data name="ColumnCssClass.HelpText" xml:space="preserve">
-    <value>Enter the CSS class for each summary blog post</value>
+    <value>Enter the Column CSS class for each summary blog post</value>
   </data>
   <data name="ColumnCssClass.Text" xml:space="preserve">
-    <value>Summary CSS Class:</value>
+    <value>Summary Column CSS Class:</value>
   </data>
   <data name="Bottom" xml:space="preserve">
     <value>Bottom</value>
@@ -233,5 +233,11 @@
   </data>
   <data name="Both" xml:space="preserve">
     <value>Both</value>
+  </data>
+  <data name="RowCssClass.HelpText" xml:space="preserve">
+    <value>Enter the Row CSS class for each summary blog post</value>
+  </data>
+  <data name="RowCssClass.Text" xml:space="preserve">
+    <value>Summary Row CSS Class:</value>
   </data>
 </root>
