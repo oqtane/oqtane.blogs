@@ -134,7 +134,7 @@
         &lt;ul&gt;
             &lt;#itemtemplate&gt;
             &lt;li&gt;
-                &lt;a href="[URL]"&gt;[NAME]&lt;/a&gt;
+                &lt;a href="[URL]"&gt;[NAME] ([Count])&lt;/a&gt;
             &lt;/li&gt;
             &lt;/#itemtemplate&gt;
         &lt;/ul&gt;
@@ -201,6 +201,22 @@
         &lt;/li&gt;
         &lt;/#itemtemplate&gt;
     &lt;/ul&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="Tags.Template" xml:space="preserve">
+    <value>&lt;div class="tags-list"&gt;
+    &lt;h3&gt;
+        Tags
+    &lt;/h3&gt;
+    &lt;div&gt;
+        &lt;ul&gt;
+            &lt;#itemtemplate&gt;
+            &lt;li&gt;
+                &lt;a href="[URL]"&gt;[NAME] ([Count])&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;/#itemtemplate&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
 &lt;/div&gt;</value>
   </data>
 </root>

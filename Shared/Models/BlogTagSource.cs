@@ -1,5 +1,6 @@
 ﻿using Oqtane.Models;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Blogs.Models
 {
@@ -10,6 +11,9 @@ namespace Oqtane.Blogs.Models
         public int ModuleId { get; set; }
 
         public string Tag { get; set; }
+
+        [NotMapped]
+        public int BlogCount { get; set; }
 
         public string CreatedBy { get; set; }
 

@@ -1,0 +1,56 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+@using System.Text
+
+@namespace Oqtane.Blogs.Widgets
+@inherits WidgetBase
+@inject IBlogTagService BlogTagService
+
+@if (_templateBuilder != null)
+{
+    @((MarkupString)_templateBuilder.ToString())
+}
+
+@code{
+    public override string RenderMode => RenderModes.Static;
+
+    private StringBuilder _templateBuilder;
+    private IList<BlogTagSource> _tags;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        _tags = await BlogTagService.GetBlogTagSourcesAsync(BlogModuleId);
+
+        _templateBuilder = new StringBuilder(await RenderTemplate());
+    }
+
+    protected override async Task<IList<IDictionary<string, string>>> GenerateItemTokens()
+    {
+        var tokensList = new List<IDictionary<string, string>>();
+
+        var blogUrl = await GetBlogUrl();
+
+        foreach(var t in _tags)
+        {
+            var tokens = new Dictionary<string, string>
+            {
+                { "URL", $"{blogUrl}?tag={t.Tag}" },
+                { "NAME", t.Tag },
+                { "COUNT", t.BlogCount.ToString() }
+            };
+
+            tokensList.Add(tokens);
+        }
+
+        return tokensList;
+    }
+}
