@@ -14,6 +14,6 @@ namespace Oqtane.Blogs.Shared
         public const string DefaultSearchProperties = "Title,Summary";
         public const string DefaultPagerPosition = "Top";
 
-        public static readonly IList<string> AvailableWidgets = new List<string> { "PopularPosts", "RelatedPosts", "Categories", "Archives", "LatestPosts" };
+        public static readonly IList<string> AvailableWidgets = new List<string> { "PopularPosts", "RelatedPosts", "Categories", "Archives", "LatestPosts", "Tags"};
     }
 }
