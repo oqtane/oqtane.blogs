@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
 using Oqtane.Blogs.Models;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 
 namespace Oqtane.Blogs.Repository
@@ -18,9 +17,7 @@ namespace Oqtane.Blogs.Repository
 
     public class BlogTagSourceRepository : IBlogTagSourceRepository, IService
     {
-
         private readonly IDbContextFactory<BlogContext> _dbContextFactory;
-        private readonly IMemoryCache _cache;
 
         public BlogTagSourceRepository(IDbContextFactory<BlogContext> dbContextFactory)
         {
