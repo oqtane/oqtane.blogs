@@ -12,6 +12,8 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
+using Oqtane.Extensions;
+using System.Linq;
 
 namespace Oqtane.Blogs.Controllers
 {
@@ -21,14 +23,16 @@ namespace Oqtane.Blogs.Controllers
         private readonly IBlogRepository _blogRepository;
         private readonly IBlogCommentRepository _blogCommentRepository;
         private readonly INotificationRepository _notificationRepository;
+        private readonly ISettingRepository _settingRepository;
         private readonly IUserPermissions _userPermissions;
         private readonly Alias _alias;
 
-        public BlogCommentController(IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository, INotificationRepository notificationRepository, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
+        public BlogCommentController(IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository, INotificationRepository notificationRepository, ISettingRepository settingRepository, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor) : base(logger,accessor)
         {
             _blogRepository = blogRepository;
             _blogCommentRepository = blogCommentRepository;
             _notificationRepository = notificationRepository;
+            _settingRepository = settingRepository;
             _userPermissions = userPermissions;
             _alias = tenantManager.GetAlias();
         }
@@ -80,9 +84,18 @@ namespace Oqtane.Blogs.Controllers
                 if (!blogComment.IsPublished)
                 {
                     string url = _alias.Protocol + _alias.Name + ((blogComment.PagePath == "") ? "" : "/" + blogComment.PagePath) + "/!/" + blogComment.BlogId.ToString() + "/?comment=" + blogComment.BlogCommentId.ToString() + "&created=" + blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff");
-                    var body = "You Recently Submitted A Comment To The Blog: " + blog.Title + ". Please Use The Following Link To Publish Or Edit Your Comment: " + url;
+                    var body = "You Recently Submitted A Comment To The Blog " + blog.Title + ". Please Use The Following Link To Publish Or Edit Your Comment: " + url;
                     var notification = new Notification(_alias.SiteId, blogComment.Name, blogComment.Email, "Blog Comment Authorization", body);
                     _notificationRepository.AddNotification(notification);
+
+                    var settings = _settingRepository.GetSettings(EntityNames.Module, blog.ModuleId);
+                    var sender = settings.FirstOrDefault(item => item.SettingName == "Sender");
+                    if (sender != null)
+                    {
+                        body = "A Comment Was Recently Submitted To The Blog " + blog.Title + " By " + blogComment.Name + ". Please Use The Following Link To Review The Comment: " + url;
+                        notification = new Notification(_alias.SiteId, "Blog Administrator", sender.SettingValue, "Blog Comment Notification", body);
+                        _notificationRepository.AddNotification(notification);
+                    }
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Comment Added {blogComment}", blogComment);
             }

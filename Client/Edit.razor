@@ -76,17 +76,20 @@
                     </div>
                     <br />
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this blog is visible to all users or only editors">Published? </Label>
+                        <Label Class="col-sm-3" For="published" ResourceKey="Published" HelpText="Indicate if this version of blog content is visible to all users or only editors (ie.draft)">Published? </Label>
                         <div class="col-sm-9">
-                            <input id="published" type="checkbox" class="form-check-input" @bind="@_isPublished" />
+                            <select id="published" class="form-select" @bind="@_published">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
                         </div>
                     </div>
-                    @if (_isPublished)
+                    @if (_published == "True")
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of your blog">Publish Date: </Label>
+                            <Label Class="col-sm-3" For="publishDate" ResourceKey="PublishDate" HelpText="Select the publish date of this blog post. This date controls both visibility of the blog post as well as sort order in the summary view.">Publish Date: </Label>
                             <div class="col-sm-9">
-                                <input id="publishDate" type="datetime-local" class="form-control" @bind="@_publishDate" maxlength="50" />
+                                <input id="publishDate" type="date" class="form-control" @bind="@_publishDate" />
                             </div>
                         </div>
                     }
@@ -115,7 +118,7 @@
                 @if (_id != -1)
                 {
                     <ActionDialog Header="Delete Blog" Message="Are You Sure You Wish To Delete This Blog?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger ms-1" ResourceKey="DeleteBlog" OnClick="@(async () => await DeleteBlog())" />
-                    @if (_isPublished && (_publishDate == null || _publishDate <= DateTime.UtcNow) && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
+                    @if (_published == "True" && _publishDate <= DateTime.UtcNow && SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
                     {
                         <button type="button" class="btn btn-info ms-1" @onclick="Notify">@Localizer["Notify"]</button>
                     }
@@ -216,7 +219,7 @@
     private string _summary;
     private RichTextEditor RichTextEditorHtml;
     private string _content = "";
-    private bool _isPublished;
+    private string _published = "False";
     private DateTime? _publishDate;
     private string _tagsValue;
     private string _allowComments = "True";
@@ -264,7 +267,7 @@
                     {
                         _summary = blogContent.Summary;
                         _content = Utilities.FormatContent(blogContent.Content, PageState.Alias, "render");
-                        _isPublished = blogContent.IsPublished;
+                        _published = blogContent.IsPublished.ToString();
                         _publishDate = blogContent.PublishDate;
                     }
                 }
@@ -336,24 +339,15 @@
                     }
                 }
 
-                //update blog content
+                // update blog content
                 var blogContents = await BlogContentService.GetBlogContentAsync(ModuleState.ModuleId, _id);
                 var blogContent = blogContents.OrderByDescending(i => i.BlogContentId).FirstOrDefault();
-                if (_summary != blogContent?.Summary || _content != blogContent?.Content || _isPublished != blogContent?.IsPublished || _publishDate != blogContent?.PublishDate)
+                if (_summary != blogContent?.Summary || _content != blogContent?.Content || _published != blogContent?.IsPublished.ToString() || _publishDate != blogContent?.PublishDate)
                 {
                     var contentChanged = _summary != blogContent?.Summary || _content != blogContent?.Content;
                     if (contentChanged && (blogContent == null || blogContent.IsPublished && (blogContent.PublishDate == null || blogContent.PublishDate <= DateTime.UtcNow)))
                     {
-                        //set publish status to draft for new edited version.
-                        if (blogContent != null)
-                        {
-                            _isPublished = false;
-                            _publishDate = null;
-                        }
-                        else
-                        {
-                            _publishDate = (!_isPublished) ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
-                        }
+                        _publishDate = (_published != "True") ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
 
                         blogContent = new BlogContent
                         {
@@ -361,7 +355,7 @@
                             Version = blogContent != null ? blogContent.Version + 1 : BlogConstants.DefaultVersion,
                             Summary = _summary,
                             Content = _content,
-                            IsPublished = _isPublished,
+                            IsPublished = bool.Parse(_published),
                             PublishDate = _publishDate
                         };
 
@@ -371,8 +365,8 @@
                     {
                         blogContent.Summary = _summary;
                         blogContent.Content = _content;
-                        blogContent.IsPublished = _isPublished;
-                        blogContent.PublishDate = (!_isPublished) ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
+                        blogContent.IsPublished = bool.Parse(_published);
+                        blogContent.PublishDate = (_published != "True") ? null : (_publishDate == null) ? DateTime.UtcNow : _publishDate;
 
                         await BlogContentService.UpdateBlogContentAsync(ModuleState.ModuleId, blogContent);
                     }
