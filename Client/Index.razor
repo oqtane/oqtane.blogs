@@ -350,7 +350,7 @@ else
 
                             if (!string.IsNullOrEmpty(blogContent.Summary))
                             {
-                                AddHeadContent($"<meta name=\"description\" content=\"{blogContent.Summary}\" />");
+                                AddHeadContent($"<meta name=\"description\" content=\"{WebUtility.HtmlEncode(blogContent.Summary)}\" />");
                             }
                             if (!string.IsNullOrEmpty(_blog.Tags))
                             {

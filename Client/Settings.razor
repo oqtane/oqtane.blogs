@@ -72,6 +72,12 @@
                 </select>
             </div>
         </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="sender" ResourceKey="Sender" ResourceType="@resourceType" HelpText="Email address which notifications will be sent from">Sender: </Label>
+            <div class="col-sm-9">
+                <input id="sender" type="text" class="form-control" @bind="@_sender" />
+            </div>
+        </div>
         <Section Name="Subscriptions" Heading="Subscriptions" ResourceKey="Subscriptions">
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -81,12 +87,6 @@
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="sender" ResourceKey="Sender" ResourceType="@resourceType" HelpText="Email address which subscriptions will be sent from">Sender: </Label>
-                    <div class="col-sm-9">
-                        <input id="sender" type="text" class="form-control" @bind="@_sender" />
                     </div>
                 </div>
             </div>

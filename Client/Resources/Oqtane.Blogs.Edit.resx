@@ -142,7 +142,7 @@
     <value>Save</value>
   </data>
   <data name="Published.HelpText" xml:space="preserve">
-    <value>Indicate if this blog is visible to all users or only editors</value>
+    <value>Indicate if this version of blog content is visible to all users or only editors (ie.draft)</value>
   </data>
   <data name="Published.Text" xml:space="preserve">
     <value>Published?</value>
@@ -190,7 +190,7 @@
     <value>Tags:</value>
   </data>
   <data name="PublishDate.HelpText" xml:space="preserve">
-    <value>Select the publish date of your blog</value>
+    <value>Select the publish date of this blog post. This date controls both visibility of the blog post as well as sort order in the summary view.</value>
   </data>
   <data name="PublishDate.Text" xml:space="preserve">
     <value>Publish Date:</value>
