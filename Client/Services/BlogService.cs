@@ -6,7 +6,7 @@ using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.Blogs.Models;
-using System.Web;
+using System.Net;
 
 namespace Oqtane.Blogs.Services
 {
@@ -47,7 +47,7 @@ namespace Oqtane.Blogs.Services
             {
                 var properties = from p in searchQuery.GetType().GetProperties()
                                  where p.GetValue(searchQuery, null) != null
-                                 select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(searchQuery, null).ToString());
+                                 select p.Name + "=" + WebUtility.UrlEncode(p.GetValue(searchQuery, null).ToString());
 
                 query += "&" + string.Join("&", properties.ToArray());
             }
