@@ -17,6 +17,8 @@ namespace Oqtane.Blogs.Models
 
         public bool IsPublished { get; set; }
 
+        public Blog Blog { get; set; }
+
         [NotMapped]
         public string PagePath {  get; set; }   
     }

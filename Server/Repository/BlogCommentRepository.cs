@@ -8,7 +8,7 @@ namespace Oqtane.Blogs.Repository
 {
     public interface IBlogCommentRepository
     {
-        IEnumerable<BlogComment> GetBlogComments(int blogId);
+        IEnumerable<BlogComment> GetBlogComments(int blogId, int moduleId);
         BlogComment GetBlogComment(int blogCommentId);
         BlogComment AddBlogComment(BlogComment blogComment);
         BlogComment UpdateBlogComment(BlogComment blogComment);
@@ -25,17 +25,21 @@ namespace Oqtane.Blogs.Repository
             _dbContextFactory = dbContextFactory;
         }
 
-        public IEnumerable<BlogComment> GetBlogComments(int blogId)
+        public IEnumerable<BlogComment> GetBlogComments(int blogId, int moduleId)
         {
             using var db = _dbContextFactory.CreateDbContext();
             return db.BlogComment.AsNoTracking()
-                .Where(i => i.BlogId == blogId)
+                .Include(i => i.Blog)
+                .Where(i => i.Blog.ModuleId == moduleId && (blogId == -1 || i.BlogId == blogId))
                 .ToList();
         }
+
         public BlogComment GetBlogComment(int blogCommentId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.BlogComment.FirstOrDefault(i => i.BlogCommentId == blogCommentId);
+            return db.BlogComment
+                .Include(i => i.Blog)
+                .FirstOrDefault(i => i.BlogCommentId == blogCommentId);
         }
 
         public BlogComment AddBlogComment(BlogComment blogComment)
