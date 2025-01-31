@@ -77,10 +77,6 @@
                                     {
                                         <NavLink class="btn btn-secondary ms-2" href="@NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId))">@SharedLocalizer["Cancel"]</NavLink>
                                     }
-                                    if (_blogEditor)
-                                    {
-                                        <ActionDialog Header="Delete Comment" Message="Are You Sure You Wish To Delete This Comment?" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="DeleteComment" ResourceKey="DeleteComment" />
-                                    }
                                 }
                             </div>
                         </div>
@@ -126,6 +122,10 @@ else
         {
             <div class="text-center mb-2">
                 <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" ReturnUrl="@PageState.Route.PathAndQuery" ResourceKey="AddBlog" Text="Add Blog" />
+                @if (_comments == "True")
+                {
+                    <ActionLink Action="Comments" Security="SecurityAccessLevel.Edit" ReturnUrl="@PageState.Route.PathAndQuery" ResourceKey="Comments" Text="Manage Comments" Class="btn btn-secondary ms-1" />
+                }
             </div>
         }
         
@@ -259,7 +259,7 @@ else
             {
                 _blogEditor = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList) && PageState.EditMode;
 
-                if (PageState.QueryString.ContainsKey("guid") && PageState.QueryString.ContainsKey("action"))
+                if (string.IsNullOrEmpty(_subscriptionEmail) && PageState.QueryString.ContainsKey("guid") && PageState.QueryString.ContainsKey("action"))
                 {
                     if (PageState.QueryString["action"] == "unsubscribe")
                     {
@@ -285,16 +285,6 @@ else
                             AddModuleMessage("Blog Comment Published", MessageType.Success);
                         }
                         _commentEditor = true;
-                    }
-                }
-
-                if (PageState.QueryString.ContainsKey("comment") && PageState.QueryString.ContainsKey("delete") && _blogEditor)
-                {
-                    var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                    if (blogComment != null)
-                    {
-                        await BlogCommentService.DeleteBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
-                        AddModuleMessage("Blog Comment Deleted", MessageType.Success);
                     }
                 }
 

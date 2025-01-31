@@ -42,15 +42,7 @@ namespace Oqtane.Blogs.Controllers
         [Authorize(Policy = "ViewModule")]
         public IEnumerable<BlogComment> Get(int id)
         {
-            var blog = _blogRepository.GetBlog(id);
-            if (blog.ModuleId == _authEntityId[EntityNames.Module])
-            {
-                return _blogCommentRepository.GetBlogComments(id);
-            }
-            else
-            {
-                return null;
-            }
+            return _blogCommentRepository.GetBlogComments(id, _authEntityId[EntityNames.Module]);
         }
 
         // GET api/<controller>/5/6
@@ -92,7 +84,10 @@ namespace Oqtane.Blogs.Controllers
                     var sender = settings.FirstOrDefault(item => item.SettingName == "Sender");
                     if (sender != null)
                     {
-                        body = "A Comment Was Recently Submitted To The Blog " + blog.Title + " By " + blogComment.Name + ". Please Use The Following Link To Review The Comment: " + url;
+                        url = _alias.Protocol + _alias.Name + ((blogComment.PagePath == "") ? "" : "/" + blogComment.PagePath);
+                        body = "A Comment Was Recently Submitted To The Blog " + blog.Title + " By " + blogComment.Name;
+                        body += "<br /><br />" + blogComment.Comment;
+                        body += "<br /><br />Please Use The Following Link To Manage Comments: " + url;
                         notification = new Notification(_alias.SiteId, "Blog Administrator", sender.SettingValue, "Blog Comment Notification", body);
                         _notificationRepository.AddNotification(notification);
                     }
@@ -131,6 +126,18 @@ namespace Oqtane.Blogs.Controllers
                         var body = "You Recently Updated A Comment To The Blog: " + blog.Title + ". Please Use The Following Link To Publish Or Edit Your Comment: " + url;
                         var notification = new Notification(_alias.SiteId, blogComment.Name, blogComment.Email, "Blog Comment Authorization", body);
                         _notificationRepository.AddNotification(notification);
+
+                        var settings = _settingRepository.GetSettings(EntityNames.Module, blog.ModuleId);
+                        var sender = settings.FirstOrDefault(item => item.SettingName == "Sender");
+                        if (sender != null)
+                        {
+                            url = _alias.Protocol + _alias.Name + ((blogComment.PagePath == "") ? "" : "/" + blogComment.PagePath);
+                            body = "A Comment Was Recently Updated For The Blog " + blog.Title + " By " + blogComment.Name;
+                            body += "<br /><br />" + blogComment.Comment;
+                            body += "<br /><br />Please Use The Following Link To Manage Comments: " + url;
+                            notification = new Notification(_alias.SiteId, "Blog Administrator", sender.SettingValue, "Blog Comment Notification", body);
+                            _notificationRepository.AddNotification(notification);
+                        }
                     }
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Blog Comment Updated {BlogComment}", blogComment);
                 }

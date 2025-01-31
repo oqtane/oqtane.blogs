@@ -1,0 +1,101 @@
+﻿@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@namespace Oqtane.Blogs
+@inherits ModuleBase
+@inject IBlogCommentService BlogCommentService
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_comments == null)
+{
+    <p><em>@SharedLocalizer["Loading"]</em></p>
+}
+else
+{
+    @if (_comments.Count == 0)
+    {
+        <p>@Localizer["NoComments"]</p>
+    }
+    else
+    {
+        <Pager Items="@_comments">
+            <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@Localizer["Title"]</th>
+            <th>@Localizer["Author"]</th>
+            <th>@Localizer["Submitted"]</th>
+            <th>@Localizer["Published"]</th>
+            </Header>
+            <Row>
+                <td><button type="button" class="btn btn-primary" @onclick="@(async () => await UpdateComment(context))">@(context.IsPublished ? Localizer["Unpublish"] : Localizer["Publish"])</button></td>
+                <td><ActionDialog Header="Delete Comment" Message="@Localizer["DeleteComment.Message"]" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteComment(context))" ResourceKey="DeleteComment" /></td>
+                <td>@context.Blog.Title</td>
+                <td>@context.Name &lt;@context.Email&gt;</td>
+                <td>@context.CreatedOn.ToShortDateString()</td>
+                <td>@context.IsPublished.ToString()</td>
+            </Row>
+            <Detail>
+                <td colspan="2">&nbsp;</td>
+                <td colspan="4">@((MarkupString)context.Comment)</td>
+            </Detail>
+        </Pager>
+    }
+}
+
+@code {
+    private List<BlogComment> _comments;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetComments();
+    }
+
+    private async Task GetComments()
+    {
+        _comments = await BlogCommentService.GetBlogCommentsAsync(-1, ModuleState.ModuleId);
+    }
+
+    private async Task UpdateComment(BlogComment comment)
+    {
+        try
+        {
+            if (comment.IsPublished)
+            {
+                comment.IsPublished = false;
+            }
+            else
+            {
+                comment.IsPublished = true;
+            }
+            await BlogCommentService.UpdateBlogCommentAsync(comment, ModuleState.ModuleId);
+            await logger.LogInformation("Blog Comment Updated {BlogComment}", comment);
+            await GetComments();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Updating Blog Comment {BlogComment} {Error}", comment, ex.Message);
+            AddModuleMessage(Localizer["Error.UpdateComment"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteComment(BlogComment comment)
+    {
+        try
+        {
+            await BlogCommentService.DeleteBlogCommentAsync(comment.BlogCommentId, comment.BlogId, ModuleState.ModuleId);
+            await logger.LogInformation("Blog Comment Deleted {BlogComment}", comment);
+            await GetComments();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Blog Comment {BlogComment} {Error}", comment, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteComment"], MessageType.Error);
+        }
+    }
+}

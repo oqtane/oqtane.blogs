@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Blogs</id>
-    <version>5.2.2</version>
+    <version>6.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Blogs</title>
@@ -16,16 +16,16 @@
     <releaseNotes></releaseNotes>
     <summary></summary>
     <dependencies>
-      <dependency id="Oqtane.Framework" version="5.2.0" />
+      <dependency id="Oqtane.Framework" version="6.0.1" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net8.0\Oqtane.Blogs.Client.Oqtane.dll" target="lib\net8.0" /> 
-    <file src="..\Client\bin\Release\net8.0\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\net8.0" /> 
-    <file src="..\Server\bin\Release\net8.0\Oqtane.Blogs.Server.Oqtane.dll" target="lib\net8.0" /> 
-    <file src="..\Server\bin\Release\net8.0\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\net8.0" /> 
-    <file src="..\Shared\bin\Release\net8.0\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\net8.0" /> 
-    <file src="..\Shared\bin\Release\net8.0\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\net8.0" /> 
+    <file src="..\Client\bin\Release\net9.0\Oqtane.Blogs.Client.Oqtane.dll" target="lib\net9.0" /> 
+    <file src="..\Client\bin\Release\net9.0\Oqtane.Blogs.Client.Oqtane.pdb" target="lib\net9.0" /> 
+    <file src="..\Server\bin\Release\net9.0\Oqtane.Blogs.Server.Oqtane.dll" target="lib\net9.0" /> 
+    <file src="..\Server\bin\Release\net9.0\Oqtane.Blogs.Server.Oqtane.pdb" target="lib\net9.0" /> 
+    <file src="..\Shared\bin\Release\net9.0\Oqtane.Blogs.Shared.Oqtane.dll" target="lib\net9.0" /> 
+    <file src="..\Shared\bin\Release\net9.0\Oqtane.Blogs.Shared.Oqtane.pdb" target="lib\net9.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>
