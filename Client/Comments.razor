@@ -41,6 +41,8 @@ else
                 <td colspan="4">@((MarkupString)context.Comment)</td>
             </Detail>
         </Pager>
+        <br />
+        <button type="button" class="btn btn-danger" @onclick="DeleteAll">@Localizer["DeleteAll"]</button>
     }
 }
 
@@ -98,4 +100,25 @@ else
             AddModuleMessage(Localizer["Error.DeleteComment"], MessageType.Error);
         }
     }
+
+    private async Task DeleteAll()
+    {
+        try
+        {
+            foreach (var comment in _comments.Where(item => !item.IsPublished))
+            {
+                await BlogCommentService.DeleteBlogCommentAsync(comment.BlogCommentId, comment.BlogId, ModuleState.ModuleId);
+            }
+            await logger.LogInformation("Unpublished Blog Comments Deleted");
+            AddModuleMessage(Localizer["Success.DeleteAll"], MessageType.Success);
+            await GetComments();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Unpublished Blog Comments {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteAll"], MessageType.Error);
+        }
+    }
+
 }
