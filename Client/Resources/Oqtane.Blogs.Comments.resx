@@ -153,4 +153,13 @@
   <data name="Error.DeleteComment" xml:space="preserve">
     <value>Error Deleting Blog Comment</value>
   </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Delete All Unpublished</value>
+  </data>
+  <data name="Error.DeleteAll" xml:space="preserve">
+    <value>Error Deleting Unpublished Blog Comments</value>
+  </data>
+  <data name="Success.DeleteAll" xml:space="preserve">
+    <value>All Unpublished Blog Comments Successfully Deleted</value>
+  </data>
 </root>
