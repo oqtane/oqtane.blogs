@@ -4,6 +4,7 @@
 @namespace Oqtane.Blogs
 @inherits ModuleBase
 @inject IBlogCommentService BlogCommentService
+@inject NavigationManager NavigationManager
 @inject IStringLocalizer<Comments> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -21,23 +22,25 @@ else
     {
         <Pager Items="@_comments">
             <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Title"]</th>
-            <th>@Localizer["Author"]</th>
-            <th>@Localizer["Submitted"]</th>
-            <th>@Localizer["Published"]</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>@Localizer["Title"]</th>
+                <th>@Localizer["Author"]</th>
+                <th>@Localizer["Submitted"]</th>
+                <th>@Localizer["Published"]</th>
             </Header>
             <Row>
-                <td><button type="button" class="btn btn-primary" @onclick="@(async () => await UpdateComment(context))">@(context.IsPublished ? Localizer["Unpublish"] : Localizer["Publish"])</button></td>
+                <td><button type="button" class="btn btn-primary" @onclick="@(() => EditComment(context))">@SharedLocalizer["Edit"]</button></td>
                 <td><ActionDialog Header="Delete Comment" Message="@Localizer["DeleteComment.Message"]" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await DeleteComment(context))" ResourceKey="DeleteComment" /></td>
+                <td><button type="button" class="btn btn-secondary" @onclick="@(async () => await UpdateComment(context))">@(context.IsPublished ? Localizer["Unpublish"] : Localizer["Publish"])</button></td>
                 <td>@context.Blog.Title</td>
                 <td>@context.Name &lt;@context.Email&gt;</td>
                 <td>@context.CreatedOn.ToShortDateString()</td>
                 <td>@context.IsPublished.ToString()</td>
             </Row>
             <Detail>
-                <td colspan="2">&nbsp;</td>
+                <td colspan="3">&nbsp;</td>
                 <td colspan="4">@((MarkupString)context.Comment)</td>
             </Detail>
         </Pager>
@@ -83,6 +86,12 @@ else
             await logger.LogError(ex, "Error Updating Blog Comment {BlogComment} {Error}", comment, ex.Message);
             AddModuleMessage(Localizer["Error.UpdateComment"], MessageType.Error);
         }
+    }
+
+    private void EditComment(BlogComment comment)
+    {
+        var url = NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(comment.Blog.BlogId)) + $"?comment={comment.BlogCommentId}&created={comment.CreatedOn.ToString("yyyyMMddHHmmssfff")}";
+        NavigationManager.NavigateTo(url);
     }
 
     private async Task DeleteComment(BlogComment comment)
