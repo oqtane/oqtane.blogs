@@ -596,9 +596,4 @@ else
             AddModuleMessage("You Must Enter All Required Fields", MessageType.Warning, "bottom");
         }
     }
-
-    private void DeleteComment()
-    {
-        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={PageState.QueryString["comment"]}&delete=true");
-    }
 }
