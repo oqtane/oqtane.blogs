@@ -1,6 +1,6 @@
 # Latest Release
 
-[5.2.1](https://github.com/oqtane/oqtane.blogs/releases/tag/v5.2.1) was released on September 24, 2024.
+[5.2.1](https://github.com/oqtane/oqtane.blogs/releases/tag/v6.0.0) was released on Feb 11, 2025.
 
 # Blog Module
 
