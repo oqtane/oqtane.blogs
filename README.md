@@ -13,7 +13,7 @@ Note that you need to ensure that the folder is organized as a sibling of the Oq
 ```
 /parent
   /Oqtane.Blogs
-  /Oqtane.Theme.Arsha
+  /Oqtane.Framework
 ```
 
 Organizing the folders in this way allows the system to automatically deploy the module DLLs to the Oqtane framework when your build the module solution.
