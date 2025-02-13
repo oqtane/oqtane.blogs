@@ -37,16 +37,12 @@
     @if (_comments == "True" && _blogComments != null)
     {
         <Section Name="Comments" Heading="@_commentTitle" Expanded="True">
-            @foreach (var blogComment in _blogComments.Where(item => item.IsPublished || _blogEditor))
+            @foreach (var blogComment in _blogComments)
             {
                 @if (_blogEditor)
                 {
                     <div>
                         <NavLink class="btn btn-primary" href="@(NavigateUrl(PageState.Page.Path, Utilities.AddUrlParameters(_blog.BlogId)) + $"?comment={blogComment.BlogCommentId}")">@SharedLocalizer["Edit"]</NavLink>
-                        @if (!blogComment.IsPublished)
-                        {
-                            <strong> ** Not Published **</strong>
-                        }
                     </div>
                 }
                 @((MarkupString)Utilities.FormatContent(FormatComment(_commentTemplate, blogComment), PageState.Alias, "render"))
@@ -278,7 +274,7 @@ else
                     var blogComment = await BlogCommentService.GetBlogCommentAsync(int.Parse(PageState.QueryString["comment"]), int.Parse(UrlParameters["id"]), ModuleState.ModuleId);
                     if (blogComment != null && blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff") == PageState.QueryString["created"])
                     {
-                        if (!blogComment.IsPublished)
+                        if (!blogComment.IsPublished && !_blogEditor)
                         {
                             blogComment.IsPublished = true;
                             await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
@@ -355,8 +351,8 @@ else
                             AddHeadContent($"<link rel=\"canonical\" href=\"{PageState.Route.RootUrl}{BlogUtilities.FormatUrl(PageState.Alias.Path, PageState.Page.Path, _blog)}\">");
                         }
 
-                        _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
-                        var comments = _blogComments.Where(item => item.IsPublished || _blogEditor).Count();
+                        _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId, true);
+                        var comments = _blogComments.Count();
                         _commentTitle = comments.ToString() + " " + ((comments == 1) ? Localizer["Comment"] : Localizer["Comments"]);
 
                         if (_commentName == "" && PageState.QueryString.ContainsKey("comment"))
@@ -368,6 +364,14 @@ else
                                 _commentEmail = WebUtility.HtmlDecode(blogComment.Email);
                                 _commentComment = WebUtility.HtmlDecode(blogComment.Comment);
                                 _commentCreated = blogComment.CreatedOn.ToString();
+                            }
+                        }
+                        else
+                        {
+                            if (PageState.User != null)
+                            {
+                                _commentName = PageState.User.DisplayName;
+                                _commentEmail = PageState.User.Email;
                             }
                         }
 
@@ -570,7 +574,7 @@ else
                 {
                     blogComment.BlogCommentId = int.Parse(PageState.QueryString["comment"]);
                     blogComment.CreatedOn = DateTime.Parse(_commentCreated);
-                    blogComment.IsPublished = true;
+                    blogComment.IsPublished = _blogEditor;
                     blogComment = await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
                 }
                 else
@@ -582,7 +586,7 @@ else
                 _commentEmail = "";
                 _commentComment = "";
 
-                _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId);
+                _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId, true);
                 StateHasChanged();
 
                 if (!blogComment.IsPublished)

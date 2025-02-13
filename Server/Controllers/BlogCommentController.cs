@@ -37,12 +37,12 @@ namespace Oqtane.Blogs.Controllers
             _alias = tenantManager.GetAlias();
         }
 
-        // GET api/<controller>?id=5
+        // GET api/<controller>?id=5&published=true
         [HttpGet]
         [Authorize(Policy = "ViewModule")]
-        public IEnumerable<BlogComment> Get(int id)
+        public IEnumerable<BlogComment> Get(int id, bool published)
         {
-            return _blogCommentRepository.GetBlogComments(id, _authEntityId[EntityNames.Module]);
+            return _blogCommentRepository.GetBlogComments(id, _authEntityId[EntityNames.Module], published);
         }
 
         // GET api/<controller>/5/6
@@ -76,7 +76,7 @@ namespace Oqtane.Blogs.Controllers
                 if (!blogComment.IsPublished)
                 {
                     string url = _alias.Protocol + _alias.Name + ((blogComment.PagePath == "") ? "" : "/" + blogComment.PagePath) + "/!/" + blogComment.BlogId.ToString() + "/?comment=" + blogComment.BlogCommentId.ToString() + "&created=" + blogComment.CreatedOn.ToString("yyyyMMddHHmmssfff");
-                    var body = "You Recently Submitted A Comment To The Blog " + blog.Title + ". Please Use The Following Link To Publish Or Edit Your Comment: " + url;
+                    var body = "You Recently Submitted A Comment To The Blog \"" + blog.Title + "\". Please Use The Following Link To Publish Or Edit Your Comment: " + url;
                     var notification = new Notification(_alias.SiteId, blogComment.Name, blogComment.Email, "Blog Comment Authorization", body);
                     _notificationRepository.AddNotification(notification);
 
@@ -85,7 +85,7 @@ namespace Oqtane.Blogs.Controllers
                     if (sender != null)
                     {
                         url = _alias.Protocol + _alias.Name + ((blogComment.PagePath == "") ? "" : "/" + blogComment.PagePath);
-                        body = "A Comment Was Recently Submitted To The Blog " + blog.Title + " By " + blogComment.Name;
+                        body = "A Comment Was Recently Submitted To The Blog \"" + blog.Title + "\" By " + blogComment.Name;
                         body += "<br /><br />" + blogComment.Comment;
                         body += "<br /><br />Please Use The Following Link To Manage Comments: " + url;
                         notification = new Notification(_alias.SiteId, "Blog Administrator", sender.SettingValue, "Blog Comment Notification", body);

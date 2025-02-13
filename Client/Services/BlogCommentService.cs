@@ -10,7 +10,7 @@ namespace Oqtane.Blogs.Services
 {
     public interface IBlogCommentService
     {
-        Task<List<BlogComment>> GetBlogCommentsAsync(int blogId, int moduleId);
+        Task<List<BlogComment>> GetBlogCommentsAsync(int blogId, int moduleId, bool published);
 
         Task<BlogComment> GetBlogCommentAsync(int blogCommentId, int blogId, int moduleId);
 
@@ -32,9 +32,9 @@ namespace Oqtane.Blogs.Services
 
          private string Apiurl => CreateApiUrl("BlogComment", _siteState.Alias);
 
-        public async Task<List<BlogComment>> GetBlogCommentsAsync(int blogId, int moduleId)
+        public async Task<List<BlogComment>> GetBlogCommentsAsync(int blogId, int moduleId, bool published)
         {
-            return await GetJsonAsync<List<BlogComment>>(CreateAuthorizationPolicyUrl($"{Apiurl}?id={blogId}", EntityNames.Module, moduleId));
+            return await GetJsonAsync<List<BlogComment>>(CreateAuthorizationPolicyUrl($"{Apiurl}?id={blogId}&published={published}", EntityNames.Module, moduleId));
         }
 
         public async Task<BlogComment> GetBlogCommentAsync(int blogCommentId, int blogId, int moduleId)

@@ -14,6 +14,17 @@
 }
 else
 {
+    <div class="row justify-content-center mb-3">
+        <div class="text-center">
+            <div class="form-check form-check-inline">
+                <select id="published" class="form-select" value="@_published" @onchange="(e => PublishedChanged(e))">
+                    <option value="True">@Localizer["Published"] @Localizer["Comments"]</option>
+                    <option value="False">@Localizer["Unpublished"] @Localizer["Comments"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     @if (_comments.Count == 0)
     {
         <p>@Localizer["NoComments"]</p>
@@ -28,7 +39,6 @@ else
                 <th>@Localizer["Title"]</th>
                 <th>@Localizer["Author"]</th>
                 <th>@Localizer["Submitted"]</th>
-                <th>@Localizer["Published"]</th>
             </Header>
             <Row>
                 <td><button type="button" class="btn btn-primary" @onclick="@(() => EditComment(context))">@SharedLocalizer["Edit"]</button></td>
@@ -37,22 +47,26 @@ else
                 <td>@context.Blog.Title</td>
                 <td>@context.Name &lt;@context.Email&gt;</td>
                 <td>@context.CreatedOn.ToShortDateString()</td>
-                <td>@context.IsPublished.ToString()</td>
             </Row>
             <Detail>
                 <td colspan="3">&nbsp;</td>
-                <td colspan="4">@((MarkupString)context.Comment)</td>
+                <td colspan="3">@((MarkupString)context.Comment)</td>
             </Detail>
         </Pager>
-        <br />
-        <button type="button" class="btn btn-danger" @onclick="DeleteAll">@Localizer["DeleteAll"]</button>
+        @if (_published == "False")
+        {
+            <br />
+            <button type="button" class="btn btn-danger" @onclick="DeleteAll">@Localizer["DeleteAll"]</button>
+        }
     }
 }
 
 @code {
+    private string _published = "False";
     private List<BlogComment> _comments;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Manage Comments";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -61,7 +75,13 @@ else
 
     private async Task GetComments()
     {
-        _comments = await BlogCommentService.GetBlogCommentsAsync(-1, ModuleState.ModuleId);
+        _comments = await BlogCommentService.GetBlogCommentsAsync(-1, ModuleState.ModuleId, bool.Parse(_published));
+    }
+
+    private async Task PublishedChanged(ChangeEventArgs eventArgs)
+    {
+        _published = (string)eventArgs.Value;
+        await GetComments();
     }
 
     private async Task UpdateComment(BlogComment comment)
@@ -114,7 +134,7 @@ else
     {
         try
         {
-            foreach (var comment in _comments.Where(item => !item.IsPublished))
+            foreach (var comment in _comments)
             {
                 await BlogCommentService.DeleteBlogCommentAsync(comment.BlogCommentId, comment.BlogId, ModuleState.ModuleId);
             }
