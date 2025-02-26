@@ -52,20 +52,25 @@
                 <br />
                 <div class="container mt-2">
                     <div class="row mb-1 justify-content-center">
-                        <h5 class="text-center">Share Your Feedback...</h5>
+                        <h5 class="text-center">@Localizer["Feedback"]</h5>
                         <div class="col">
                             <div class="text-center">
                                 <form method="post" class="app-form-inline" @onsubmit="SubmitComment" @formname="BlogCommentForm" data-enhance>
                                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                                    <input type="hidden" name="commentValidation" @bind="@_commentValidation" />
-                                    <input type="hidden" name="commentDate" @bind="@_commentDate" />
                                     <div class="input-group">
                                         <input name="commentName" class="form-control" placeholder="@Localizer["Name"]" @bind="@_commentName" />
                                         <input name="commentEmail" class="form-control mx-1" placeholder="@Localizer["Email"]" @bind="@_commentEmail" />
                                     </div>
                                     <textarea name="commentComment" class="form-control mt-1 mb-2" rows="3" @bind="@_commentComment" />
-                                    <input type="hidden" name="commentCreated" @bind="@_commentCreated" />
-                                    <button type="submit" class="btn btn-primary">@Localizer["Submit"]</button>
+                                    <div>
+                                        <input type="checkbox" class="me-1" onclick="document.getElementById('commentValidation2').value = (new Date()).toISOString().slice(0,19).replace('T',' ')">
+                                        <label class="form-check-label">@Localizer["Robot"]</label>
+                                        <button type="submit" class="btn btn-primary ms-2">@Localizer["Submit"]</button>
+                                    </div>
+                                    <input type="hidden" name="commentCreatedOn" @bind="@_commentCreatedOn" />
+                                    <input type="hidden" id="commentValidation1" name="commentValidation1" @bind="@_commentValidation1" />
+                                    <input type="hidden" id="commentValidation2" name="commentValidation2" @bind="@_commentValidation2" />
+                                    <input type="hidden" id="commentValidation3" name="commentValidation3" @bind="@_commentValidation3" />
                                 </form>
                                 @if (PageState.QueryString.ContainsKey("comment"))
                                 {
@@ -88,26 +93,33 @@
 
     @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
     {
-        <div class="text-center mt-4"><strong>@Localizer["Notify"]</strong></div>
-        <div class="container mt-2">
+        <div class="container mt-4">
             <div class="row mb-1 justify-content-center">
+                <h5 class="text-center">@Localizer["Notify"]</h5>
                 <div class="col-sm-12 col-md-9 col-lg-6">
-                    <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
-                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                        <input type="hidden" name="subscriptionValidation" @bind="@_subscriptionValidation" />
-                        <input type="hidden" name="subscriptionDate" @bind="@_subscriptionDate" />
-                        <div class="input-group">
-                            <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
-                            <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
-                            <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
-                        </div>
-                    </form>
+                    <div class="text-center">
+                        <form method="post" class="app-form-inline" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                            <div class="input-group mb-2">
+                                <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
+                                <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="me-1" onclick="document.getElementById('subscriptionValidation2').value = (new Date()).toISOString().slice(0,19).replace('T',' ')">
+                                <label class="form-check-label">@Localizer["Robot"]</label>
+                                <button type="submit" class="btn btn-primary ms-2">@Localizer["Subscribe"]</button>
+                            </div>
+                            <input type="hidden" id="subscriptionValidation1" name="subscriptionValidation1" @bind="@_subscriptionValidation1" />
+                            <input type="hidden" id="subscriptionValidation2" name="subscriptionValidation2" @bind="@_subscriptionValidation2" />
+                            <input type="hidden" id="subscriptionValidation3" name="subscriptionValidation3" @bind="@_subscriptionValidation3" />
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     }
     <br />
-    <div class="text-center"><NavLink class="btn btn-secondary btn-view-all" href="@NavigateUrl()">@Localizer["ViewAll"]</NavLink></div>
+    <div class="text-center mt-4"><NavLink class="btn btn-secondary btn-view-all" href="@NavigateUrl()">@Localizer["ViewAll"]</NavLink></div>
     <br />
 }
 else
@@ -124,7 +136,7 @@ else
                 }
             </div>
         }
-        
+
         @if (_blogs.Any())
         {
             @((MarkupString)_summaryHeader)
@@ -147,20 +159,27 @@ else
         }
         @if (SettingService.GetSetting(ModuleState.Settings, "Subscriptions", "False") == "True")
         {
-            <div class="text-center mt-4"><strong>@Localizer["Notify"]</strong></div>
-            <div class="container mt-2">
+            <div class="container mt-4">
                 <div class="row mb-1 justify-content-center">
+                    <h5 class="text-center">@Localizer["Notify"]</h5>
                     <div class="col-sm-12 col-md-9 col-lg-6">
-                        <form method="post" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
-                            <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
-                            <input type="hidden" name="subscriptionValidation" @bind="@_subscriptionValidation" />
-                            <input type="hidden" name="subscriptionDate" @bind="@_subscriptionDate" />
-                            <div class="input-group">
-                                <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
-                                <button type="submit" class="btn btn-primary">@Localizer["Subscribe"]</button>
-                                <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
-                            </div>
-                        </form>
+                        <div class="text-center">
+                            <form method="post" class="app-form-inline" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                                <div class="input-group mb-2">
+                                    <input name="subscriptionEmail" class="form-control" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
+                                    <a href="@_rss" target="_new" class="btn btn-secondary">@Localizer["RSS"]</a>
+                                </div>
+                                <div>
+                                    <input type="checkbox" class="me-1" onclick="document.getElementById('subscriptionValidation2').value = (new Date()).toISOString().slice(0,19).replace('T',' ')">
+                                    <label class="form-check-label">@Localizer["Robot"]</label>
+                                    <button type="submit" class="btn btn-primary ms-2">@Localizer["Subscribe"]</button>
+                                </div>
+                                <input type="hidden" id="subscriptionValidation1" name="subscriptionValidation1" @bind="@_subscriptionValidation1" />
+                                <input type="hidden" id="subscriptionValidation2" name="subscriptionValidation2" @bind="@_subscriptionValidation2" />
+                                <input type="hidden" id="subscriptionValidation3" name="subscriptionValidation3" @bind="@_subscriptionValidation3" />
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -183,25 +202,32 @@ else
     public string commentComment { get => ""; set => _commentComment = value; }
 
     [SupplyParameterFromForm(FormName = "BlogCommentForm")]
-    public string commentCreated { get => ""; set => _commentCreated = value; }
+    public string commentCreatedOn { get => ""; set => _commentCreatedOn = value; }
 
     [SupplyParameterFromForm(FormName = "BlogCommentForm")]
-    public string commentValidation { get => ""; set => _commentValidation = value; }
+    public string commentValidation1 { get => ""; set => _commentValidation1 = value; }
 
     [SupplyParameterFromForm(FormName = "BlogCommentForm")]
-    public string commentDate { get => ""; set => _commentDate = value; }
+    public string commentValidation2 { get => ""; set => _commentValidation2 = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogCommentForm")]
+    public string commentValidation3 { get => ""; set => _commentValidation3 = value; }
 
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
     public string subscriptionEmail { get => ""; set => _subscriptionEmail = value; }
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
-    public string subscriptionValidation { get => ""; set => _subscriptionValidation = value; }
+    public string subscriptionValidation1 { get => ""; set => _subscriptionValidation1 = value; }
 
     [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
-    public string subscriptionDate { get => ""; set => _subscriptionDate = value; }
+    public string subscriptionValidation2 { get => ""; set => _subscriptionValidation2 = value; }
 
-    private int _mintime = 5; // 5 second minimum
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionValidation3 { get => ""; set => _subscriptionValidation3 = value; }
+
+    private int _mintime = 10; // 10 second minimum
+    private int _maxtime = 3600; // 1 hour maximum
 
     private bool _blogEditor = false;
     private bool _commentEditor = false;
@@ -238,13 +264,15 @@ else
     private string _commentName = "";
     private string _commentEmail = "";
     private string _commentComment = "";
-    private string _commentCreated = "";
-    private string _commentValidation = "";
-    private string _commentDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+    private string _commentCreatedOn = "";
+    private string _commentValidation1 = "";
+    private string _commentValidation2 = "true";
+    private string _commentValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
     private string _subscriptionEmail = "";
-    private string _subscriptionValidation = "";
-    private string _subscriptionDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+    private string _subscriptionValidation1 = "";
+    private string _subscriptionValidation2 = "false";
+    private string _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
     private string _rss = "";
 
     protected override async Task OnParametersSetAsync()
@@ -363,7 +391,7 @@ else
                                 _commentName = WebUtility.HtmlDecode(blogComment.Name);
                                 _commentEmail = WebUtility.HtmlDecode(blogComment.Email);
                                 _commentComment = WebUtility.HtmlDecode(blogComment.Comment);
-                                _commentCreated = blogComment.CreatedOn.ToString();
+                                _commentCreatedOn = blogComment.CreatedOn.ToString();
                             }
                         }
                         else
@@ -543,7 +571,11 @@ else
     {
         if (!string.IsNullOrEmpty(_subscriptionEmail) && Utilities.IsValidEmail(_subscriptionEmail))
         {
-            if (string.IsNullOrEmpty(_subscriptionValidation) && DateTime.TryParseExact(_subscriptionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime)
+            // bot validation
+            if (_subscriptionValidation1.Length == 0 && _subscriptionValidation2.Length == 19 && DateTime.TryParseExact(_subscriptionValidation2, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp1) &&
+              _subscriptionValidation3.Length == 19 && DateTime.TryParseExact(_subscriptionValidation3, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp2) &&
+              (timestamp1 - timestamp2).TotalSeconds >= _mintime && (timestamp1 - timestamp2).TotalSeconds <= _maxtime &&
+              (DateTime.UtcNow - timestamp2).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp2).TotalSeconds <= _maxtime)
             {
                 var subscriber = new BlogSubscriber();
                 subscriber.ModuleId = ModuleState.ModuleId;
@@ -565,15 +597,20 @@ else
 
     private async Task SubmitComment()
     {
+        // input validation
         if (!string.IsNullOrEmpty(_commentName) && !string.IsNullOrEmpty(_commentEmail) && Utilities.IsValidEmail(_commentEmail) && !string.IsNullOrEmpty(_commentComment))
         {
-            if (string.IsNullOrEmpty(_commentValidation) && DateTime.TryParseExact(_commentDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp) && (DateTime.UtcNow - timestamp).TotalSeconds >= _mintime)
+            // bot validation
+            if (_commentValidation1.Length == 0 && _commentValidation2.Length == 19 && DateTime.TryParseExact(_commentValidation2, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp1) &&
+              _commentValidation3.Length == 19 && DateTime.TryParseExact(_commentValidation3, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp2) &&
+              (timestamp1 - timestamp2).TotalSeconds >= _mintime && (timestamp1 - timestamp2).TotalSeconds <= _maxtime &&
+              (DateTime.UtcNow - timestamp2).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp2).TotalSeconds <= _maxtime)
             {
                 var blogComment = new BlogComment { BlogId = _blog.BlogId, Name = _commentName, Email = _commentEmail, Comment = _commentComment, PagePath = PageState.Page.Path };
                 if (PageState.QueryString.ContainsKey("comment"))
                 {
                     blogComment.BlogCommentId = int.Parse(PageState.QueryString["comment"]);
-                    blogComment.CreatedOn = DateTime.Parse(_commentCreated);
+                    blogComment.CreatedOn = DateTime.Parse(_commentCreatedOn);
                     blogComment.IsPublished = _blogEditor;
                     blogComment = await BlogCommentService.UpdateBlogCommentAsync(blogComment, ModuleState.ModuleId);
                 }
