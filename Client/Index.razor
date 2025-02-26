@@ -271,7 +271,7 @@ else
 
     private string _subscriptionEmail = "";
     private string _subscriptionValidation1 = "";
-    private string _subscriptionValidation2 = "false";
+    private string _subscriptionValidation2 = "true";
     private string _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
     private string _rss = "";
 
@@ -584,9 +584,13 @@ else
                 AddModuleMessage(Localizer["Activated"], MessageType.Success, "bottom");
                 _subscriptionEmail = "";
             }
-            else // try again
+            else
             {
-                AddModuleMessage(Localizer["DateInvalid"], MessageType.Warning, "bottom");
+                // clear fields for bot
+                _subscriptionEmail = "";
+                _subscriptionValidation1 = "";
+                _subscriptionValidation2 = "false";
+                _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             }
         }
         else
@@ -622,6 +626,10 @@ else
                 _commentName = "";
                 _commentEmail = "";
                 _commentComment = "";
+                _commentCreatedOn = "";
+                _commentValidation1 = "";
+                _commentValidation2 = "true";
+                _commentValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
                 _blogComments = await BlogCommentService.GetBlogCommentsAsync(_blog.BlogId, ModuleState.ModuleId, true);
                 StateHasChanged();
@@ -630,6 +638,17 @@ else
                 {
                     AddModuleMessage("Thank You For Submitting a Comment. Please Check Your Email For Instructions On How To Publish Or Edit Your Comment.", MessageType.Success, "bottom");
                 }
+            }
+            else
+            {
+                // clear fields for bot
+                _commentName = "";
+                _commentEmail = "";
+                _commentComment = "";
+                _commentCreatedOn = "";
+                _commentValidation1 = "";
+                _commentValidation2 = "false";
+                _commentValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             }
         }
         else
