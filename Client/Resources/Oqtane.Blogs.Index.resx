@@ -151,7 +151,7 @@
     <value>No Blogs Have Been Published</value>
   </data>
   <data name="Notify" xml:space="preserve">
-    <value>Do You Want To Be Notified When Blogs Are Published?</value>
+    <value>Receive Notifications...</value>
   </data>
   <data name="RSS" xml:space="preserve">
     <value>RSS</value>
@@ -176,5 +176,11 @@
   </data>
   <data name="Verified" xml:space="preserve">
     <value>You Have Successfully Verified Your Email Address</value>
+  </data>
+  <data name="Feedback" xml:space="preserve">
+    <value>Share Your Feedback...</value>
+  </data>
+  <data name="Robot" xml:space="preserve">
+    <value>I'm not a robot!</value>
   </data>
 </root>
