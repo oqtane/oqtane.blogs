@@ -9,7 +9,7 @@ namespace Oqtane.Blogs.Widgets
         {
             Name = "Blog Widgets",
             Description = "Blog Widgets",
-            Version = "6.0.0",
+            Version = "6.0.1",
             Dependencies = "Oqtane.Blogs.Shared.Oqtane",
             SettingsType = "Oqtane.Blogs.Widgets.Settings, Oqtane.Blogs.Client.Oqtane",
             PackageName = "Oqtane.Blogs.Widgets"
