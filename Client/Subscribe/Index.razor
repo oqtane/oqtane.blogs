@@ -1,0 +1,156 @@
+@using Oqtane.Blogs.Services
+@using Oqtane.Blogs.Models
+@using Oqtane.Blogs.Shared
+@using System.Globalization
+
+@namespace Oqtane.Blogs.Subscribe
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IBlogService BlogService
+@inject IBlogSubscriberService BlogSubscriberService
+@inject IModuleService ModuleService
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_blogModuleId != -1)
+{
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-9 col-lg-6">
+                <div class="text-center">
+                    <form method="post" class="app-form-inline" @onsubmit="Subscribe" @formname="BlogSubscriptionForm" data-enhance>
+                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <input name="subscriptionEmail" class="form-control mb-2" placeholder="@Localizer["Email"]" @bind="@_subscriptionEmail" />
+                        <div>
+                            <input type="checkbox" class="me-1" onclick="document.getElementById('subscriptionValidation2').value = (new Date()).toISOString().slice(0,19).replace('T',' ')">
+                            <label class="form-check-label">@Localizer["Robot"]</label>
+                            <button type="submit" class="btn btn-primary ms-2">@Localizer["Subscribe"]</button>
+                        </div>
+                        <input type="hidden" id="subscriptionValidation1" name="subscriptionValidation1" @bind="@_subscriptionValidation1" />
+                        <input type="hidden" id="subscriptionValidation2" name="subscriptionValidation2" @bind="@_subscriptionValidation2" />
+                        <input type="hidden" id="subscriptionValidation3" name="subscriptionValidation3" @bind="@_subscriptionValidation3" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-9 col-lg-6">
+                <div class="text-center">
+                    <form method="post" class="app-form-inline" @onsubmit="Save" @formname="BlogModuleForm" data-enhance>
+                        <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">@Localizer["Blog"]</span>
+                            <select name="moduleId" class="form-select">
+                                <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                @if (_modules != null)
+                                {
+                                    foreach (var module in _modules.Where(item => item.ModuleDefinitionName == "Oqtane.Blogs, Oqtane.Blogs.Client.Oqtane"))
+                                    {
+                                        <option value="@module.ModuleId">@module.Title</option>
+                                    }
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-primary">@SharedLocalizer["Save"]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public override string RenderMode => RenderModes.Static;
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionEmail { get => ""; set => _subscriptionEmail = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionValidation1 { get => ""; set => _subscriptionValidation1 = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionValidation2 { get => ""; set => _subscriptionValidation2 = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogSubscriptionForm")]
+    public string subscriptionValidation3 { get => ""; set => _subscriptionValidation3 = value; }
+
+    [SupplyParameterFromForm(FormName = "BlogModuleForm")]
+    public string moduleId { get => ""; set => _moduleId = value; }
+
+    private int _mintime = 10; // 10 second minimum
+    private int _maxtime = 3600; // 1 hour maximum
+
+    private string _subscriptionEmail = "";
+    private string _subscriptionValidation1 = "";
+    private string _subscriptionValidation2 = "true";
+    private string _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+    private int _blogModuleId;
+    private List<Module> _modules;
+    private string _moduleId = "-1";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _blogModuleId = int.Parse(SettingService.GetSetting(ModuleState.Settings, "BlogModuleId", "-1"));
+            if (_blogModuleId == -1)
+            {
+                _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Blog Modules {Error}", ex.Message);
+        }
+    }
+
+    private async Task Subscribe()
+    {
+        if (!string.IsNullOrEmpty(_subscriptionEmail) && Utilities.IsValidEmail(_subscriptionEmail))
+        {
+            // bot validation
+            if (_subscriptionValidation1.Length == 0 && _subscriptionValidation2.Length == 19 && DateTime.TryParseExact(_subscriptionValidation2, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp1) &&
+              _subscriptionValidation3.Length == 19 && DateTime.TryParseExact(_subscriptionValidation3, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timestamp2) &&
+              (timestamp1 - timestamp2).TotalSeconds >= _mintime && (timestamp1 - timestamp2).TotalSeconds <= _maxtime &&
+              (DateTime.UtcNow - timestamp2).TotalSeconds >= _mintime && (DateTime.UtcNow - timestamp2).TotalSeconds <= _maxtime)
+            {
+                var subscriber = new BlogSubscriber();
+                subscriber.ModuleId = _blogModuleId;
+                subscriber.Email = _subscriptionEmail;
+                await BlogSubscriberService.AddBlogSubscriberAsync(subscriber);
+                AddModuleMessage(Localizer["Activated"], MessageType.Success);
+                _subscriptionEmail = "";
+            }
+            else
+            {
+                // clear fields for bot
+                _subscriptionEmail = "";
+                _subscriptionValidation1 = "";
+                _subscriptionValidation2 = "false";
+                _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            }
+        }
+        else
+        {
+            AddModuleMessage(Localizer["EmailInvalid"], MessageType.Warning);
+        }
+    }
+
+    private async Task Save()
+    {
+        if (_moduleId != "-1")
+        {
+            var settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            settings = SettingService.SetSetting(settings, "BlogModuleId", _moduleId);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+            _blogModuleId = int.Parse(_moduleId);
+        }
+    }
+}
