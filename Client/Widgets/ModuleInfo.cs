@@ -8,8 +8,8 @@ namespace Oqtane.Blogs.Widgets
         public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
             Name = "Blog Widgets",
-            Description = "Blog Widgets",
-            Version = "6.0.1",
+            Description = "Widgets For Displaying Blog Posts In A Variety Of Formats",
+            Version = "6.0.2",
             Dependencies = "Oqtane.Blogs.Shared.Oqtane",
             SettingsType = "Oqtane.Blogs.Widgets.Settings, Oqtane.Blogs.Client.Oqtane",
             PackageName = "Oqtane.Blogs.Widgets"

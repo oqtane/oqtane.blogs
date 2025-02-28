@@ -41,17 +41,23 @@ namespace Oqtane.Blogs.Controllers
 
                 if (BlogSubscriber != null)
                 {
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Subscriber Added {BlogSubscriber}", BlogSubscriber);
-
                     var settings = _SettingRepository.GetSettings(EntityNames.Module, BlogSubscriber.ModuleId);
-                    var alias = HttpContext.GetAlias();
-                    var pagepath = settings.First(item => item.SettingName == "PagePath").SettingValue;
-                    var sender = settings.First(item => item.SettingName == "Sender").SettingValue;
-                    var body = "Thank You For Subscribing To Our Blog. Please Verify Your Email Address By Clicking The Link Below.";
-                    var url = alias.Protocol + alias.Name + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + BlogSubscriber.Guid + "&action=verify");
-                    body += $"<br /><br />Verify: <a href=\"{url}\">{url}</a>";
-                    var notification = new Notification(alias.SiteId, "", sender, "", BlogSubscriber.Email, "Blog Subscription", body);
-                    _NotificationRepository.AddNotification(notification);
+                    if (settings.Any(item => item.SettingName == "Sender"))
+                    {
+                        var sender = settings.First(item => item.SettingName == "Sender").SettingValue;
+                        var pagepath = settings.First(item => item.SettingName == "PagePath").SettingValue;
+                        var alias = HttpContext.GetAlias();
+                        var body = "Thank You For Subscribing To Our Blog. Please Verify Your Email Address By Clicking The Link Below.";
+                        var url = alias.Protocol + alias.Name + Utilities.NavigateUrl(alias.Path, pagepath, "guid=" + BlogSubscriber.Guid + "&action=verify");
+                        body += $"<br /><br />Verify: <a href=\"{url}\">{url}</a>";
+                        var notification = new Notification(alias.SiteId, "", sender, "", BlogSubscriber.Email, "Blog Subscription", body);
+                        _NotificationRepository.AddNotification(notification);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Blog Subscriber Added {BlogSubscriber}", BlogSubscriber);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Create, "Blog Subscription Sender Not Configured In Blog Settings");
+                    }
                 }
             }
         }
