@@ -139,7 +139,7 @@
     <value>Error Loading Blogs</value>
   </data>
   <data name="Activated" xml:space="preserve">
-    <value>Your Email Subscription Has Been Received. Please Check Your Email For Further Instructions.</value>
+    <value>Your Blog Subscription Has Been Received. Please Check Your Email For Further Instructions.</value>
   </data>
   <data name="Email" xml:space="preserve">
     <value>Your Email</value>
@@ -151,7 +151,7 @@
     <value>No Blogs Have Been Published</value>
   </data>
   <data name="Notify" xml:space="preserve">
-    <value>Receive Notifications...</value>
+    <value>Receive Blog Notifications...</value>
   </data>
   <data name="RSS" xml:space="preserve">
     <value>RSS</value>

@@ -32,13 +32,14 @@ namespace Oqtane.Blogs.Repository
         public BlogSubscriber AddBlogSubscriber(BlogSubscriber BlogSubscriber)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            if (!db.BlogSubscriber.Any(item => item.Email == BlogSubscriber.Email))
+            var blogsubscriber = db.BlogSubscriber.AsNoTracking().FirstOrDefault(item => item.Email == BlogSubscriber.Email);
+            if (blogsubscriber == null)
             {
                 db.BlogSubscriber.Add(BlogSubscriber);
                 db.SaveChanges();
                 return BlogSubscriber;
             }
-            return null;
+            return blogsubscriber;
         }
 
         public BlogSubscriber UpdateBlogSubscriber(BlogSubscriber BlogSubscriber)
