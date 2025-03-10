@@ -70,7 +70,7 @@ namespace Oqtane.Blogs.Controllers
             {
                 blogComment.Name = WebUtility.HtmlEncode(blogComment.Name);
                 blogComment.Email = WebUtility.HtmlEncode(blogComment.Email);
-                blogComment.Comment = WebUtility.HtmlEncode(blogComment.Comment);
+                blogComment.Comment = WebUtility.HtmlEncode(blogComment.Comment).Replace("&#39;", "'");
                 blogComment.IsPublished = _userPermissions.IsAuthorized(User, _alias.SiteId,EntityNames.Module, blog.ModuleId, PermissionNames.Edit);
                 blogComment = _blogCommentRepository.AddBlogComment(blogComment);
                 if (!blogComment.IsPublished)
