@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Activated" xml:space="preserve">
-    <value>Your Email Subscription Has Been Received. Please Check Your Email For Further Instructions.</value>
+    <value>Your Blog Subscription Has Been Received. Please Check Your Email For Further Instructions.</value>
   </data>
   <data name="Email" xml:space="preserve">
     <value>Your Email</value>
@@ -134,5 +134,8 @@
   </data>
   <data name="Blog" xml:space="preserve">
     <value>Blog:</value>
+  </data>
+  <data name="Notify" xml:space="preserve">
+    <value>Receive Blog Notifications...</value>
   </data>
 </root>
