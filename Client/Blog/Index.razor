@@ -275,6 +275,11 @@ else
     private string _subscriptionValidation3 = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
     private string _rss = "";
 
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
     protected override async Task OnParametersSetAsync()
     {
         try

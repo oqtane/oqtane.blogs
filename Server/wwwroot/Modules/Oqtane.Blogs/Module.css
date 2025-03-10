@@ -1,1 +1,4 @@
 /* Module Custom Styles */
+blockquote {
+    font-size: var(--bs-body-font-size) !important;
+}
