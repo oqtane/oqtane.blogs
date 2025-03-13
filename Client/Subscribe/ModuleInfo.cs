@@ -9,7 +9,7 @@ namespace Oqtane.Blogs.Subscribe
         {
             Name = "Blog Subscription",
             Description = "Blog Subscription Form",
-            Version = "6.0.3",
+            Version = "6.1.1",
             PackageName = "Oqtane.Blogs"
         };
     }
