@@ -44,6 +44,7 @@
             .Distinct()
             .OrderByDescending(i => i);
 
+        var totalCount = 0;
         foreach(var year in years)
         {
             itemsBuilder.Append($"<ul><li><span></span>{year}<ul>");
@@ -62,9 +63,20 @@
                 var count = dates.Count(i => i.Year == year && i.Month == month.Value);
                 var url = $"{blogUrl}?year={year}&month={month.Value}";
                 itemsBuilder.Append($"<li><a href=\"{url}\">{month.Name} ({count})</a></li>");
+
+                totalCount++;
+                if (totalCount >= ItemsCount)
+                {
+                    break;
+                }
             }
 
             itemsBuilder.Append("</ul></li></ul>");
+
+            if (totalCount >= ItemsCount)
+            {
+                break;
+            }
         }
 
         return itemsBuilder.ToString();
