@@ -26,7 +26,7 @@ namespace Oqtane.Blogs.Migrations
 
             var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             blogSubscriberEntityBuilder.Create();
-            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogSubscriber") + " SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Subscriber"));
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogSubscriber") + "(ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn) SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Subscriber"));
             var subscriberEntityBuilder = new SubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             subscriberEntityBuilder.Drop();
         }
@@ -35,7 +35,7 @@ namespace Oqtane.Blogs.Migrations
         {
             var subscriberEntityBuilder = new SubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             subscriberEntityBuilder.Create();
-            migrationBuilder.Sql("INSERT INTO " + RewriteName("Subscriber") + " SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("BlogSubscriber"));
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("Subscriber") + "(ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn) SELECT ModuleId, Email, Guid, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("BlogSubscriber"));
             var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             blogSubscriberEntityBuilder.Drop();
 
