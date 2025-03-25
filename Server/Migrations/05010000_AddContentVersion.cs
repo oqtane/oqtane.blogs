@@ -21,7 +21,7 @@ namespace Oqtane.Blogs.Migrations
             blogContentEntityBuilder.Create();
 
             //merge content
-            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogContent") + " SELECT BlogId, 1, Summary, Content, Published, CreatedOn, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Blog"));
+            migrationBuilder.Sql("INSERT INTO " + RewriteName("BlogContent") + "(BlogId, Version, Summary, Content, IsPublished, PublishDate, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn) SELECT BlogId, 1, Summary, Content, Published, CreatedOn, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn FROM " + RewriteName("Blog"));
 
             var blogEntityBuilder = new BlogEntityBuilder(migrationBuilder, ActiveDatabase);
             blogEntityBuilder.DropColumn("Published");
