@@ -47,7 +47,7 @@ else
                         <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
                         <div class="input-group mb-2">
                             <span class="input-group-text">@Localizer["Blog"]</span>
-                            <select name="moduleId" class="form-select">
+                            <select name="moduleId" class="form-select" @bind="@moduleId">
                                 <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                 @if (_modules != null)
                                 {
