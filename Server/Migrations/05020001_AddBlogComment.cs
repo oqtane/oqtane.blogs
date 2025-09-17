@@ -22,7 +22,7 @@ namespace Oqtane.Blogs.Migrations
 
             var blogEntityBuilder = new BlogEntityBuilder(migrationBuilder, ActiveDatabase);
             blogEntityBuilder.AddBooleanColumn("AllowComments", true);
-            blogEntityBuilder.UpdateColumn("AllowComments", "1", "bool", "");
+            blogEntityBuilder.UpdateData("AllowComments", true);
 
             var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             blogSubscriberEntityBuilder.Create();

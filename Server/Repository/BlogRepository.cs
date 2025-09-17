@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Oqtane.Modules;
 using Oqtane.Blogs.Models;
 using System;
-using Oqtane.Blogs.Shared;
 
 namespace Oqtane.Blogs.Repository
 {
