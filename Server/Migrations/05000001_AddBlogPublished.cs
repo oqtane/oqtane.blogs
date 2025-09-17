@@ -20,7 +20,7 @@ namespace Oqtane.Blogs.Migrations
         {
             var blogEntityBuilder = new BlogEntityBuilder(migrationBuilder, ActiveDatabase);
             blogEntityBuilder.AddBooleanColumn("Published", true);
-            blogEntityBuilder.UpdateColumn("Published", "1", "bool", "");
+            blogEntityBuilder.UpdateData("Published", true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

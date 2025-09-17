@@ -19,7 +19,7 @@ namespace Oqtane.Blogs.Migrations
         {
             var blogSubscriberEntityBuilder = new BlogSubscriberEntityBuilder(migrationBuilder, ActiveDatabase);
             blogSubscriberEntityBuilder.AddBooleanColumn("IsVerified", true);
-            blogSubscriberEntityBuilder.UpdateColumn("IsVerified", "1", "bool", "");
+            blogSubscriberEntityBuilder.UpdateData("IsVerified", true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

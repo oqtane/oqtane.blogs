@@ -12,7 +12,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
-using Oqtane.Extensions;
 using System.Linq;
 
 namespace Oqtane.Blogs.Controllers

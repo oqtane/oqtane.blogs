@@ -2,14 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using Oqtane.Shared;
-using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Blogs.Models;
 using Oqtane.Blogs.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Controllers;
 using Oqtane.Models;
-using System.Linq;
 
 namespace Oqtane.Blogs.Controllers
 {

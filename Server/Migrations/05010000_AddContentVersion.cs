@@ -51,7 +51,7 @@ namespace Oqtane.Blogs.Migrations
             blogEntityBuilder.AddBooleanColumn("Published", true);
             blogEntityBuilder.AddStringColumn("Summary", 2000);
             blogEntityBuilder.AddMaxStringColumn("Content");
-            blogEntityBuilder.UpdateColumn("Published", "1", "bool", "");
+            blogEntityBuilder.UpdateData("Published", true);
 
             //merge content
             migrationBuilder.Sql("UPDATE b SET b.Summary = c.Summary, b.Content = c.Content, b.Published = c.IsPublished " +
