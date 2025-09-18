@@ -30,7 +30,9 @@
         var searchQuery = new BlogSearch
         {
             PageIndex = 0,
-            PageSize = ItemsCount
+            PageSize = ItemsCount,
+            SortBy = "views",
+            SortByDescending = true
         };
 
         Blogs = await BlogService.GetBlogsAsync(BlogModuleId, searchQuery);
