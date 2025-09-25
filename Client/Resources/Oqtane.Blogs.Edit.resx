@@ -219,4 +219,7 @@
   <data name="Categories.Required" xml:space="preserve">
     <value>Please select at least one category</value>
   </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
 </root>
