@@ -2,6 +2,8 @@
 
 [6.2.0](https://github.com/oqtane/oqtane.blogs/releases/tag/v6.2.0) was released on Sep 18, 2025.
 
+**Please Note** this module must be used with Oqtane 6.2.0 or higher as it now uses a Nuget package with a standard nuspec and static asset approach
+
 # Blog Module
 
 This module allows an authorized user to create blog entries including title, summary, and description. Content can contain HTML formatting, links, and images. The module provides custom templating capabilities so that you can customize the display to suit your needs. It has search functionality so that users can easily locate a specific blog by keyword. It supports site maps so that the blog entries are indexable by search engines. It allows users to subscribe and be notified by email when new blogs are published (unsubscribe is also supported to comply with spam regulations). An RSS feed is also available for content syndication. 
